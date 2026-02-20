@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suntzugi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#1e2a4a;color:#d4d8e8;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:300;min-height:100vh;overflow:hidden;cursor:default}
+  .grain{position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.18;mix-blend-mode:screen}
+  #scene{position:fixed;inset:0;z-index:2;pointer-events:none}
+  .moonlight{position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(ellipse 90% 80% at var(--mx,45%) var(--my,15%),rgba(180,190,240,.16) 0%,rgba(130,150,210,.07) 25%,rgba(30,42,74,0) 65%);transition:background .15s linear}
+  .vignette{position:fixed;inset:0;z-index:3;pointer-events:none;
+    background:radial-gradient(ellipse at center,transparent 35%,rgba(10,14,30,.45) 100%)}
+
+  /* ── Layout ── */
+  .content{
+    position:relative;z-index:10;min-height:100vh;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:6vh 10vw;
+    user-select:text;-webkit-user-select:text;
+  }
+  .ci{
+    max-width:640px;opacity:0;transform:translateY(22px);
+    animation:rv 1.2s cubic-bezier(.22,1,.36,1) .2s forwards;
+  }
+  @keyframes rv{to{opacity:1;transform:translateY(0)}}
+
+  /* ── Title ── */
+  .title{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;font-style:italic;
+    font-size:clamp(3.2rem,8vw,6.5rem);
+    line-height:1;letter-spacing:-.03em;
+    margin-bottom:0;
+  }
+  .syl{
+    display:inline-block;
+    cursor:default;pointer-events:auto;
+    transition:color .35s ease;
+    position:relative;
+  }
+  .syl:hover,.syl.lit{color:#f2a0b5}
+
+  /* ── Annotation zone — fixed height, no overlap ── */
+  .hover-zone{
+    pointer-events:auto;
+    position:relative;
+  }
+  .anno-zone{
+    min-height:220px;
+    margin-top:1.2rem;
+    margin-bottom:2rem;
+    position:relative;
+  }
+  .anno-card{
+    position:absolute;inset:0;
+    opacity:0;
+    transform:translateY(6px);
+    transition:opacity .4s ease, transform .4s cubic-bezier(.22,1,.36,1);
+    pointer-events:none;
+  }
+  .anno-card.show{
+    opacity:1;transform:translateY(0);pointer-events:auto;
+    user-select:text;-webkit-user-select:text;
+  }
+
+  /* Card inner layout */
+  .ac-top{
+    display:flex;align-items:baseline;gap:1rem;
+    margin-bottom:.5rem;
+  }
+  .ac-char{
+    font-family:'Cormorant Garamond',serif;
+    font-size:2rem;font-weight:300;
+    color:#f2a0b5;opacity:.65;
+    line-height:1;
+  }
+  .ac-label{
+    font-family:'Zen Kaku Gothic New',sans-serif;
+    font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+    color:#6b7394;
+  }
+  .ac-body{
+    font-family:'Cormorant Garamond',serif;
+    font-size:.92rem;font-weight:300;font-style:italic;
+    color:#a0a8c8;
+    line-height:1.7;
+    max-width:500px;
+  }
+  .ac-quote{
+    font-family:'Cormorant Garamond',serif;
+    font-size:.88rem;font-weight:300;font-style:italic;
+    color:#c0c6de;opacity:.7;
+    line-height:1.6;
+    margin-top:.6rem;
+    padding-left:1rem;
+    border-left:1px solid rgba(242,160,181,.2);
+    max-width:400px;
+  }
+  .ac-quote .attr{
+    display:block;
+    margin-top:.2rem;
+    font-style:normal;font-size:.6rem;
+    letter-spacing:.15em;text-transform:uppercase;
+    color:#6b7394;
+  }
+  .ac-body a, .ac-link{
+    color:#f2a0b5;opacity:.7;
+    text-decoration:none;
+    border-bottom:1px solid rgba(242,160,181,.25);
+    transition:opacity .3s ease, border-color .3s ease;
+    pointer-events:auto;
+  }
+  .ac-body a:hover, .ac-link:hover{
+    opacity:1;border-color:rgba(242,160,181,.6);
+  }
+  .ac-sep{
+    width:40px;height:1px;
+    background:rgba(242,160,181,.15);
+    margin:.8rem 0;
+  }
+
+  /* ── Paragraph text — always visible ── */
+  .body-text{
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(.95rem,1.6vw,1.1rem);
+    font-weight:300;
+    color:#7a84a8;
+    line-height:1.9;
+    max-width:440px;
+    letter-spacing:.01em;
+    opacity:0;pointer-events:none;
+    transition:opacity .4s ease;
+  }
+</style>
+</head>
+<body>
+<div class="grain"><canvas id="grain"></canvas></div>
+<canvas id="scene"></canvas>
+<div class="moonlight" id="moon"></div>
+<div class="vignette"></div>
+
+<div class="content"><div class="ci">
+
+  <div class="hover-zone" id="hoverZone">
+  <h1 class="title" id="title"><span class="syl" data-i="0">Sun</span><span class="syl" data-i="1">tzu</span><span class="syl" data-i="2">gi</span></h1>
+
+  <!-- Annotation zone: only one card visible at a time -->
+  <div class="anno-zone" id="annoZone">
+
+    <!-- Single: Sun -->
+    <div class="anno-card" id="card-sun">
+      <div class="ac-top">
+        <span class="ac-char">孫</span>
+        <span class="ac-label">sūn · chinese — descendant, the eternal child</span>
+      </div>
+      <div class="ac-body">
+        The sun — the star that gave life to everything on earth without ever
+        asking to be close to it. Warmth from a distance. Light as a gift, not a transaction.
+        In Chinese, sūn 孫 means grandchild, descendant — the eternal child.
+        To embody the sun is to give like it does: endlessly, from where you are,
+        trusting that the light will reach what it needs to reach.
+      </div>
+      <div class="ac-quote">
+        "Truly I tell you, unless you change and become like little children, you will never enter the kingdom of heaven."
+        <span class="attr">— Matthew 18:3</span>
+      </div>
+    </div>
+
+    <!-- Single: tzu -->
+    <div class="anno-card" id="card-tzu">
+      <div class="ac-top">
+        <span class="ac-char">子</span>
+        <span class="ac-label">zǐ · chinese — master, child</span>
+      </div>
+      <div class="ac-body">
+        The master, the teacher — the one who studies.
+        To learn is to master, and the eternal master remains forever a student.
+      </div>
+    </div>
+
+    <!-- Single: gi -->
+    <div class="anno-card" id="card-gi">
+      <div class="ac-top">
+        <span class="ac-char">龜</span>
+        <span class="ac-label">guī · chinese — turtle</span>
+      </div>
+      <div class="ac-body">
+        The turtle — patient building that scales exponentially on a solid foundation.
+        In myth, the turtle carries the world on its back — reality itself resting on quiet endurance.
+        Home is wherever you are, because you carry it with you.
+        Move with grace and fix things — not fast and break things like the rabbit of Silicon Valley.
+      </div>
+    </div>
+
+    <!-- Compound: SunTzu -->
+    <div class="anno-card" id="card-suntzu">
+      <div class="ac-top">
+        <span class="ac-char">孫子</span>
+        <span class="ac-label">sūn zǐ · chinese — the art of war</span>
+      </div>
+      <div class="ac-body">
+        The ancient strategist who taught that the greatest victories require no battle.
+      </div>
+      <div class="ac-quote">
+        "The supreme art of war is to subdue the enemy without fighting."
+        <span class="attr">— Sun Tzu, The Art of War</span>
+      </div>
+    </div>
+
+    <!-- Compound: Tzugi -->
+    <div class="anno-card" id="card-tzugi">
+      <div class="ac-top">
+        <span class="ac-char">継ぎ · 子龜</span>
+        <span class="ac-label">tsugi (japanese) · zǐ guī (chinese) — to repair · master turtle</span>
+      </div>
+      <div class="ac-body">
+        Tsugi 継ぎ — to mend, to continue, to join what was broken. In Japanese,
+        it is the heart of kintsugi 金継ぎ, the art of repairing broken pottery with
+        gold — making the fracture part of the beauty, not something to hide.
+        The break becomes the most luminous part.
+      </div>
+      <div class="ac-sep"></div>
+      <div class="ac-body">
+        But Tzu Gui is also Master Turtle — 子龜. An echo of Master Oogway, the
+        tortoise who saw potential where no one else looked. Sun grew up as Po —
+        the passionate outsider with no secret ingredient, no lineage, no traditional
+        path. Just earnest, stubborn love for the craft. And that was always enough
+        to become the Dragon Warrior. But time turns Po into Oogway — the one who
+        must now lead, who must help others ascend the same mountain. Before this
+        name there was <a href="https://x.com/suntzoogway" target="_blank">Suntzoogway</a> —
+        Suntzugi is the abbreviation, the neologism, the next chapter.
+      </div>
+    </div>
+
+    <!-- Full word: Suntzugi -->
+    <div class="anno-card" id="card-full">
+      <div class="ac-top">
+        <span class="ac-char">Suntzugi</span>
+        <span class="ac-label">the philosophy and the man</span>
+      </div>
+      <div class="ac-body">
+        Mastering the art of repairing with light —
+        the belief that the world can be mended with love,
+        just as the sun brought life to earth from its
+        quiet position in the heavens. A neologism built from
+        Chinese, Japanese, and the memory of a turtle who
+        carried everything on his back and kept walking.
+      </div>
+      <div class="ac-body" style="margin-top:.5rem">
+        <a href="https://x.com/suntzugi" target="_blank">@suntzugi</a>
+      </div>
+    </div>
+
+  </div>
+  </div><!-- end hover-zone -->
+
+  <p class="body-text">
+    A practice of turning fractures into constellations.
+    Where others see damage, Suntzugi sees the place
+    where light enters. Not hiding the break, but
+    illuminating it — with the patience of a turtle
+    and the warmth of the sun.
+  </p>
+
+</div></div>
+
+<script>
+// ── Annotation hover system ──
+// Leave detection on the whole hover-zone (title + annotation text)
+// Card selection driven by individual syllable enter events
+(function(){
+  const syls = document.querySelectorAll('.syl');
+  const zone = document.getElementById('hoverZone');
+  const cards = {
+    sun: document.getElementById('card-sun'),
+    tzu: document.getElementById('card-tzu'),
+    gi: document.getElementById('card-gi'),
+    suntzu: document.getElementById('card-suntzu'),
+    tzugi: document.getElementById('card-tzugi'),
+    full: document.getElementById('card-full'),
+  };
+
+  let activeCard = null;
+  let hoverHistory = []; // [{index, time}]
+  let leaveTimer = null;
+  let insideZone = false;
+
+  function showCard(name){
+    if(activeCard === name) return;
+    Object.values(cards).forEach(c => c.classList.remove('show'));
+    if(cards[name]){
+      cards[name].classList.add('show');
+      activeCard = name;
+    }
+  }
+
+  function hideAll(){
+    Object.values(cards).forEach(c => c.classList.remove('show'));
+    syls.forEach(s => s.classList.remove('lit'));
+    activeCard = null;
+    hoverHistory = [];
+  }
+
+  function evaluateState(currentSyl){
+    const now = Date.now();
+    const recent = hoverHistory.filter(h => now - h.time < 1200);
+    const indices = new Set(recent.map(h => h.index));
+
+    // Full word: all 3 visited OR compound + third syllable
+    if(indices.has(0) && indices.has(1) && indices.has(2)){
+      syls.forEach(s => s.classList.add('lit'));
+      showCard('full');
+      return;
+    }
+    if(activeCard === 'suntzu' && currentSyl === 2){
+      hoverHistory.push({index:2, time:now});
+      syls.forEach(s => s.classList.add('lit'));
+      showCard('full');
+      return;
+    }
+    if(activeCard === 'tzugi' && currentSyl === 0){
+      hoverHistory.push({index:0, time:now});
+      syls.forEach(s => s.classList.add('lit'));
+      showCard('full');
+      return;
+    }
+
+    // Compound: Sun+tzu
+    if(indices.has(0) && indices.has(1)){
+      syls[0].classList.add('lit'); syls[1].classList.add('lit');
+      syls[2].classList.remove('lit');
+      showCard('suntzu');
+      return;
+    }
+    if(activeCard === 'sun' && currentSyl === 1){
+      hoverHistory.push({index:0, time:now});
+      syls[0].classList.add('lit'); syls[1].classList.add('lit');
+      syls[2].classList.remove('lit');
+      showCard('suntzu');
+      return;
+    }
+
+    // Compound: tzu+gi
+    if(indices.has(1) && indices.has(2)){
+      syls[1].classList.add('lit'); syls[2].classList.add('lit');
+      syls[0].classList.remove('lit');
+      showCard('tzugi');
+      return;
+    }
+    if(activeCard === 'tzu' && currentSyl === 2){
+      hoverHistory.push({index:1, time:now});
+      syls[1].classList.add('lit'); syls[2].classList.add('lit');
+      syls[0].classList.remove('lit');
+      showCard('tzugi');
+      return;
+    }
+
+    // Single
+    syls.forEach((s,j) => j===currentSyl ? s.classList.add('lit') : s.classList.remove('lit'));
+    showCard(['sun','tzu','gi'][currentSyl]);
+  }
+
+  // Syllable enter — drives card selection
+  syls.forEach((el, i) => {
+    el.addEventListener('mouseenter', () => {
+      if(leaveTimer){clearTimeout(leaveTimer);leaveTimer=null}
+      hoverHistory.push({index:i, time:Date.now()});
+      if(hoverHistory.length > 12) hoverHistory = hoverHistory.slice(-8);
+      evaluateState(i);
+    });
+  });
+
+  // Zone-level leave — only hide when cursor exits the ENTIRE zone
+  zone.addEventListener('mouseenter', () => {
+    insideZone = true;
+    if(leaveTimer){clearTimeout(leaveTimer);leaveTimer=null}
+  });
+
+  zone.addEventListener('mouseleave', () => {
+    insideZone = false;
+    leaveTimer = setTimeout(() => {
+      if(!insideZone) hideAll();
+    }, 500);
+  });
+})();
+</script>
+
+<script>
+// W, H = original canvas resolution (tree coordinate space)
+const W=window.innerWidth, H=window.innerHeight;
+let mx=-9999,my=-9999,nmx=.5,nmy=.5,smx=.5,smy=.5;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  nmx=mx/W; nmy=my/H;
+},{passive:true});
+
+const moonEl=document.getElementById('moon');
+function updateMoon(){smx+=(nmx-smx)*.08;smy+=(nmy-smy)*.08;moonEl.style.setProperty('--mx',(25+smx*40)+'%');moonEl.style.setProperty('--my',(3+smy*20)+'%')}
+
+// Regenerate tree on resize (debounced — waits until user stops resizing)
+let resizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>location.reload(), 300);
+});
+
+
+// ═══════════════════════════════════════════════
+// 1. PROCEDURAL BONSAI GENERATOR
+// ═══════════════════════════════════════════════
+function bzPt(t,x0,y0,cx0,cy0,cx1,cy1,x1,y1){
+  const i=1-t;
+  return{x:i*i*i*x0+3*i*i*t*cx0+3*i*t*t*cx1+t*t*t*x1, y:i*i*i*y0+3*i*i*t*cy0+3*i*t*t*cy1+t*t*t*y1};
+}
+
+const R=Math.random;
+const allBranches=[];
+const petalAnchors=[];
+
+function makeBranch(x0,y0,cx0,cy0,cx1,cy1,x1,y1,thS,thE,parent,forkT,depth){
+  const b={x0,y0,cx0,cy0,cx1,cy1,x1,y1,thS,thE,parent,forkT,depth,
+    children:[],drawProg:0,drawSpeed:0,idx:allBranches.length};
+  const len=Math.sqrt((x1-x0)**2+(y1-y0)**2);
+  b.drawSpeed = Math.max(len,60) / 120;
+  allBranches.push(b);
+  return b;
+}
+
+function addPetalsAlongBranch(b, count){
+  if(count<=0)return;
+  for(let i=0;i<count;i++){
+    const t=.15+R()*.85;
+    const p=bzPt(t,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+    const t2=Math.min(t+.03,1);
+    const p2=bzPt(t2,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+    const nx=-(p2.y-p.y),ny=p2.x-p.x,nl=Math.sqrt(nx*nx+ny*ny)||1;
+    const side=R()<.5?1:-1,off=2+R()*7;
+    petalAnchors.push({x:p.x+(nx/nl)*side*off,y:p.y+(ny/nl)*side*off-R()*3,brIdx:b.idx,t});
+  }
+  for(let i=0;i<Math.ceil(count*.4);i++){
+    petalAnchors.push({x:b.x1+(R()-.5)*14,y:b.y1+(R()-.5)*10-2,brIdx:b.idx,t:.95+R()*.05});
+  }
+}
+
+function genBonsai(parent, forkT, x, y, angle, length, thickness, depth, maxDepth, side){
+  if(depth>maxDepth||thickness<.7)return;
+  const bendStr=(.2+R()*.5)*(R()<.5?1:-1);
+  const ex=x+Math.cos(angle)*length,ey=y+Math.sin(angle)*length;
+  const m1=.33,m2=.66;
+  const cx0=x+Math.cos(angle+bendStr*.4)*length*m1;
+  const cy0=y+Math.sin(angle+bendStr*.4)*length*m1;
+  const cx1=x+Math.cos(angle-bendStr*.2)*length*m2;
+  const cy1=y+Math.sin(angle-bendStr*.2)*length*m2;
+  const thEnd=thickness*(depth<1?.55:.4+R()*.2);
+  const b=makeBranch(x,y,cx0,cy0,cx1,cy1,ex,ey,thickness,Math.max(thEnd,.5),parent,forkT,depth);
+  if(parent)parent.children.push(b);
+  const petalCount=depth>=2?5+Math.floor(R()*6):(depth>=1?2+Math.floor(R()*3):0);
+  addPetalsAlongBranch(b,petalCount);
+
+  let numKids;
+  if(depth===0)numKids=2+Math.floor(R()*2);
+  else if(depth===1)numKids=2+Math.floor(R()*2);
+  else if(depth===2)numKids=1+Math.floor(R()*2);
+  else numKids=R()<.6?1:0;
+
+  const forkSpots=[];
+  for(let i=0;i<numKids;i++)forkSpots.push(.35+R()*.55);
+  forkSpots.sort((a,c)=>a-c);
+
+  for(let i=0;i<numKids;i++){
+    const ft=forkSpots[i];
+    const forkPt=bzPt(ft,x,y,cx0,cy0,cx1,cy1,ex,ey);
+    const spreadBase=depth<2?(.6+R()*.6):(.4+R()*.5);
+    const childSide=(i%2===0?-1:1)*(side||1);
+    const spreadAngle=spreadBase*childSide;
+    const ft2=Math.min(ft+.02,1);
+    const fp2=bzPt(ft2,x,y,cx0,cy0,cx1,cy1,ex,ey);
+    const tangent=Math.atan2(fp2.y-forkPt.y,fp2.x-forkPt.x);
+    const childAngle=tangent+spreadAngle+(R()-.5)*.2;
+    const childLen=length*(.45+R()*.2);
+    const childThick=thickness*(.4+R()*.2);
+    genBonsai(b,ft,forkPt.x,forkPt.y,childAngle,childLen,childThick,depth+1,maxDepth,childSide);
+  }
+}
+
+// Responsive tree position: keep on screen even on phone
+const isMobile = W < 768;
+const bx = isMobile ? W*(.5+R()*.15) : Math.min(W*(.65+R()*.1), W-80);
+const by = H*1.01;
+const trunkAngle=-Math.PI/2+(R()-.5)*.2;
+const trunkLen = isMobile ? Math.min(H,W)*(.3+R()*.06) : H*(.25+R()*.08);
+const trunkThick = isMobile ? 18+R()*6 : 22+R()*8;
+const maxD=4+Math.floor(R()*2);
+genBonsai(null,0,bx,by,trunkAngle,trunkLen,trunkThick,0,maxD,1);
+const t2angle=trunkAngle+(.2+R()*.3)*(R()<.5?-1:1);
+genBonsai(null,0,bx+(R()-.5)*8,by,t2angle,trunkLen*(.5+R()*.2),trunkThick*.45,1,maxD-1,-1);
+
+// Add small flowering spurs to depth 0-1 branches (like real bonsai)
+allBranches.forEach(b => {
+  if(b.depth > 1) return;
+  const numSpurs = b.depth === 0 ? 2+Math.floor(R()*3) : 1+Math.floor(R()*2);
+  for(let s=0; s<numSpurs; s++){
+    const ft = .25 + R()*.6; // position along parent
+    const fp = bzPt(ft, b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+    const ft2 = Math.min(ft+.02, 1);
+    const fp2 = bzPt(ft2, b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+    const tang = Math.atan2(fp2.y-fp.y, fp2.x-fp.x);
+    const side = (s%2===0?1:-1) * (R()<.3?-1:1);
+    const spurAngle = tang + side*(.6+R()*.8);
+    const spurLen = 15+R()*20;
+    const ex = fp.x+Math.cos(spurAngle)*spurLen;
+    const ey = fp.y+Math.sin(spurAngle)*spurLen;
+    const cx0 = fp.x+Math.cos(spurAngle+.2)*spurLen*.4;
+    const cy0 = fp.y+Math.sin(spurAngle+.2)*spurLen*.4;
+    const cx1 = fp.x+Math.cos(spurAngle-.1)*spurLen*.7;
+    const cy1 = fp.y+Math.sin(spurAngle-.1)*spurLen*.7;
+    const spur = makeBranch(fp.x,fp.y,cx0,cy0,cx1,cy1,ex,ey, 2, .6, b, ft, b.depth+2);
+    b.children.push(spur);
+    addPetalsAlongBranch(spur, 4+Math.floor(R()*4));
+  }
+});
+
+
+// ═══════════════════════════════════════════════
+// 2. ANIMATION
+// ═══════════════════════════════════════════════
+function easeOut(t){return 1-(1-t)*(1-t)*(1-t)}
+
+function updateDrawProgress(dt){
+  for(let i=0;i<allBranches.length;i++){
+    const b=allBranches[i];
+    if(b.drawProg>=1)continue;
+    let canStart=!b.parent||b.parent.drawProg>=b.forkT;
+    if(canStart) b.drawProg=Math.min(b.drawProg+dt/b.drawSpeed,1);
+  }
+}
+function allDrawn(){for(let i=0;i<allBranches.length;i++)if(allBranches[i].drawProg<1)return false;return true}
+
+function renderFullTree(ctx){
+  ctx.clearRect(0,0,W,H);ctx.lineCap='round';ctx.lineJoin='round';
+  for(let i=0;i<allBranches.length;i++){
+    const b=allBranches[i];const segs=35;
+    for(let j=0;j<segs;j++){
+      const t0=j/segs,t1=(j+1)/segs;
+      const p0=bzPt(t0,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+      const p1=bzPt(t1,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+      const w=b.thS+(b.thE-b.thS)*((t0+t1)/2);
+      ctx.strokeStyle='#0a0608';ctx.lineWidth=Math.max(w,.4);
+      ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p1.x,p1.y);ctx.stroke();
+    }
+  }
+}
+
+
+// ═══════════════════════════════════════════════
+// 3. PETAL SPRITES
+// ═══════════════════════════════════════════════
+const PC=[[245,175,195],[255,140,180],[250,225,235],[230,120,160]];
+
+function makeFlower(r,g,b,sz){
+  const d=Math.ceil(sz*7),c=document.createElement('canvas');c.width=d;c.height=d;
+  const x=c.getContext('2d'),cx=d/2,cy=d/2;
+  const gr=x.createRadialGradient(cx,cy,0,cx,cy,sz*2);
+  gr.addColorStop(0,`rgba(${r},${g},${b},.4)`);gr.addColorStop(.5,`rgba(${r},${g},${b},.12)`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+  x.fillStyle=gr;x.fillRect(0,0,d,d);
+  x.fillStyle=`rgba(${r},${g},${b},.95)`;
+  for(let i=0;i<5;i++){const a=(Math.PI*2*i)/5;x.save();x.translate(cx,cy);x.rotate(a);x.translate(sz*.35,0);x.beginPath();x.ellipse(0,0,sz*.5,sz*.25,0,0,Math.PI*2);x.fill();x.restore()}
+  x.fillStyle='rgba(255,240,245,.7)';x.beginPath();x.arc(cx,cy,sz*.12,0,Math.PI*2);x.fill();
+  return{canvas:c,cx:d/2,cy:d/2};
+}
+
+function makePetal(r,g,b,sz){
+  const s=sz*1.2,p=4,dw=Math.ceil(s*1.2+p*2),dh=Math.ceil(s*1.6+p*2);
+  const c=document.createElement('canvas');c.width=dw;c.height=dh;
+  const x=c.getContext('2d'),cx=dw/2,cy=dh/2;
+  x.fillStyle=`rgba(${Math.min(r+20,255)},${Math.min(g+20,255)},${Math.min(b+15,255)},.92)`;
+  x.beginPath();x.moveTo(cx,cy-s*.7);
+  x.bezierCurveTo(cx+s*.55,cy-s*.55,cx+s*.5,cy+s*.3,cx,cy+s*.7);
+  x.bezierCurveTo(cx-s*.5,cy+s*.3,cx-s*.55,cy-s*.55,cx,cy-s*.7);x.fill();
+  x.strokeStyle='rgba(255,240,248,.18)';x.lineWidth=.4;x.beginPath();x.moveTo(cx,cy-s*.45);x.quadraticCurveTo(cx+s*.06,cy,cx,cy+s*.45);x.stroke();
+  x.fillStyle='rgba(255,235,245,.35)';x.beginPath();x.arc(cx,cy-s*.05,s*.08,0,Math.PI*2);x.fill();
+  return{canvas:c,cx:dw/2,cy:dh/2};
+}
+
+const SZ=[3.5,5,6.5],fSpr=[],pSpr=[];
+for(let ci=0;ci<4;ci++){fSpr[ci]=[];pSpr[ci]=[];const[r,g,b]=PC[ci];for(let si=0;si<SZ.length;si++){fSpr[ci][si]=makeFlower(r,g,b,SZ[si]);pSpr[ci][si]=makePetal(r,g,b,SZ[si])}}
+
+
+// ═══════════════════════════════════════════════
+// 4. SPATIAL HASH
+// ═══════════════════════════════════════════════
+const CELL=40,COLS=Math.ceil(W/CELL)+1,ROWS=Math.ceil(H/CELL)+1,grid=new Array(COLS*ROWS);
+function gCl(){for(let i=0;i<grid.length;i++)grid[i]=null}
+function gIn(idx,x,y){const c=(x/CELL|0),r=(y/CELL|0);if(c<0||c>=COLS||r<0||r>=ROWS)return;const k=r*COLS+c;if(!grid[k])grid[k]=[idx];else grid[k].push(idx)}
+function gQ(x,y,rad){const res=[],cr=Math.ceil(rad/CELL),cc=(x/CELL|0),rc=(y/CELL|0);for(let dr=-cr;dr<=cr;dr++)for(let dc=-cr;dc<=cr;dc++){const c=cc+dc,r=rc+dr;if(c<0||c>=COLS||r<0||r>=ROWS)continue;const cl=grid[r*COLS+c];if(cl)for(let i=0;i<cl.length;i++)res.push(cl[i])}return res}
+
+
+// ═══════════════════════════════════════════════
+// 5. PETALS
+// ═══════════════════════════════════════════════
+const N=petalAnchors.length;
+const CURSOR_R=50,CURSOR_R2=CURSOR_R*CURSOR_R;
+const CHAIN_R=30,CHAIN_R2=CHAIN_R*CHAIN_R;
+const BLOOM_R=22,BLOOM_R2=BLOOM_R*BLOOM_R;
+
+const ppx=new Float32Array(N),ppy=new Float32Array(N);
+const pax=new Float32Array(N),pay=new Float32Array(N);
+const pvx=new Float32Array(N),pvy=new Float32Array(N);
+const pro=new Float32Array(N),prv=new Float32Array(N);
+const psp=new Float32Array(N),pss=new Float32Array(N),psa=new Float32Array(N);
+const pgp=new Float32Array(N),pal=new Float32Array(N);
+const pci=new Uint8Array(N),psi=new Uint8Array(N);
+const pst=new Uint8Array(N),pct=new Int16Array(N),prt=new Float32Array(N);
+const pbI=new Uint16Array(N),pbT=new Float32Array(N);
+
+for(let i=0;i<N;i++){
+  pax[i]=ppx[i]=petalAnchors[i].x;pay[i]=ppy[i]=petalAnchors[i].y;
+  pbI[i]=petalAnchors[i].brIdx;pbT[i]=petalAnchors[i].t;
+  pro[i]=R()*Math.PI*2;psp[i]=R()*Math.PI*2;pss[i]=.015+R()*.01;psa[i]=.5+R();pgp[i]=R()*Math.PI*2;
+  pal[i]=0;const r=R();pci[i]=r<.45?0:r<.75?1:r<.9?2:3;psi[i]=(R()*3)|0;
+  pst[i]=3;pct[i]=-1;prt[i]=0;
+}
+
+// Y threshold: petals only start fading above the title
+const titleEl=document.getElementById('title');
+const fadeY=titleEl?titleEl.getBoundingClientRect().bottom:H*.45;
+// Bright flag: ~30% of petals glow whiter as they ascend
+const pBright=new Uint8Array(N);
+for(let i=0;i<N;i++) pBright[i]=R()<.3?1:0;
+
+// Petal cycle: 'active' = push off freely, 'reblooming' = cursor reblooms
+let petalCycle='active';
+
+// Cursor velocity for wind
+let prevMx=mx,prevMy=my,curVX=0,curVY=0;
+const SWAY_RANGE=200,SWAY_RANGE2=SWAY_RANGE*SWAY_RANGE;
+
+// Per-branch sway — branches wobble as units
+const brSwX=new Float32Array(allBranches.length);
+const brSwY=new Float32Array(allBranches.length);
+// Branch midpoints for distance checking
+const brMidX=new Float32Array(allBranches.length);
+const brMidY=new Float32Array(allBranches.length);
+for(let i=0;i<allBranches.length;i++){
+  const b=allBranches[i];
+  const mp=bzPt(.5,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+  brMidX[i]=mp.x;brMidY[i]=mp.y;
+}
+
+// Wind wisps — curved, fading arcs near cursor
+const WISP_N=20;
+const wispX=new Float32Array(WISP_N),wispY=new Float32Array(WISP_N);
+const wispVx=new Float32Array(WISP_N),wispVy=new Float32Array(WISP_N);
+const wispAl=new Float32Array(WISP_N),wispLife=new Float32Array(WISP_N);
+const wispCurve=new Float32Array(WISP_N); // perpendicular curve amount
+const wispLen=new Float32Array(WISP_N);
+for(let i=0;i<WISP_N;i++) wispLife[i]=0;
+
+function freeP(i,fromCursor){
+  if(pst[i]!==0)return;pst[i]=1;pal[i]=1;
+  // Aim toward upper-left corner from current position
+  const tx=-W*.1,ty=-H*.1; // target: just past upper-left corner
+  const dx=tx-ppx[i],dy=ty-ppy[i];
+  const d=Math.sqrt(dx*dx+dy*dy)||1;
+  const spd=.15+R()*.1;
+  pvx[i]=dx/d*spd;
+  pvy[i]=dy/d*spd;
+  if(fromCursor){
+    const cdx=ppx[i]-mx,cdy=ppy[i]-my,cd=Math.sqrt(cdx*cdx+cdy*cdy)||1;
+    pvx[i]+=(cdx/cd)*.04;pvy[i]+=(cdy/cd)*.03;
+  }
+  prv[i]=(R()-.5)*.008;
+}
+
+function chain(i){
+  const nb=gQ(ppx[i],ppy[i],CHAIN_R);
+  for(let j=0;j<nb.length;j++){const k=nb[j];if(pst[k]!==0||pct[k]>=0)continue;const dx=ppx[k]-ppx[i],dy=ppy[k]-ppy[i];if(dx*dx+dy*dy<CHAIN_R2)pct[k]=4+(R()*6|0)}
+}
+
+// Petals revealed in blooming phase (see main loop)
+
+// Track which branches are blooming: Map of branchIdx → frame when added
+let bloomBranches=new Map();
+let bloomFrame=0;
+const BLOOM_HOP_DELAY=10; // frames between each hop to children
+
+function spreadBloom(){
+  bloomFrame++;
+  // For each branch in the map, check if it's time to spread to children
+  const toAdd=[];
+  bloomBranches.forEach((addedFrame, bi) => {
+    if(bloomFrame - addedFrame < BLOOM_HOP_DELAY) return;
+    const b=allBranches[bi];
+    if(!b) return;
+    for(let c=0;c<b.children.length;c++){
+      const ci=b.children[c].idx;
+      if(!bloomBranches.has(ci)) toAdd.push([ci, bloomFrame]);
+    }
+  });
+  for(let i=0;i<toAdd.length;i++) bloomBranches.set(toAdd[i][0], toAdd[i][1]);
+}
+
+function updatePetals(){
+  gCl();
+
+  // Cursor velocity (smoothed)
+  curVX+=(mx-prevMx-curVX)*.15;
+  curVY+=(my-prevMy-curVY)*.15;
+  curVX*=.92;curVY*=.92;
+  prevMx=mx;prevMy=my;
+  const curSpeed=Math.sqrt(curVX*curVX+curVY*curVY);
+
+  // Per-branch sway: each branch responds to cursor wind independently
+  for(let bi=0;bi<allBranches.length;bi++){
+    const dx=brMidX[bi]-mx,dy=brMidY[bi]-my;
+    const d2=dx*dx+dy*dy;
+    if(d2<SWAY_RANGE2){
+      const prox=1-Math.sqrt(d2)/SWAY_RANGE;
+      // Branches at different depths sway differently (deeper = more flexible)
+      const flex=.3+allBranches[bi].depth*.12;
+      brSwX[bi]+=(curVX*prox*flex-brSwX[bi])*.12;
+      brSwY[bi]+=(curVY*prox*flex*.6-brSwY[bi])*.12;
+    } else {
+      brSwX[bi]*=.94;brSwY[bi]*=.94;
+    }
+  }
+
+  // Wind wisps update
+  for(let i=0;i<WISP_N;i++){
+    if(wispLife[i]<=0){
+      if(curSpeed>2&&R()<.25){
+        const angle=Math.atan2(curVY,curVX);
+        const spread=angle+(R()-.5)*1.2;
+        wispX[i]=mx+(R()-.5)*40;
+        wispY[i]=my+(R()-.5)*40;
+        wispVx[i]=Math.cos(spread)*curSpeed*(.15+R()*.15);
+        wispVy[i]=Math.sin(spread)*curSpeed*(.15+R()*.15);
+        wispAl[i]=.06+R()*.06;
+        wispLife[i]=35+R()*30|0;
+        wispCurve[i]=(R()-.5)*8;
+        wispLen[i]=8+curSpeed*2+R()*6;
+      }
+      continue;
+    }
+    wispLife[i]--;
+    wispX[i]+=wispVx[i];wispY[i]+=wispVy[i];
+    wispVx[i]*=.96;wispVy[i]*=.96;
+    wispAl[i]*=.975;
+  }
+
+  let flyingCount=0, barrenCount=0, restingCount=0;
+  for(let i=0;i<N;i++){
+    if(pst[i]===1) flyingCount++;
+    else if(pst[i]===2) barrenCount++;
+    else if(pst[i]===0) restingCount++;
+  }
+
+  // Phase transitions
+  if(petalCycle==='active' && restingCount===0 && flyingCount===0){
+    petalCycle='reblooming';
+    bloomBranches.clear();bloomFrame=0;
+  }
+  if(petalCycle==='reblooming' && barrenCount===0){
+    petalCycle='active';
+    bloomBranches.clear();
+  }
+
+  const canRelease=(petalCycle==='active');
+  const canRebloom=(petalCycle==='reblooming');
+
+  // Spread bloom to adjacent branches each frame
+  if(canRebloom && bloomBranches.size>0) spreadBloom();
+
+  for(let i=0;i<N;i++)if(pst[i]===0)gIn(i,ppx[i],ppy[i]);
+
+  for(let i=0;i<N;i++){
+    if(pst[i]===3)continue;
+    psp[i]+=pss[i];pgp[i]+=.01;
+
+
+    if(pst[i]===0){
+      ppx[i]=pax[i]+Math.sin(psp[i])*psa[i];
+      ppy[i]=pay[i]+Math.cos(psp[i]*.7)*psa[i]*.5;
+      if(canRelease){
+        const dx=ppx[i]-mx,dy=ppy[i]-my;
+        if(dx*dx+dy*dy<CURSOR_R2){freeP(i,true)}
+      }
+      continue;
+    }
+
+    if(pst[i]===1){
+      // Only start fading once above the title
+      if(ppy[i]<fadeY){
+        const fadeRate=pBright[i]?.0008:.0015;
+        pal[i]-=fadeRate;
+      }
+      // Pull toward upper-left corner from current position
+      const tx=-W*.1,ty=-H*.1;
+      const dx=tx-ppx[i],dy=ty-ppy[i];
+      const d=Math.sqrt(dx*dx+dy*dy)||1;
+      pvx[i]+=(dx/d)*.002;
+      pvy[i]+=(dy/d)*.002;
+      // Tiny organic wobble
+      const t=psp[i];
+      pvx[i]+=Math.sin(t*.08+i)*.0004;
+      pvy[i]+=Math.cos(t*.06+i*.7)*.0003;
+      pvx[i]*=.998;pvy[i]*=.998;
+      ppx[i]+=pvx[i];ppy[i]+=pvy[i];
+      pro[i]+=prv[i];prv[i]*=.9998;
+      if(pal[i]<=0||ppy[i]<-30){pst[i]=2;pal[i]=0;prt[i]=1}
+      continue;
+    }
+
+    if(pst[i]===2){
+      ppx[i]=pax[i]+Math.sin(psp[i])*psa[i];
+      ppy[i]=pay[i]+Math.cos(psp[i]*.7)*psa[i]*.5;
+      if(prt[i]===1){
+        if(!canRebloom) continue;
+        // Cursor contact — seed this branch into bloom spread
+        const dx=pax[i]-mx,dy=pay[i]-my;
+        if(dx*dx+dy*dy<BLOOM_R2){
+          if(!bloomBranches.has(pbI[i])){
+            bloomBranches.set(pbI[i], bloomFrame);
+            // Also add immediate parent so bloom looks connected
+            const b=allBranches[pbI[i]];
+            if(b.parent&&!bloomBranches.has(b.parent.idx)){
+              bloomBranches.set(b.parent.idx, bloomFrame);
+            }
+          }
+          prt[i]=0;pal[i]=0;
+        }
+        // Check if bloom wave has reached this branch
+        if(bloomBranches.has(pbI[i])){
+          prt[i]=0;pal[i]=0;
+        }
+        continue;
+      }
+      // Slower bloom fade-in
+      pal[i]+=.025;
+      if(pal[i]>=1){pal[i]=1;pst[i]=0;pct[i]=-1;pvx[i]=0;pvy[i]=0}
+    }
+  }
+}
+
+
+// ═══════════════════════════════════════════════
+// 6. SCENE CANVAS + SHADOWS
+// ═══════════════════════════════════════════════
+const scene=document.getElementById('scene');
+scene.width=W;scene.height=H;
+const ctx=scene.getContext('2d');
+
+const treeC=document.createElement('canvas');treeC.width=W;treeC.height=H;
+const treeX=treeC.getContext('2d');treeX.lineCap='round';treeX.lineJoin='round';
+
+let shadowLayers=null,moonEdgeC=null;
+
+function computeShadows(){
+  renderFullTree(treeX);
+  shadowLayers=[];
+  [{blur:50,a:.07,ox:-6,oy:-6},{blur:28,a:.12,ox:-2,oy:-2},{blur:14,a:.16,ox:0,oy:0},{blur:5,a:.12,ox:1,oy:1}].forEach(p=>{
+    const c=document.createElement('canvas');c.width=W;c.height=H;
+    const cx=c.getContext('2d');cx.filter=`blur(${p.blur}px)`;cx.drawImage(treeC,0,0,W,H);
+    shadowLayers.push({canvas:c,alpha:p.a,ox:p.ox,oy:p.oy});
+  });
+  moonEdgeC=document.createElement('canvas');moonEdgeC.width=W;moonEdgeC.height=H;
+  const me=moonEdgeC.getContext('2d');me.filter='blur(28px)';me.drawImage(treeC,0,0,W,H);
+}
+
+let shOX=0,shOY=0,swT=0;
+
+function renderShadow(){
+  if(!shadowLayers)return;
+  const tx=(smx-.5)*-3,ty=(smy-.5)*-2;
+  shOX+=(tx-shOX)*.04;shOY+=(ty-shOY)*.04;swT+=.005;
+  const dx=shOX+Math.sin(swT*.5)*.5,dy=shOY+Math.cos(swT*.35)*.4;
+  for(let i=0;i<shadowLayers.length;i++){const l=shadowLayers[i];ctx.globalAlpha=l.alpha;ctx.drawImage(l.canvas,dx+l.ox,dy+l.oy)}
+  ctx.globalAlpha=.025;ctx.globalCompositeOperation='screen';
+  ctx.drawImage(moonEdgeC,dx+3,dy+3);
+  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+}
+
+function renderPetals(){
+  // Resting + barren petals (state 0, 2) — with branch wind sway
+  for(let i=0;i<N;i++){
+    if(pst[i]!==0&&pst[i]!==2)continue;if(pal[i]<=.01)continue;
+    const s=fSpr[pci[i]][psi[i]];
+    const bi=pbI[i];
+    ctx.globalAlpha=Math.min(pal[i]*1.1,1);
+    ctx.drawImage(s.canvas,ppx[i]+brSwX[bi]-s.cx,ppy[i]+brSwY[bi]-s.cy);
+  }
+
+  // Freed petals (state 1) — flower sprite shrinking + petal + glow
+  for(let i=0;i<N;i++){
+    if(pst[i]!==1)continue;if(pal[i]<=.01)continue;
+    const x=ppx[i],y=ppy[i];
+    const heightRatio=Math.max(0,1-y/H);
+    const glowIntensity=heightRatio*heightRatio;
+
+    // Gradual shrink: starts at 50% screen height, smoothstep to dot
+    const shrinkStart=H*.5;
+    let scale=1;
+    if(y<shrinkStart){
+      const t=Math.max(y/shrinkStart, 0); // 1 at shrinkStart, 0 at top
+      scale=t*t*(3-2*t); // smoothstep: gradual ease at both ends
+      scale=.15+scale*.85; // range: 0.15 (tiny dot) to 1.0 (full)
+    }
+
+    // Soft halo glow
+    if(glowIntensity>.05){
+      const ci=PC[pci[i]];
+      const brightMul=pBright[i]?1.8:1;
+      const wr=Math.min(ci[0]+glowIntensity*60*brightMul,255);
+      const wg=Math.min(ci[1]+glowIntensity*80*brightMul,255);
+      const wb=Math.min(ci[2]+glowIntensity*50*brightMul,255);
+      const glowAlpha=pBright[i]?glowIntensity*.7:glowIntensity*.5;
+      const gRad=(8+glowIntensity*(pBright[i]?35:25))*scale;
+      const gr=ctx.createRadialGradient(x,y,0,x,y,gRad);
+      gr.addColorStop(0,`rgba(${wr|0},${wg|0},${wb|0},${pal[i]*glowAlpha})`);
+      gr.addColorStop(.5,`rgba(${wr|0},${wg|0},${wb|0},${pal[i]*glowAlpha*.3})`);
+      gr.addColorStop(1,`rgba(${wr|0},${wg|0},${wb|0},0)`);
+      ctx.fillStyle=gr;
+      ctx.beginPath();ctx.arc(x,y,gRad,0,Math.PI*2);ctx.fill();
+    }
+
+    // Flower sprite
+    const fs=fSpr[pci[i]][psi[i]];
+    const brightBoost=pBright[i]?glowIntensity*.5:glowIntensity*.3;
+    ctx.globalAlpha=Math.min(pal[i]*(1+brightBoost),1);
+    ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.rotate(pro[i]*.3);
+    ctx.drawImage(fs.canvas,-fs.cx,-fs.cy);ctx.restore();
+
+    // Petal sprite
+    const ps=pSpr[pci[i]][psi[i]];
+    ctx.globalAlpha=Math.min(pal[i]*(1+brightBoost),1);
+    ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.rotate(pro[i]);
+    ctx.drawImage(ps.canvas,-ps.cx,-ps.cy);ctx.restore();
+
+    // Bright petals: white screen overlay
+    if(pBright[i]&&glowIntensity>.15){
+      ctx.globalCompositeOperation='screen';
+      ctx.globalAlpha=pal[i]*glowIntensity*.6;
+      ctx.fillStyle='rgba(255,240,250,.9)';
+      ctx.beginPath();ctx.arc(x,y,(3+glowIntensity*4)*scale,0,Math.PI*2);ctx.fill();
+      ctx.globalCompositeOperation='source-over';
+    }
+  }
+
+  // Gust halo — soft radial glow around cursor when moving fast
+  const curSpeed=Math.sqrt(curVX*curVX+curVY*curVY);
+  if(curSpeed>3){
+    const gustAlpha=Math.min((curSpeed-3)*.008,.06);
+    const gustR=40+curSpeed*3;
+    const gg=ctx.createRadialGradient(mx,my,0,mx,my,gustR);
+    gg.addColorStop(0,`rgba(220,200,215,${gustAlpha})`);
+    gg.addColorStop(.6,`rgba(220,200,215,${gustAlpha*.3})`);
+    gg.addColorStop(1,'rgba(220,200,215,0)');
+    ctx.fillStyle=gg;
+    ctx.beginPath();ctx.arc(mx,my,gustR,0,Math.PI*2);ctx.fill();
+  }
+
+  // Wind wisps — soft curved arcs trailing cursor
+  ctx.lineCap='round';
+  for(let i=0;i<WISP_N;i++){
+    if(wispLife[i]<=0)continue;
+    const al=wispAl[i]*Math.min(wispLife[i]/12,1);
+    if(al<.005)continue;
+    const spd=Math.sqrt(wispVx[i]*wispVx[i]+wispVy[i]*wispVy[i]);
+    if(spd<.2)continue;
+    const nx=wispVx[i]/(spd||1),ny=wispVy[i]/(spd||1);
+    const len=wispLen[i]*Math.min(wispLife[i]/15,1);
+    // Curved wisp: start → control point (perpendicular offset) → end
+    const ex=wispX[i]-nx*len,ey=wispY[i]-ny*len;
+    const cpx=(wispX[i]+ex)/2+(-ny)*wispCurve[i];
+    const cpy=(wispY[i]+ey)/2+(nx)*wispCurve[i];
+    ctx.globalAlpha=al;
+    ctx.strokeStyle='rgba(235,210,225,.4)';
+    ctx.lineWidth=.5+al*3;
+    ctx.beginPath();
+    ctx.moveTo(wispX[i],wispY[i]);
+    ctx.quadraticCurveTo(cpx,cpy,ex,ey);
+    ctx.stroke();
+  }
+
+  ctx.globalAlpha=1;
+}
+
+
+// ═══════════════════════════════════════════════
+// 7. FILM GRAIN
+// ═══════════════════════════════════════════════
+const grainC=document.getElementById('grain');
+const GW=(W/4)|0,GH=(H/4)|0;
+grainC.width=GW;grainC.height=GH;grainC.style.width='100%';grainC.style.height='100%';
+const gctx=grainC.getContext('2d');
+const grainImg=gctx.createImageData(GW,GH);const gd=grainImg.data;
+for(let i=3;i<gd.length;i+=4)gd[i]=10;
+let gf=0;
+function renderGrain(){if(++gf%4!==0)return;for(let i=0;i<gd.length;i+=4){const v=(R()*255)|0;gd[i]=gd[i+1]=gd[i+2]=v}gctx.putImageData(grainImg,0,0)}
+
+
+// ═══════════════════════════════════════════════
+// MAIN LOOP
+// ═══════════════════════════════════════════════
+const SOFT_OFFSETS=[
+  {dx:0,dy:0,a:.02},{dx:-3,dy:-3,a:.02},{dx:3,dy:3,a:.02},
+  {dx:-6,dy:-6,a:.018},{dx:6,dy:6,a:.018},{dx:-10,dy:-10,a:.012},
+  {dx:10,dy:10,a:.012},{dx:-15,dy:-15,a:.008},{dx:15,dy:15,a:.008},
+  {dx:0,dy:-8,a:.015},{dx:-8,dy:0,a:.012},{dx:8,dy:0,a:.012},
+  {dx:0,dy:8,a:.015},{dx:-12,dy:4,a:.01},{dx:12,dy:-4,a:.01},
+];
+
+function renderPartialShadow(){
+  treeX.clearRect(0,0,W,H);treeX.lineCap='round';treeX.lineJoin='round';
+  for(let d=0;d<=6;d++){
+    for(let i=0;i<allBranches.length;i++){
+      const b=allBranches[i];
+      if(b.depth!==d||b.drawProg<=0)continue;
+      const prog=easeOut(Math.min(b.drawProg,1));
+      const segs=35,maxSeg=Math.max(Math.floor(segs*prog),1);
+      for(let j=0;j<maxSeg;j++){
+        const t0=j/segs,t1=(j+1)/segs;
+        const p0=bzPt(t0,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+        const p1=bzPt(t1,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+        const w=b.thS+(b.thE-b.thS)*((t0+t1)/2);
+        treeX.strokeStyle='#0a0608';treeX.lineWidth=Math.max(w,.4);
+        treeX.beginPath();treeX.moveTo(p0.x,p0.y);treeX.lineTo(p1.x,p1.y);treeX.stroke();
+      }
+    }
+  }
+  for(let i=0;i<SOFT_OFFSETS.length;i++){const o=SOFT_OFFSETS[i];ctx.globalAlpha=o.a;ctx.drawImage(treeC,o.dx,o.dy)}
+  ctx.globalAlpha=.02;ctx.globalCompositeOperation='screen';ctx.drawImage(treeC,3,3);
+  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+}
+
+let phase='drawing'; // drawing | blooming | interactive
+let frameCount=0;
+let bloomStart=0;
+
+function tick(now){
+  frameCount++;
+  updateMoon();
+  ctx.clearRect(0,0,W,H);
+
+  if(phase==='drawing'){
+    updateDrawProgress(1/60);
+    renderPartialShadow();
+    // No petals during drawing
+    if(allDrawn()){
+      computeShadows();
+      bloomStart=now;
+      phase='blooming';
+    }
+  }
+  else if(phase==='blooming'){
+    renderShadow();
+
+    // Staggered bloom: petals on deeper/later branches appear later
+    const elapsed = now - bloomStart;
+    for(let i=0;i<N;i++){
+      if(pst[i]!==3) continue;
+      const b=allBranches[pbI[i]];
+      const delay = b.depth <= 2 ? 80 : b.depth === 3 ? 200 : 350;
+      const jitter = pbT[i] * 120;
+      if(elapsed >= delay + jitter){
+        pst[i]=0; pal[i]=0; prt[i]=0;
+      }
+    }
+    // Fade in visible petals
+    for(let i=0;i<N;i++){
+      if(pst[i]===0 && pal[i]<1){pal[i]+=.035;if(pal[i]>1)pal[i]=1}
+    }
+
+    renderPetals();
+
+    // Done when all petals are revealed
+    let allRevealed=true;
+    for(let i=0;i<N;i++){if(pst[i]===3){allRevealed=false;break}}
+    if(allRevealed && elapsed>600) phase='interactive';
+  }
+  else{
+    renderShadow();
+    updatePetals();
+    renderPetals();
+  }
+
+  renderGrain();
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
