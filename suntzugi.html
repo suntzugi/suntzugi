@@ -50,7 +50,7 @@
     position:relative;
   }
   .anno-zone{
-    min-height:220px;
+    height:clamp(180px, 35vh, 400px);
     margin-top:1.2rem;
     margin-bottom:2rem;
     position:relative;
@@ -61,7 +61,19 @@
     transform:translateY(6px);
     transition:opacity .4s ease, transform .4s cubic-bezier(.22,1,.36,1);
     pointer-events:none;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(242,160,181,.3) transparent;
   }
+  .anno-card::-webkit-scrollbar{width:3px}
+  .anno-card::-webkit-scrollbar-track{background:transparent}
+  .anno-card::-webkit-scrollbar-thumb{
+    background:rgba(242,160,181,.3);
+    border-radius:3px;
+    transition:background .3s ease;
+  }
+  .anno-card::-webkit-scrollbar-thumb:hover{background:rgba(242,160,181,.5)}
   .anno-card.show{
     opacity:1;transform:translateY(0);pointer-events:auto;
     user-select:text;-webkit-user-select:text;
@@ -386,6 +398,26 @@
       if(!insideZone) hideAll();
     }, 500);
   });
+
+  // ── Touch support ──
+  // Tap syllable to show card
+  syls.forEach((el, i) => {
+    el.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if(leaveTimer){clearTimeout(leaveTimer);leaveTimer=null}
+      insideZone = true;
+      hoverHistory.push({index:i, time:Date.now()});
+      if(hoverHistory.length > 12) hoverHistory = hoverHistory.slice(-8);
+      evaluateState(i);
+    }, {passive:false});
+  });
+
+  // Tap outside hover-zone to dismiss cards
+  document.addEventListener('touchstart', (e) => {
+    if(activeCard && !zone.contains(e.target)){
+      hideAll();
+    }
+  }, {passive:true});
 })();
 </script>
 
@@ -395,6 +427,18 @@ const W=window.innerWidth, H=window.innerHeight;
 let mx=-9999,my=-9999,nmx=.5,nmy=.5,smx=.5,smy=.5;
 document.addEventListener('mousemove',e=>{
   mx=e.clientX; my=e.clientY;
+  nmx=mx/W; nmy=my/H;
+},{passive:true});
+
+// Touch → cursor tracking
+document.addEventListener('touchmove',e=>{
+  const t=e.touches[0];
+  mx=t.clientX; my=t.clientY;
+  nmx=mx/W; nmy=my/H;
+},{passive:true});
+document.addEventListener('touchstart',e=>{
+  const t=e.touches[0];
+  mx=t.clientX; my=t.clientY;
   nmx=mx/W; nmy=my/H;
 },{passive:true});
 
