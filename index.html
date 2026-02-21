@@ -1586,6 +1586,7 @@ async function loadEssay(slug){
 
   const isTouchDevice=('ontouchstart' in window || navigator.maxTouchPoints > 0);
   let scrollLocked=false;
+  let wasScrolledPast=false; // true once user has scrolled past the hero — prevents re-lock during initial smooth scroll
 
   // Initial scroll lock on touch devices
   if(isTouchDevice){
@@ -1608,6 +1609,7 @@ async function loadEssay(slug){
       setTimeout(()=>hintBottom.classList.remove('tapped'),200);
       hintBottom.classList.remove('tap-to-scroll');
       scrollLocked=false;
+      wasScrolledPast=false;
       // Phase 1: allow overflow but block touch-action so user finger doesn't hijack
       document.body.classList.remove('scroll-locked');
       document.body.classList.add('scroll-unlocking');
@@ -1733,9 +1735,13 @@ async function loadEssay(slug){
       if(essayOpen||progress>.5) navTitle.classList.add('show');
       else navTitle.classList.remove('show');
 
+      // Track when user has scrolled past the hero (so we know a return to top is intentional)
+      if(isTouchDevice&&!scrollLocked&&sy>vh*.5) wasScrolledPast=true;
+
       // Re-lock scroll when user scrolls back to top on mobile
-      if(isTouchDevice&&!scrollLocked&&!essayOpen&&sy<=5){
+      if(isTouchDevice&&!scrollLocked&&!essayOpen&&wasScrolledPast&&sy<=5){
         scrollLocked=true;
+        wasScrolledPast=false;
         document.body.classList.add('scroll-locked');
         window.scrollTo({top:0,behavior:'instant'});
         if(hintBottom){hintBottom.classList.add('visible');hintBottom.classList.add('tap-to-scroll')}
