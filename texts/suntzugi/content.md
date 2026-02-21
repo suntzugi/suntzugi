@@ -138,4 +138,4 @@ Mastering the art of repairing with light; the belief that the world can be mend
 - [Chraist](https://chraist.ai)
 - [Github](https://github.com/suntzugi)
 - [Substack](https://substack.com/@suntzugi)
-- [Neodore (stealth)](#) {countdown:2026-02-23T17:55:00-08:00}
+- [Neodore (stealth)](#neodore) {countdown:2026-02-27T08:17:00-08:00}

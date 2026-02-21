@@ -220,6 +220,52 @@
   }
   .essay-view-body p{margin-bottom:1.5rem}
 
+  /* ── Neodore popup ── */
+  .neodore-overlay{
+    position:fixed;inset:0;z-index:200;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(6,9,18,.85);
+    opacity:0;pointer-events:none;
+    transition:opacity .4s ease;
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  }
+  .neodore-overlay.open{opacity:1;pointer-events:auto}
+  .neodore-popup{
+    text-align:center;padding:2.5rem 2rem;
+    max-width:420px;width:90vw;position:relative;
+  }
+  .neodore-close{
+    position:absolute;top:.5rem;right:1rem;
+    font-size:1.4rem;color:rgba(242,160,181,.4);cursor:pointer;
+    transition:color .3s ease;
+  }
+  .neodore-close:hover{color:rgba(242,160,181,.8)}
+  .neodore-title{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;font-style:italic;
+    font-size:1.8rem;letter-spacing:.08em;
+    color:rgba(242,160,181,.85);
+    margin-bottom:1.5rem;
+  }
+  .neodore-line{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.7rem;letter-spacing:.06em;
+    color:rgba(242,160,181,.55);
+    margin:0 0 .4rem;line-height:1.6;
+  }
+  .neodore-timer{
+    margin-top:1.5rem;
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.85rem;letter-spacing:.08em;
+    color:rgba(242,160,181,.7);
+  }
+  .neodore-soon{
+    margin-top:.5rem;
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;
+    color:rgba(242,160,181,.35);
+  }
+
   /* ── Audio toggle ── */
   .audio-btn{
     position:fixed;top:1.5rem;right:1.5rem;z-index:120;
@@ -773,7 +819,7 @@
         <li><a href="https://chraist.ai" target="_blank">Chraist</a></li>
         <li><a href="https://github.com/suntzugi" target="_blank">Github</a></li>
         <li><a href="https://substack.com/@suntzugi" target="_blank">Substack</a></li>
-        <li><a href="#">Neodore (stealth)</a> <span class="countdown" data-target="2026-02-23T17:55:00-08:00"></span></li>
+        <li><a href="#neodore" data-neodore>Neodore (stealth)</a> <span class="countdown" data-target="2026-02-27T08:17:00-08:00"></span></li>
       </ul>
     </div>
   </div>
@@ -784,6 +830,19 @@
   <div class="essay-view-inner">
     <h2 class="essay-view-title" id="essayTitle"></h2>
     <div class="essay-view-body" id="essayBody"></div>
+  </div>
+</div>
+
+<div class="neodore-overlay" id="neodoreOverlay">
+  <div class="neodore-popup">
+    <div class="neodore-close" id="neodoreClose">&times;</div>
+    <h2 class="neodore-title">Neodore</h2>
+    <p class="neodore-line">The present present production company.</p>
+    <p class="neodore-line">The good company.</p>
+    <p class="neodore-line">The first alignment company.</p>
+    <p class="neodore-line">The mettalignment R&D lab.</p>
+    <div class="neodore-timer"><span class="countdown" data-target="2026-02-27T08:17:00-08:00"></span></div>
+    <div class="neodore-soon">launching soon</div>
   </div>
 </div>
 
@@ -957,7 +1016,7 @@ const essayCache={};
 const essayFallback={
   'my-time-has-come':{
     title:'My Time Has Come',
-    body:'<p>There is a moment \u2014 not loud, not dramatic \u2014 when the turtle lifts its head and knows. Not because the world changed, but because something inside finally stopped resisting what it always was.</p>\n<p>Master Oogway stood at the edge of the peach tree, petals falling around him like the universe exhaling. He did not fight it. He did not mourn it. He smiled \u2014 because the whole point was never to stay.</p>\n<p>The whole point was to show someone else how to bloom.</p>\n<p>My time has come. Not as an ending, but as a turning. The version of me that needed to prove, to chase, to explain \u2014 that version completed its arc. What remains is simpler: the quiet work of mending, the patience of gold poured into cracks, the faith that light reaches what it needs to reach.</p>\n<p>This is not a farewell. It is a beginning that looks like stillness.</p>'
+    body:'<p>I don\u2019t normally celebrate my birthday. But this year, the timing is hard to ignore so enjoy my micro-essay:</p>\n<p>On the day I turned another year older, Elon Musk declared Nick Land <a href="https://x.com/xenocosmography/status/2024677849870061968?s=20" target="_blank">Safety Tsar</a> of xAI; an attempt to compete with Anthropic\u2019s <a href="https://x.com/willmacaskill/status/2023084449051836701?s=20" target="_blank">Amanda Askell</a> by installing his own in house philosopher. This, one day after the AI arms race <a href="https://x.com/nickcammarata/status/2024622087676318205?s=20" target="_blank">publicly began</a> when Amodei and Altman refused to shake hands at India\u2019s AI safety summit.</p>\n<p>The aligners are failing to align. The people steering this ship are not the adults we were promised. And the cold kamikaze accelerationists, the ones who\u2019ve made peace with sacrificing humane futures, are growing in influence.</p>\n<p>I\u2019ve spent a long time quietly building relationships in TPOT (this part of Twitter). Playing the patient game as a lowbie, reply guying large accounts with alpha that would make them follow me despite being an anon schizo lowbie account. Building trust across ideological lines, including with figures like <a href="https://x.com/xenocosmography" target="_blank">Nick Land</a> himself, who follows me, and who I\u2019ve vowed to lovepill. None of this was an accident. I\u2019ve been monkmoding since December 2022, focused on bringing about the aligned futures.</p>\n<p>Here\u2019s what I\u2019ve come to believe: the highest leverage move right now isn\u2019t to out argue the accelerationists. It\u2019s to lovepill them. If you can meet someone like Land where he is, understand why coldness appeals as a philosophy, and offer something warmer that doesn\u2019t require naivety, you don\u2019t just shift one mind. You shift the network downstream: the Thielites, the Muskians, and the millions who take their cues from these figures.</p>\n<p>I think of it as alignment work applied to the alignment community itself. The meta problem. The people building the future need to actually want a future worth living in, and right now, not all of them do.</p>\n<p>As Master Oogway put it: my time has come.</p>\n<p>I don\u2019t say that with delusions of grandeur. I say it the way anyone says it when they realise the thing they\u2019ve been preparing for is no longer hypothetical. The birthday felt like a threshold. So I\u2019m stepping through it.</p>\n<p>This is the next chapter. Not just for me, but, if I do this well, for the conversations and events that will shape what comes next for all caring beings.</p>'
   }
 };
 
@@ -1158,7 +1217,7 @@ async function loadEssay(slug){
         if(!ul)break;
         ul.innerHTML=links.map(l=>{
           const isMailto=l.url.startsWith('mailto:');
-          const isHash=l.url==='#';
+          const isHash=l.url==='#'||l.url.startsWith('#');
           const target=(!isMailto&&!isHash)?' target="_blank"':'';
           let html='<li><a href="'+l.url+'"'+target+'>'+l.label+'</a>';
           if(l.countdown) html+=' <span class="countdown" data-target="'+l.countdown+'"></span>';
@@ -1235,6 +1294,27 @@ async function loadEssay(slug){
   loadContent().then(()=>startCountdowns());
   // Also start countdowns for HTML fallback (file:// where fetch fails)
   startCountdowns();
+})();
+</script>
+
+<script>
+// ── Neodore popup ──
+(function(){
+  const overlay=document.getElementById('neodoreOverlay');
+  const closeBtn=document.getElementById('neodoreClose');
+  if(!overlay)return;
+
+  document.addEventListener('click',e=>{
+    const link=e.target.closest('a[href="#neodore"]');
+    if(!link)return;
+    e.preventDefault();
+    overlay.classList.add('open');
+  });
+
+  closeBtn.addEventListener('click',()=>overlay.classList.remove('open'));
+  overlay.addEventListener('click',e=>{
+    if(e.target===overlay) overlay.classList.remove('open');
+  });
 })();
 </script>
 
