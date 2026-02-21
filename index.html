@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Suntzugi</title>
+<link rel="icon" type="image/png" href="assets/chraist/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -2917,7 +2918,8 @@ requestAnimationFrame(tick);
     {name:'dark',label:'chraist dark',bodyClass:'cursor-chraist-dark'},
     {name:'white',label:'chraist white',bodyClass:'cursor-chraist-white'}
   ];
-  let activeCursor='arrow';
+  let activeCursor='white';
+  document.body.classList.add('cursor-chraist-white');
   const cursorStylesEl=document.getElementById('epCursorStyles');
   function buildCursorStyles(){
     cursorStylesEl.innerHTML='';
