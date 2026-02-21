@@ -478,6 +478,9 @@
     opacity:0;
     transition:opacity .6s ease;
   }
+  @media (hover:none) and (pointer:coarse){
+    .scroll-hint-bottom{left:10vw;transform:none}
+  }
   .scroll-hint-bottom.visible{
     opacity:1;
     animation:scrollHintBreath 3s ease-in-out infinite;
@@ -916,25 +919,12 @@
         evaluateState(i);
       }
     } else {
-      // Finger slid off syllables — start dismiss timer
       lastTouchSyl = -1;
-      if(!leaveTimer){
-        insideZone = false;
-        leaveTimer = setTimeout(() => {
-          if(!insideZone) hideAll();
-        }, 500);
-      }
     }
   }, {passive:false});
 
   document.addEventListener('touchend', () => {
     lastTouchSyl = -1;
-    if(activeCard){
-      insideZone = false;
-      leaveTimer = setTimeout(() => {
-        if(!insideZone) hideAll();
-      }, 500);
-    }
   }, {passive:true});
 })();
 </script>
@@ -1035,7 +1025,7 @@ async function loadEssay(slug){
     phase='drawing';bloomStart=0;shadowLayers=null;
   }
 
-  // Pink line tap → unlock scroll on mobile
+  // Pink line tap → unlock scroll + nudge down on mobile
   if(hintBottom){
     hintBottom.addEventListener('touchstart',(e)=>{
       if(!scrollLocked) return;
@@ -1046,6 +1036,10 @@ async function loadEssay(slug){
       scrollLocked=false;
       document.body.classList.remove('scroll-locked');
       hintBottom.classList.remove('tap-to-scroll');
+      // Slight scroll nudge to signal scroll is unlocked
+      setTimeout(()=>{
+        window.scrollTo({top:80,behavior:'smooth'});
+      },100);
     },{passive:false});
   }
 
