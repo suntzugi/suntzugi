@@ -498,6 +498,10 @@
   body.scroll-locked{overflow:hidden;touch-action:none}
   body.scroll-unlocking{overflow:auto;touch-action:none}
   .scroll-hint-bottom.tap-to-scroll{pointer-events:auto;cursor:pointer}
+  .scroll-hint-bottom.tap-to-scroll::before{
+    content:'';position:absolute;
+    top:-22px;bottom:-22px;left:-20px;right:-20px;
+  }
   body.no-text-border .title,
   body.no-text-border .ac-body,
   body.no-text-border .ac-quote,
@@ -1062,7 +1066,23 @@ async function loadEssay(slug){
       if(bodies[0]) bodies[0].innerHTML=mdInline(bodyP1);
       if(bodies[1]) bodies[1].innerHTML=mdInline(bodyP2);
     } else if(body){
-      if(bodies[0]) bodies[0].innerHTML=mdInline(body);
+      const paragraphs=body.split(/\n\n+/);
+      // Fill existing .ac-body divs
+      for(let i=0;i<bodies.length&&i<paragraphs.length;i++){
+        bodies[i].innerHTML=mdInline(paragraphs[i]);
+      }
+      // Create additional .ac-body divs if more paragraphs than existing
+      if(paragraphs.length>bodies.length){
+        const anchor=el.querySelector('.ac-quote')||el.querySelector('.ac-sep');
+        for(let i=bodies.length;i<paragraphs.length;i++){
+          const div=document.createElement('div');
+          div.className='ac-body';
+          div.style.marginTop='.4rem';
+          div.innerHTML=mdInline(paragraphs[i]);
+          if(anchor) el.insertBefore(div,anchor);
+          else el.appendChild(div);
+        }
+      }
     }
 
     if(quote&&quotes[0]){
@@ -1078,6 +1098,71 @@ async function loadEssay(slug){
     }
   }
 
+  function parseMarkdownLinks(text){
+    const links=[];
+    const re=/\[([^\]]+)\]\(([^)]+)\)/g;
+    let m;
+    while((m=re.exec(text))!==null) links.push({label:m[1],url:m[2]});
+    return links;
+  }
+
+  function applyEssays(section){
+    const links=parseMarkdownLinks(section);
+    if(!links.length)return;
+    const blocks=document.querySelectorAll('.reading-block');
+    for(const block of blocks){
+      const label=block.querySelector('.reading-section-label');
+      if(label&&label.textContent.trim().toLowerCase()==='essays'){
+        const ul=block.querySelector('ul');
+        if(!ul)break;
+        ul.innerHTML=links.map(l=>{
+          // Extract slug from (#slug) or use label as slug
+          const hashMatch=l.url.match(/^#(.+)$/);
+          const slug=hashMatch?hashMatch[1]:l.label.toLowerCase().replace(/\s+/g,'-');
+          return '<li><a href="#" data-essay="'+slug+'">'+l.label+'</a></li>';
+        }).join('');
+        break;
+      }
+    }
+  }
+
+  function applyLinks(section){
+    const links=parseMarkdownLinks(section);
+    if(!links.length)return;
+    const blocks=document.querySelectorAll('.reading-block');
+    for(const block of blocks){
+      const label=block.querySelector('.reading-section-label');
+      if(label&&label.textContent.trim().toLowerCase()==='links'){
+        const ul=block.querySelector('ul');
+        if(!ul)break;
+        ul.innerHTML=links.map(l=>{
+          const isMailto=l.url.startsWith('mailto:');
+          return '<li><a href="'+l.url+'"'+(isMailto?'':' target="_blank"')+'>'+l.label+'</a></li>';
+        }).join('');
+        break;
+      }
+    }
+  }
+
+  function applyAudioTracks(section){
+    // Parse markdown table rows: | # | Title | Artist |
+    const rows=section.split('\n').filter(r=>/^\|/.test(r)&&!/^[\|\s-]+$/.test(r));
+    // Skip header row
+    const dataRows=rows.slice(1);
+    const newTracks=[];
+    for(const row of dataRows){
+      const cells=row.split('|').map(c=>c.trim()).filter(Boolean);
+      if(cells.length>=3){
+        const title=cells[1];
+        const artist=cells[2];
+        newTracks.push(title+'_'+artist+'.mp3');
+      }
+    }
+    if(newTracks.length&&typeof window.__updateTracks==='function'){
+      window.__updateTracks(newTracks);
+    }
+  }
+
   async function loadContent(){
     try{
       const res=await fetch('texts/suntzugi/content.md');
@@ -1090,6 +1175,11 @@ async function loadEssay(slug){
         const key=Object.keys(sections).find(k=>k.startsWith(heading));
         if(key) applyCard(cardId,sections[key]);
       }
+
+      // Apply essays, links, and audio tracks
+      if(sections['Essays']) applyEssays(sections['Essays']);
+      if(sections['Links']) applyLinks(sections['Links']);
+      if(sections['Audio Tracks']) applyAudioTracks(sections['Audio Tracks']);
     }catch(e){/* fetch fails on file:// — HTML fallback stays */}
   }
 
@@ -1161,33 +1251,33 @@ async function loadEssay(slug){
     },{passive:false});
   }
 
-  // Essay link clicks — fetch from essays/{slug}.md
-  document.querySelectorAll('[data-essay]').forEach(link=>{
-    link.addEventListener('click',async e=>{
-      e.preventDefault();
-      const slug=link.dataset.essay;
-      const data=await loadEssay(slug);
-      if(!data)return;
+  // Essay link clicks — delegated so dynamically inserted links work
+  document.addEventListener('click',async e=>{
+    const link=e.target.closest('[data-essay]');
+    if(!link)return;
+    e.preventDefault();
+    const slug=link.dataset.essay;
+    const data=await loadEssay(slug);
+    if(!data)return;
 
-      // Fade out landing content
-      if(contentEl) contentEl.style.opacity='0';
-      if(readingSec) readingSec.style.opacity='0';
-      if(hintBottom) hintBottom.classList.remove('visible');
+    // Fade out landing content
+    if(contentEl) contentEl.style.opacity='0';
+    if(readingSec) readingSec.style.opacity='0';
+    if(hintBottom) hintBottom.classList.remove('visible');
 
-      // After fade, rebuild tree on the side and show essay
-      setTimeout(()=>{
-        window.scrollTo({top:0,behavior:'instant'});
-        essayMode=true;
-        rebuildTree();
+    // After fade, rebuild tree on the side and show essay
+    setTimeout(()=>{
+      window.scrollTo({top:0,behavior:'instant'});
+      essayMode=true;
+      rebuildTree();
 
-        essayTitle.textContent=data.title;
-        essayBody.innerHTML=data.body;
-        essayView.classList.add('open');
-        essayOpen=true;
-        navTitle.classList.add('show');
-        if(isTouchDevice){scrollLocked=true;document.body.classList.add('scroll-locked')}
-      },500);
-    });
+      essayTitle.textContent=data.title;
+      essayBody.innerHTML=data.body;
+      essayView.classList.add('open');
+      essayOpen=true;
+      navTitle.classList.add('show');
+      if(isTouchDevice){scrollLocked=true;document.body.classList.add('scroll-locked')}
+    },500);
   });
 
   function closeEssay(){
@@ -2032,7 +2122,7 @@ requestAnimationFrame(tick);
   const picker = document.getElementById('songPicker');
 
   // Track list — parsed from filenames (Song Name_Artist.mp3)
-  const tracks = [
+  let tracks = [
     'Oogway Ascends_Hans Zimmer.mp3',
     'Moses_Ennio Morricone.mp3',
   ];
@@ -2043,7 +2133,7 @@ requestAnimationFrame(tick);
     return { file: filename, title: name.substring(0,sep), artist: name.substring(sep+1) };
   }
 
-  const trackList = tracks.map(parseTrack);
+  let trackList = tracks.map(parseTrack);
   let currentTrack = 0;
   let playing = false;
   let amplitude = 0;
@@ -2111,6 +2201,14 @@ requestAnimationFrame(tick);
   // Init first track
   loadTrack(0);
   buildPicker();
+
+  // Allow content loader to update tracks from content.md
+  window.__updateTracks = function(newTracks){
+    tracks = newTracks;
+    trackList = tracks.map(parseTrack);
+    buildPicker();
+    if(!playing) loadTrack(0);
+  };
 
   btn.addEventListener('click', () => {
     if(!playing){

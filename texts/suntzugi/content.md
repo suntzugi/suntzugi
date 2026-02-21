@@ -121,3 +121,20 @@ Mastering the art of repairing with light; the belief that the world can be mend
 |---|-------|--------|
 | 1 | Oogway Ascends | Hans Zimmer |
 | 2 | Moses | Ennio Morricone |
+
+---
+
+## Essays
+
+- [My Time Has Come](#my-time-has-come)
+
+---
+
+## Links
+
+- [Substack](https://substack.com/@suntzugi)
+- [Twitter](https://x.com/suntzugi)
+- [Email](mailto:suntzoogway@gmail.com)
+- [Github](https://github.com/suntzugi)
+- [Lovepill AI](https://lovepill.org)
+- [Chraist](https://chraist.ai)
