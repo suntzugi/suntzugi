@@ -1733,8 +1733,16 @@ async function loadEssay(slug){
       if(essayOpen||progress>.5) navTitle.classList.add('show');
       else navTitle.classList.remove('show');
 
+      // Re-lock scroll when user scrolls back to top on mobile
+      if(isTouchDevice&&!scrollLocked&&!essayOpen&&sy<=5){
+        scrollLocked=true;
+        document.body.classList.add('scroll-locked');
+        window.scrollTo({top:0,behavior:'instant'});
+        if(hintBottom){hintBottom.classList.add('visible');hintBottom.classList.add('tap-to-scroll')}
+      }
+
       // Scroll hint: show when page has overflow, hide near bottom or in essay mode
-      if(hintBottom&&!essayOpen){
+      if(hintBottom&&!essayOpen&&!scrollLocked){
         const atBottom=sy+window.innerHeight>=document.body.scrollHeight-20;
         if(document.body.scrollHeight>window.innerHeight+50&&!atBottom)
           hintBottom.classList.add('visible');
@@ -1813,10 +1821,8 @@ function onResize(){
   lastResizeW=newW;
   W=newW; H=newH;
 
-  // Resize canvases
+  // Resize display canvas (always needed)
   scene.width=W; scene.height=H;
-  treeC.width=W; treeC.height=H;
-  treeX.lineCap='round'; treeX.lineJoin='round';
 
   // Spatial hash
   COLS=Math.ceil(W/CELL)+1; ROWS=Math.ceil(H/CELL)+1;
@@ -1828,16 +1834,20 @@ function onResize(){
   grainImg=gctx.createImageData(GW,GH); gd=grainImg.data;
   for(let i=3;i<gd.length;i+=4) gd[i]=10;
 
-  // Only regenerate tree if width changed (skip mobile URL bar height changes)
   if(widthChanged){
+    // Full regeneration on width change
+    treeC.width=W; treeC.height=H;
+    treeX.lineCap='round'; treeX.lineJoin='round';
     generateTree();
     initPetals();
     phase='drawing';
     bloomStart=0;
     shadowLayers=null;
   } else {
-    // Height-only change: redraw existing tree at current state
-    shadowLayers=null;
+    // Height-only change (mobile URL bar): DON'T resize treeC
+    // Just recompute shadows from the existing tree canvas
+    if(phase!=='drawing') computeShadows();
+    else shadowLayers=null;
   }
 }
 
