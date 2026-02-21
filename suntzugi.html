@@ -83,12 +83,18 @@
   .ac-top{
     display:flex;align-items:baseline;gap:1rem;
     margin-bottom:.5rem;
+    flex-shrink:0;
+    position:sticky;top:0;
+    background:linear-gradient(to bottom, #1e2a4a 80%, transparent);
+    padding-bottom:.4rem;
+    z-index:1;
   }
   .ac-char{
     font-family:'Cormorant Garamond',serif;
     font-size:2rem;font-weight:300;
     color:#f2a0b5;opacity:.65;
     line-height:1;
+    flex-shrink:0;white-space:nowrap;
   }
   .ac-label{
     font-family:'Zen Kaku Gothic New',sans-serif;
@@ -303,8 +309,9 @@
 
   function showCard(name){
     if(activeCard === name) return;
-    Object.values(cards).forEach(c => c.classList.remove('show'));
+    Object.values(cards).forEach(c => { c.classList.remove('show'); c.scrollTop = 0; });
     if(cards[name]){
+      cards[name].scrollTop = 0;
       cards[name].classList.add('show');
       activeCard = name;
     }
