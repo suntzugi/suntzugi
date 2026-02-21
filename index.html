@@ -311,12 +311,12 @@
     background:transparent;
     cursor:pointer;
     display:flex;align-items:center;justify-content:center;
-    transition:background .4s ease;
+    transition:background .1s ease;
     pointer-events:auto;
     user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
   }
   .audio-btn:hover{background:rgba(242,160,181,.08)}
-  .audio-btn.playing{background:rgba(242,160,181,.12)}
+  .audio-btn.playing{background:rgba(242,160,181,.12);transition:background .4s ease}
   .audio-btn canvas{display:block}
 
   /* ── Now playing label ── */
@@ -564,16 +564,13 @@
   }
   .content{transition:opacity .5s ease}
   .scroll-hint-bottom{
-    position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);
+    position:fixed;bottom:1.5rem;left:10vw;transform:none;
     width:40px;height:1px;
     background:rgba(242,160,181,.5);
     z-index:12;
-    pointer-events:none;
+    pointer-events:auto;cursor:pointer;
     opacity:0;
     transition:opacity .6s ease;
-  }
-  @media (hover:none) and (pointer:coarse){
-    .scroll-hint-bottom{left:10vw;transform:none}
   }
   .scroll-hint-bottom.visible{
     opacity:1;
@@ -590,10 +587,7 @@
     background-size:contain;
     background-repeat:no-repeat;
     background-position:center;
-    transform:translateX(-50%) scaleY(-1);
-  }
-  @media (hover:none) and (pointer:coarse){
-    .scroll-hint-bottom.chraist-hint{transform:scaleY(-1)}
+    transform:scaleY(-1);
   }
   .scroll-hint-bottom.chraist-hint.visible{
     animation:chraistBreath 3s ease-in-out infinite;
@@ -602,7 +596,6 @@
     0%,100%{opacity:.35;filter:drop-shadow(0 0 4px rgba(242,160,181,.1))}
     50%{opacity:.8;filter:drop-shadow(0 0 8px rgba(242,160,181,.35))}
   }
-  .scroll-hint-bottom.tap-to-scroll{pointer-events:auto;cursor:pointer}
   .scroll-hint-bottom.tap-to-scroll::before{
     content:'';position:absolute;
     top:-22px;bottom:-22px;left:-20px;right:-20px;
@@ -990,7 +983,7 @@
     <div class="reading-block" id="draftsBlock">
       <div class="reading-section-label">currently being written</div>
       <ul class="reading-link-list" id="draftsList">
-        <li data-draft><a href="#" data-essay="my-time-has-come">My Time Has Come</a> <span class="countdown" data-target="2026-02-21T19:00:00-08:00"></span></li>
+        <li data-draft><a href="#" data-essay="my-time-has-come">My Time Has Come</a> <span class="countdown" data-target="2026-02-22T03:33:00+01:00"></span></li>
       </ul>
     </div>
     <div class="reading-block">
@@ -1675,6 +1668,14 @@ async function loadEssay(slug){
         },1200);
       });
     },{passive:false});
+
+    // Desktop click → smooth scroll to reading section
+    hintBottom.addEventListener('click',(e)=>{
+      if(isTouchDevice) return; // handled by touchstart on mobile
+      e.preventDefault();
+      const scrollTarget=readingSec?readingSec.offsetTop:document.body.scrollHeight;
+      window.scrollTo({top:scrollTarget,behavior:'smooth'});
+    });
   }
 
   // Essay link clicks — delegated so dynamically inserted links work
