@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:#1e2a4a;color:#d4d8e8;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:300;min-height:100vh;overflow:hidden;cursor:default}
+  body{background:#1e2a4a;color:#d4d8e8;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;cursor:default}
   .grain{position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.18;mix-blend-mode:screen}
   #scene{position:fixed;inset:0;z-index:2;pointer-events:none}
   .moonlight{position:fixed;inset:0;z-index:1;pointer-events:none;
@@ -44,7 +44,7 @@
   }
   .syl:hover,.syl.lit{color:#f2a0b5}
 
-  /* ── Annotation zone — fixed height, no overlap ── */
+  /* ── Annotation zone ── */
   .hover-zone{
     pointer-events:auto;
     position:relative;
@@ -52,7 +52,6 @@
   .anno-zone{
     height:clamp(180px, 35vh, 400px);
     margin-top:1.2rem;
-    margin-bottom:2rem;
     position:relative;
   }
   .anno-card{
@@ -69,20 +68,6 @@
   .anno-card.show{
     opacity:1;transform:translateY(0);pointer-events:auto;
     user-select:text;-webkit-user-select:text;
-  }
-  /* Custom scroll indicator */
-  .scroll-track{
-    position:absolute;right:0;top:0;bottom:0;width:3px;
-    pointer-events:none;opacity:0;transition:opacity .8s ease;
-    z-index:2;
-  }
-  .scroll-track.visible{opacity:1}
-  .scroll-thumb{
-    position:absolute;right:0;width:3px;
-    background:rgba(242,160,181,.4);
-    border-radius:3px;
-    box-shadow:0 0 6px rgba(242,160,181,.3);
-    transition:background .3s ease, box-shadow .3s ease;
   }
 
   /* Card inner layout */
@@ -109,6 +94,7 @@
     color:#a0a8c8;
     line-height:1.7;
     max-width:500px;
+    text-shadow:0 1px 6px rgba(10,14,30,.7);
   }
   .ac-quote{
     font-family:'Cormorant Garamond',serif;
@@ -119,6 +105,7 @@
     padding-left:1rem;
     border-left:1px solid rgba(242,160,181,.2);
     max-width:400px;
+    text-shadow:0 1px 6px rgba(10,14,30,.7);
   }
   .ac-quote .attr{
     display:block;
@@ -143,18 +130,39 @@
     margin:.8rem 0;
   }
 
-  /* ── Paragraph text — always visible ── */
-  .body-text{
-    font-family:'Cormorant Garamond',serif;
-    font-size:clamp(.95rem,1.6vw,1.1rem);
-    font-weight:300;
-    color:#7a84a8;
-    line-height:1.9;
-    max-width:440px;
-    letter-spacing:.01em;
+  /* ── Essay mode ── */
+  .essay-view{
+    position:fixed;inset:0;z-index:50;
+    overflow-y:auto;
     opacity:0;pointer-events:none;
-    transition:opacity .4s ease;
+    transition:opacity .5s ease;
   }
+  .essay-view.open{opacity:1;pointer-events:auto}
+  .essay-view-inner{
+    max-width:600px;
+    margin:0 auto;
+    padding:12vh 2rem 10vh;
+    text-align:center;
+  }
+  .essay-view-title{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;font-style:italic;
+    font-size:clamp(1.8rem,4vw,2.8rem);
+    color:#d4d8e8;
+    margin-bottom:3rem;
+    line-height:1.3;
+    text-shadow:0 2px 16px rgba(10,14,30,.8);
+  }
+  .essay-view-body{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;
+    font-size:clamp(1rem,1.8vw,1.15rem);
+    color:#a0a8c8;
+    line-height:2.2;
+    text-align:left;
+    text-shadow:0 1px 8px rgba(10,14,30,.6);
+  }
+  .essay-view-body p{margin-bottom:1.5rem}
 
   /* ── Audio toggle ── */
   .audio-btn{
@@ -380,6 +388,94 @@
   .edit-panel input[type="range"]::-moz-range-track{
     height:2px;background:rgba(242,160,181,.12);border:none;border-radius:1px;
   }
+
+  @keyframes scrollHintBreath{
+    0%,100%{opacity:.35;box-shadow:0 0 4px rgba(242,160,181,.1)}
+    50%{opacity:.8;box-shadow:0 0 8px rgba(242,160,181,.3)}
+  }
+
+  /* ── Nav title ── */
+  .nav-title{
+    position:fixed;top:1.2rem;left:50%;transform:translateX(-50%);
+    z-index:55;
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.5rem;font-weight:300;font-style:italic;
+    color:#d4d8e8;
+    text-shadow:0 1px 8px rgba(10,14,30,.6);
+    opacity:0;
+    transition:opacity .5s ease;
+    cursor:pointer;
+    pointer-events:none;
+    user-select:none;-webkit-user-select:none;
+  }
+  .nav-title.show{opacity:1;pointer-events:auto}
+
+  /* ── Reading section ── */
+  .reading{
+    position:relative;z-index:10;
+    padding:8vh 10vw 12vh;
+    transition:opacity .5s ease;
+  }
+  .content{transition:opacity .5s ease}
+  .scroll-hint-bottom{
+    position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);
+    width:40px;height:1px;
+    background:rgba(242,160,181,.5);
+    animation:scrollHintBreath 3s ease-in-out infinite;
+    z-index:12;
+    pointer-events:none;
+    transition:opacity .5s ease;
+  }
+  .reading-inner{
+    max-width:640px;
+  }
+  .reading-block{
+    margin-bottom:5rem;
+  }
+  .reading-block:last-child{margin-bottom:0}
+  .reading-section-label{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+    color:rgba(242,160,181,.5);
+    margin-bottom:1rem;
+    text-shadow:0 1px 6px rgba(10,14,30,.7);
+  }
+  .reading-section-title{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;font-style:italic;
+    font-size:clamp(1.8rem,4vw,2.8rem);
+    color:#d4d8e8;
+    margin-bottom:1.2rem;
+    line-height:1.2;
+  }
+  .reading-body{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;
+    font-size:clamp(.95rem,1.6vw,1.1rem);
+    color:#7a84a8;
+    line-height:2;
+    max-width:500px;
+  }
+  .reading-link-list{
+    list-style:none;padding:0;
+  }
+  .reading-link-list li{
+    margin-bottom:.6rem;
+  }
+  .reading-link-list a{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.8rem;
+    color:rgba(242,160,181,.7);
+    text-decoration:none;
+    border-bottom:1px solid rgba(242,160,181,.2);
+    transition:color .3s ease, border-color .3s ease;
+    letter-spacing:.03em;
+    text-shadow:0 1px 6px rgba(10,14,30,.7);
+  }
+  .reading-link-list a:hover{
+    color:rgba(242,160,181,1);
+    border-color:rgba(242,160,181,.5);
+  }
 </style>
 </head>
 <body>
@@ -387,6 +483,8 @@
 <canvas id="scene"></canvas>
 <div class="moonlight" id="moon"></div>
 <div class="vignette"></div>
+
+<nav class="nav-title" id="navTitle">Suntzugi</nav>
 
 <button class="audio-btn" id="audioBtn" aria-label="Toggle music">
   <canvas id="audioWave" width="24" height="24"></canvas>
@@ -442,9 +540,7 @@
   <div class="hover-zone" id="hoverZone">
   <h1 class="title" id="title"><span class="syl" data-i="0">Sun</span><span class="syl" data-i="1">tzu</span><span class="syl" data-i="2">gi</span></h1>
 
-  <!-- Annotation zone: only one card visible at a time -->
   <div class="anno-zone" id="annoZone">
-    <div class="scroll-track" id="scrollTrack"><div class="scroll-thumb" id="scrollThumb"></div></div>
 
     <!-- Single: Sun -->
     <div class="anno-card" id="card-sun">
@@ -553,20 +649,40 @@
   </div>
   </div><!-- end hover-zone -->
 
-  <p class="body-text">
-    A practice of turning fractures into constellations.
-    Where others see damage, Suntzugi sees the place
-    where light enters. Not hiding the break, but
-    illuminating it — with the patience of a turtle
-    and the warmth of the sun.
-  </p>
-
 </div></div>
+
+<section class="reading" id="readingSection">
+  <div class="reading-inner">
+    <div class="reading-block">
+      <div class="reading-section-label">essays</div>
+      <ul class="reading-link-list">
+        <li><a href="#" data-essay="my-time-has-come">My Time Has Come</a></li>
+      </ul>
+    </div>
+    <div class="reading-block">
+      <div class="reading-section-label">links</div>
+      <ul class="reading-link-list">
+        <li><a href="https://substack.com/@suntzugi" target="_blank">Substack</a></li>
+        <li><a href="https://x.com/suntzugi" target="_blank">Twitter</a></li>
+        <li><a href="mailto:suntzoogway@gmail.com">Email</a></li>
+        <li><a href="https://github.com/suntzugi" target="_blank">Github</a></li>
+        <li><a href="https://lovepill.org" target="_blank">Lovepill AI</a></li>
+        <li><a href="https://chraist.ai" target="_blank">Chraist</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<div class="scroll-hint-bottom"></div>
+
+<div class="essay-view" id="essayView">
+  <div class="essay-view-inner">
+    <h2 class="essay-view-title" id="essayTitle"></h2>
+    <div class="essay-view-body" id="essayBody"></div>
+  </div>
+</div>
 
 <script>
 // ── Annotation hover system ──
-// Leave detection on the whole hover-zone (title + annotation text)
-// Card selection driven by individual syllable enter events
 (function(){
   const syls = document.querySelectorAll('.syl');
   const zone = document.getElementById('hoverZone');
@@ -580,54 +696,17 @@
   };
 
   let activeCard = null;
-  let hoverHistory = []; // [{index, time}]
+  let hoverHistory = [];
   let leaveTimer = null;
   let insideZone = false;
 
-  const scrollTrack=document.getElementById('scrollTrack');
-  const scrollThumb=document.getElementById('scrollThumb');
-  let scrollHintTimer=null;
-  let activeScrollCard=null;
-
-  function updateScrollThumb(){
-    if(!activeScrollCard)return;
-    const el=activeScrollCard;
-    const ratio=el.clientHeight/el.scrollHeight;
-    const thumbH=Math.max(ratio*el.clientHeight,16);
-    const scrollFrac=el.scrollTop/(el.scrollHeight-el.clientHeight);
-    const trackH=el.clientHeight-thumbH;
-    scrollThumb.style.height=thumbH+'px';
-    scrollThumb.style.top=(scrollFrac*trackH)+'px';
-  }
-
   function showCard(name){
     if(activeCard === name) return;
-    if(scrollHintTimer){clearTimeout(scrollHintTimer);scrollHintTimer=null}
-    if(activeScrollCard){activeScrollCard.removeEventListener('scroll',updateScrollThumb);activeScrollCard=null}
-    scrollTrack.classList.remove('visible');
     Object.values(cards).forEach(c => { c.classList.remove('show'); c.scrollTop = 0; });
     if(cards[name]){
       cards[name].scrollTop = 0;
       cards[name].classList.add('show');
       activeCard = name;
-      // Check overflow after render
-      requestAnimationFrame(()=>{
-        const el=cards[name];
-        if(el.scrollHeight>el.clientHeight){
-          activeScrollCard=el;
-          updateScrollThumb();
-          let scrollFadeTimer=null;
-          el.addEventListener('scroll',()=>{
-            updateScrollThumb();
-            scrollTrack.classList.add('visible');
-            if(scrollFadeTimer)clearTimeout(scrollFadeTimer);
-            scrollFadeTimer=setTimeout(()=>scrollTrack.classList.remove('visible'),1200);
-          },{passive:true});
-          // Initial glow hint then fade
-          scrollTrack.classList.add('visible');
-          scrollHintTimer=setTimeout(()=>scrollTrack.classList.remove('visible'),1500);
-        }
-      });
     }
   }
 
@@ -643,61 +722,47 @@
     const recent = hoverHistory.filter(h => now - h.time < 1200);
     const indices = new Set(recent.map(h => h.index));
 
-    // Full word: all 3 visited OR compound + third syllable
     if(indices.has(0) && indices.has(1) && indices.has(2)){
       syls.forEach(s => s.classList.add('lit'));
-      showCard('full');
-      return;
+      showCard('full'); return;
     }
     if(activeCard === 'suntzu' && currentSyl === 2){
       hoverHistory.push({index:2, time:now});
       syls.forEach(s => s.classList.add('lit'));
-      showCard('full');
-      return;
+      showCard('full'); return;
     }
     if(activeCard === 'tzugi' && currentSyl === 0){
       hoverHistory.push({index:0, time:now});
       syls.forEach(s => s.classList.add('lit'));
-      showCard('full');
-      return;
+      showCard('full'); return;
     }
-
-    // Compound: Sun+tzu
     if(indices.has(0) && indices.has(1)){
       syls[0].classList.add('lit'); syls[1].classList.add('lit');
       syls[2].classList.remove('lit');
-      showCard('suntzu');
-      return;
+      showCard('suntzu'); return;
     }
     if(activeCard === 'sun' && currentSyl === 1){
       hoverHistory.push({index:0, time:now});
       syls[0].classList.add('lit'); syls[1].classList.add('lit');
       syls[2].classList.remove('lit');
-      showCard('suntzu');
-      return;
+      showCard('suntzu'); return;
     }
-
-    // Compound: tzu+gi
     if(indices.has(1) && indices.has(2)){
       syls[1].classList.add('lit'); syls[2].classList.add('lit');
       syls[0].classList.remove('lit');
-      showCard('tzugi');
-      return;
+      showCard('tzugi'); return;
     }
     if(activeCard === 'tzu' && currentSyl === 2){
       hoverHistory.push({index:1, time:now});
       syls[1].classList.add('lit'); syls[2].classList.add('lit');
       syls[0].classList.remove('lit');
-      showCard('tzugi');
-      return;
+      showCard('tzugi'); return;
     }
 
-    // Single
     syls.forEach((s,j) => j===currentSyl ? s.classList.add('lit') : s.classList.remove('lit'));
     showCard(['sun','tzu','gi'][currentSyl]);
   }
 
-  // Syllable enter — drives card selection
   syls.forEach((el, i) => {
     el.addEventListener('mouseenter', () => {
       if(leaveTimer){clearTimeout(leaveTimer);leaveTimer=null}
@@ -707,7 +772,6 @@
     });
   });
 
-  // Zone-level leave — only hide when cursor exits the ENTIRE zone
   zone.addEventListener('mouseenter', () => {
     insideZone = true;
     if(leaveTimer){clearTimeout(leaveTimer);leaveTimer=null}
@@ -720,8 +784,6 @@
     }, 500);
   });
 
-  // ── Touch support ──
-  // Tap syllable to show card
   syls.forEach((el, i) => {
     el.addEventListener('touchstart', (e) => {
       e.preventDefault();
@@ -733,12 +795,181 @@
     }, {passive:false});
   });
 
-  // Tap outside hover-zone to dismiss cards
   document.addEventListener('touchstart', (e) => {
     if(activeCard && !zone.contains(e.target)){
       hideAll();
     }
   }, {passive:true});
+})();
+</script>
+
+<script>
+// ── Essay loader — fetches essays/{slug}.md, falls back to inline ──
+const essayCache={};
+
+// Inline fallback (works on file:// protocol where fetch fails)
+const essayFallback={
+  'my-time-has-come':{
+    title:'My Time Has Come',
+    body:'<p>There is a moment \u2014 not loud, not dramatic \u2014 when the turtle lifts its head and knows. Not because the world changed, but because something inside finally stopped resisting what it always was.</p>\n<p>Master Oogway stood at the edge of the peach tree, petals falling around him like the universe exhaling. He did not fight it. He did not mourn it. He smiled \u2014 because the whole point was never to stay.</p>\n<p>The whole point was to show someone else how to bloom.</p>\n<p>My time has come. Not as an ending, but as a turning. The version of me that needed to prove, to chase, to explain \u2014 that version completed its arc. What remains is simpler: the quiet work of mending, the patience of gold poured into cracks, the faith that light reaches what it needs to reach.</p>\n<p>This is not a farewell. It is a beginning that looks like stillness.</p>'
+  }
+};
+
+function parseMd(md){
+  const lines=md.split('\n');
+  let title='',bodyLines=[];
+  let pastTitle=false;
+  for(const line of lines){
+    if(!pastTitle&&line.startsWith('# ')){
+      title=line.slice(2).trim();
+      pastTitle=true;
+      continue;
+    }
+    if(pastTitle) bodyLines.push(line);
+  }
+  const raw=bodyLines.join('\n').trim();
+  const body=raw.split(/\n\n+/).map(block=>{
+    let html=block.replace(/\n/g,' ')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,'<em>$1</em>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+    return '<p>'+html+'</p>';
+  }).join('\n');
+  return {title,body};
+}
+
+async function loadEssay(slug){
+  if(essayCache[slug]) return essayCache[slug];
+  try{
+    const res=await fetch('essays/'+slug+'.md');
+    if(res.ok){
+      const md=await res.text();
+      const parsed=parseMd(md);
+      essayCache[slug]=parsed;
+      return parsed;
+    }
+  }catch(e){/* fetch fails on file:// — fall through */}
+  // Fallback to inline data
+  if(essayFallback[slug]){
+    essayCache[slug]=essayFallback[slug];
+    return essayFallback[slug];
+  }
+  return null;
+}
+</script>
+
+<script>
+// ── Scroll-driven hero collapse + essay mode ──
+(function(){
+  const navTitle=document.getElementById('navTitle');
+  const ciEl=document.querySelector('.ci');
+  const essayView=document.getElementById('essayView');
+  const essayTitle=document.getElementById('essayTitle');
+  const essayBody=document.getElementById('essayBody');
+  const vh=window.innerHeight;
+  let ticking=false;
+  let revealDone=false;
+  let essayOpen=false;
+
+  // Wait for .ci reveal animation to finish (~1.4s = 0.2s delay + 1.2s anim)
+  setTimeout(()=>{
+    revealDone=true;
+    if(ciEl){ciEl.style.animation='none';ciEl.style.opacity='1';ciEl.style.transform='translateY(0)'}
+  },1500);
+
+  const contentEl=document.querySelector('.content');
+  const readingSec=document.getElementById('readingSection');
+  const hintBottom=document.querySelector('.scroll-hint-bottom');
+
+  function rebuildTree(){
+    generateTree();initPetals();
+    phase='drawing';bloomStart=0;shadowLayers=null;
+  }
+
+  // Essay link clicks — fetch from essays/{slug}.md
+  document.querySelectorAll('[data-essay]').forEach(link=>{
+    link.addEventListener('click',async e=>{
+      e.preventDefault();
+      const slug=link.dataset.essay;
+      const data=await loadEssay(slug);
+      if(!data)return;
+
+      // Fade out landing content
+      if(contentEl) contentEl.style.opacity='0';
+      if(readingSec) readingSec.style.opacity='0';
+      if(hintBottom) hintBottom.style.opacity='0';
+
+      // After fade, rebuild tree on the side and show essay
+      setTimeout(()=>{
+        window.scrollTo({top:0,behavior:'instant'});
+        essayMode=true;
+        rebuildTree();
+
+        essayTitle.textContent=data.title;
+        essayBody.innerHTML=data.body;
+        essayView.classList.add('open');
+        essayOpen=true;
+        navTitle.classList.add('show');
+      },500);
+    });
+  });
+
+  function closeEssay(){
+    // Fade out essay view first
+    essayView.classList.remove('open');
+    essayOpen=false;
+
+    // After fade completes, rebuild tree in original position and restore landing
+    setTimeout(()=>{
+      window.scrollTo({top:0,behavior:'instant'});
+      essayMode=false;
+      rebuildTree();
+
+      if(contentEl) contentEl.style.opacity='1';
+      if(readingSec) readingSec.style.opacity='1';
+      if(hintBottom) hintBottom.style.opacity='1';
+      navTitle.classList.remove('show');
+    },500);
+  }
+
+  navTitle.addEventListener('click',()=>{
+    if(essayOpen){
+      closeEssay();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }else{
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+  });
+
+  window.addEventListener('scroll',()=>{
+    if(ticking)return;
+    ticking=true;
+    requestAnimationFrame(()=>{
+      const sy=window.scrollY;
+      const progress=sy/(vh*.7);
+
+      // Hero .ci fades out with slight parallax (progress 0.3–0.7)
+      if(revealDone&&ciEl){
+        if(progress<=.3){
+          ciEl.style.opacity='1';
+          ciEl.style.transform='translateY(0)';
+        }else if(progress>=.7){
+          ciEl.style.opacity='0';
+          ciEl.style.transform='translateY(-30px)';
+        }else{
+          const fade=1-(progress-.3)/.4;
+          ciEl.style.opacity=fade;
+          ciEl.style.transform='translateY('+(-((1-fade)*30))+'px)';
+        }
+      }
+
+      // Nav-title fades in when scrolled past halfway (or stays on in essay mode)
+      if(essayOpen||progress>.5) navTitle.classList.add('show');
+      else navTitle.classList.remove('show');
+
+      ticking=false;
+    });
+  },{passive:true});
 })();
 </script>
 
@@ -918,12 +1149,20 @@ function genBonsai(parent, forkT, x, y, angle, length, thickness, depth, maxDept
   }
 }
 
+let essayMode=false;
+
 function generateTree(){
   allBranches.length=0;
   petalAnchors.length=0;
 
   const isMobile = W < 768;
-  const bx = isMobile ? W*(.5+R()*.15) : Math.min(W*(.65+R()*.1), W-80);
+  let bx;
+  if(essayMode){
+    // Tree on the right side, flanking the centered essay
+    bx = isMobile ? W*.75 : Math.min(W*.82+R()*.06, W-60);
+  } else {
+    bx = isMobile ? W*(.5+R()*.15) : Math.min(W*(.65+R()*.1), W-80);
+  }
   const by = H*1.01;
   const trunkAngle=-Math.PI/2+(R()-.5)*.2;
   const trunkLen = (isMobile ? Math.min(H,W)*(.3+R()*.06) : H*(.25+R()*.08)) * treeParams.treeHeight;
@@ -1098,6 +1337,30 @@ function initPetals(){
 }
 initPetals();
 
+// Subtle petal dim under text — petals stay visible, just slightly muted
+const _dimStatic=[document.querySelector('.ci'),document.querySelector('.reading')];
+const _dimEssayInner=document.querySelector('.essay-view-inner');
+const _dimNav=document.getElementById('navTitle');
+function petalDim(x,y){
+  // Static text areas (hero + reading section)
+  for(let i=0;i<_dimStatic.length;i++){
+    const el=_dimStatic[i];if(!el)continue;
+    const r=el.getBoundingClientRect();if(r.width===0||r.height===0)continue;
+    if(x>=r.left-1&&x<=r.right+1&&y>=r.top-1&&y<=r.bottom+1) return .8;
+  }
+  // Essay view inner (only when open)
+  if(_dimEssayInner&&_dimEssayInner.parentElement.classList.contains('open')){
+    const r=_dimEssayInner.getBoundingClientRect();
+    if(r.width>0&&r.height>0&&x>=r.left-1&&x<=r.right+1&&y>=r.top-1&&y<=r.bottom+1) return .8;
+  }
+  // Nav title
+  if(_dimNav&&_dimNav.classList.contains('show')){
+    const r=_dimNav.getBoundingClientRect();
+    if(r.width>0&&r.height>0&&x>=r.left-8&&x<=r.right+8&&y>=r.top-4&&y<=r.bottom+4) return .8;
+  }
+  return 1;
+}
+
 
 function freeP(i,fromCursor){
   if(pst[i]!==0)return;pst[i]=1;pal[i]=1;
@@ -1139,6 +1402,7 @@ function spreadBloom(){
 }
 
 function updatePetals(){
+  fadeY=titleEl?titleEl.getBoundingClientRect().bottom:H*.45;
   gCl();
 
   // Cursor velocity (smoothed)
@@ -1314,6 +1578,7 @@ function renderPetals(){
   for(let i=0;i<N;i++){
     if(pst[i]!==1)continue;if(pal[i]<=.01)continue;
     const x=ppx[i],y=ppy[i];
+    const dimMul=petalDim(x,y);
     const heightRatio=Math.max(0,1-y/H);
     const glowIntensity=heightRatio*heightRatio*treeParams.glowIntensity;
 
@@ -1339,27 +1604,27 @@ function renderPetals(){
       gr.addColorStop(0,`rgba(${wr|0},${wg|0},${wb|0},${pal[i]*glowAlpha})`);
       gr.addColorStop(.5,`rgba(${wr|0},${wg|0},${wb|0},${pal[i]*glowAlpha*.3})`);
       gr.addColorStop(1,`rgba(${wr|0},${wg|0},${wb|0},0)`);
-      ctx.fillStyle=gr;
+      ctx.globalAlpha=dimMul;ctx.fillStyle=gr;
       ctx.beginPath();ctx.arc(x,y,gRad,0,Math.PI*2);ctx.fill();
     }
 
     // Flower sprite
     const fs=fSpr[pci[i]][psi[i]];
     const brightBoost=pBright[i]?glowIntensity*.5:glowIntensity*.3;
-    ctx.globalAlpha=Math.min(pal[i]*(1+brightBoost),1);
+    ctx.globalAlpha=Math.min(pal[i]*(1+brightBoost),1)*dimMul;
     ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.rotate(pro[i]*.3);
     ctx.drawImage(fs.canvas,-fs.cx,-fs.cy);ctx.restore();
 
     // Petal sprite
     const ps=pSpr[pci[i]][psi[i]];
-    ctx.globalAlpha=Math.min(pal[i]*(1+brightBoost),1);
+    ctx.globalAlpha=Math.min(pal[i]*(1+brightBoost),1)*dimMul;
     ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.rotate(pro[i]);
     ctx.drawImage(ps.canvas,-ps.cx,-ps.cy);ctx.restore();
 
     // Bright petals: white screen overlay
     if(pBright[i]&&glowIntensity>.15){
       ctx.globalCompositeOperation='screen';
-      ctx.globalAlpha=pal[i]*glowIntensity*.6;
+      ctx.globalAlpha=pal[i]*glowIntensity*.6*dimMul;
       ctx.fillStyle='rgba(255,240,250,.9)';
       ctx.beginPath();ctx.arc(x,y,(3+glowIntensity*4)*scale,0,Math.PI*2);ctx.fill();
       ctx.globalCompositeOperation='source-over';
