@@ -195,7 +195,7 @@
     text-transform:uppercase;
     color:rgba(242,160,181,.4);
     margin-bottom:.2rem;
-    animation:npPulse 3s ease-in-out infinite;
+    animation:npPulse 6s ease-in-out infinite;
   }
   .now-playing .np-dot{
     display:inline-block;
@@ -204,7 +204,7 @@
     background:rgba(242,160,181,.6);
     margin-right:.4rem;
     vertical-align:middle;
-    animation:npPulse 3s ease-in-out infinite;
+    animation:npPulse 6s ease-in-out infinite;
   }
   .now-playing .np-info{
     cursor:pointer;
@@ -268,6 +268,118 @@
   }
   .song-picker-item.active .sp-title{color:rgba(242,160,181,.85)}
   .song-picker-item.active .sp-artist{color:rgba(242,160,181,.5)}
+
+  /* ── Edit Panel ── */
+  .edit-panel{
+    position:fixed;top:0;right:0;bottom:0;z-index:200;
+    width:320px;max-width:90vw;
+    background:rgba(15,20,40,.88);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border-left:1px solid rgba(242,160,181,.1);
+    padding:2rem 1.5rem;
+    overflow-y:auto;scrollbar-width:none;
+    opacity:0;transform:translateX(20px);
+    transition:opacity .3s ease,transform .3s ease;
+    pointer-events:none;
+  }
+  .edit-panel::-webkit-scrollbar{width:0}
+  .edit-panel.open{opacity:1;transform:translateX(0);pointer-events:auto}
+  .edit-panel .ep-header{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    margin-bottom:1.5rem;
+  }
+  .edit-panel .ep-title{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.65rem;letter-spacing:.15em;text-transform:lowercase;
+    color:rgba(242,160,181,.5);
+  }
+  .edit-panel .ep-presets{display:flex;gap:.4rem;margin-top:.4rem;flex-wrap:wrap}
+  .edit-panel .ep-preset-btn{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.45rem;letter-spacing:.08em;
+    color:rgba(242,160,181,.3);
+    background:none;border:1px solid rgba(242,160,181,.1);
+    border-radius:3px;padding:.2rem .5rem;cursor:pointer;
+    transition:color .3s,border-color .3s,background .3s;
+  }
+  .edit-panel .ep-preset-btn:hover{
+    color:rgba(242,160,181,.5);border-color:rgba(242,160,181,.25);
+  }
+  .edit-panel .ep-preset-btn.active{
+    color:rgba(242,160,181,.7);border-color:rgba(242,160,181,.3);
+    background:rgba(242,160,181,.06);
+  }
+  .edit-panel .ep-styles{display:flex;gap:.35rem;flex-wrap:wrap}
+  .edit-panel .ep-style-btn{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.42rem;letter-spacing:.06em;
+    color:rgba(212,216,232,.35);
+    background:none;border:1px solid rgba(212,216,232,.1);
+    border-radius:3px;padding:.18rem .45rem;cursor:pointer;
+    transition:color .3s,border-color .3s,background .3s;
+  }
+  .edit-panel .ep-style-btn:hover{
+    color:rgba(212,216,232,.55);border-color:rgba(212,216,232,.2);
+  }
+  .edit-panel .ep-style-btn.active{
+    color:rgba(242,160,181,.7);border-color:rgba(242,160,181,.25);
+    background:rgba(242,160,181,.06);
+  }
+  .edit-panel .ep-close{
+    width:28px;height:28px;
+    border:1px solid rgba(242,160,181,.15);border-radius:50%;
+    background:none;color:rgba(242,160,181,.5);
+    font-family:'SF Mono',monospace;font-size:.7rem;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:border-color .3s,color .3s;flex-shrink:0;
+  }
+  .edit-panel .ep-close:hover{
+    border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8);
+  }
+  .edit-panel .ep-group{margin-bottom:1.2rem}
+  .edit-panel .ep-group-title{
+    font-family:'SF Mono',monospace;font-size:.5rem;
+    letter-spacing:.15em;text-transform:uppercase;
+    color:rgba(242,160,181,.3);margin-bottom:.6rem;
+  }
+  .edit-panel .ep-slider-row{
+    display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;
+  }
+  .edit-panel .ep-num{
+    font-family:'SF Mono',monospace;font-size:.5rem;
+    color:rgba(242,160,181,.25);width:1.2rem;text-align:right;flex-shrink:0;
+  }
+  .edit-panel .ep-slider-wrap{flex:1;display:flex;flex-direction:column}
+  .edit-panel .ep-slider-info{display:flex;justify-content:space-between;margin-bottom:.2rem}
+  .edit-panel .ep-slider-name{
+    font-family:'SF Mono',monospace;font-size:.48rem;
+    color:rgba(212,216,232,.5);letter-spacing:.05em;
+  }
+  .edit-panel .ep-slider-val{
+    font-family:'SF Mono',monospace;font-size:.48rem;
+    color:rgba(242,160,181,.5);
+  }
+  .edit-panel input[type="range"]{
+    -webkit-appearance:none;appearance:none;width:100%;height:2px;
+    background:rgba(242,160,181,.12);border-radius:1px;outline:none;cursor:pointer;
+  }
+  .edit-panel input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:10px;height:10px;border-radius:50%;
+    background:rgba(242,160,181,.7);border:none;
+    box-shadow:0 0 6px rgba(242,160,181,.3);cursor:pointer;
+    transition:background .2s,box-shadow .2s;
+  }
+  .edit-panel input[type="range"]::-webkit-slider-thumb:hover{
+    background:rgba(242,160,181,.9);box-shadow:0 0 10px rgba(242,160,181,.5);
+  }
+  .edit-panel input[type="range"]::-moz-range-thumb{
+    width:10px;height:10px;border-radius:50%;
+    background:rgba(242,160,181,.7);border:none;
+    box-shadow:0 0 6px rgba(242,160,181,.3);cursor:pointer;
+  }
+  .edit-panel input[type="range"]::-moz-range-track{
+    height:2px;background:rgba(242,160,181,.12);border:none;border-radius:1px;
+  }
 </style>
 </head>
 <body>
@@ -288,6 +400,42 @@
   </div>
 </div>
 <div class="song-picker" id="songPicker"></div>
+
+<div class="edit-panel" id="editPanel">
+  <div class="ep-header">
+    <div>
+      <div class="ep-title">tree parameters</div>
+      <div class="ep-presets" id="epPresets"></div>
+    </div>
+    <button class="ep-close" id="epClose">0</button>
+  </div>
+  <div class="ep-group">
+    <div class="ep-group-title">1. Shadow</div>
+    <div class="ep-slider-row"><span class="ep-num">1</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">shadow darkness</span><span class="ep-slider-val" id="val-shadowDarkness">2.40</span></div><input type="range" min="0.2" max="3.0" step="0.05" value="2.4" data-param="shadowDarkness"></div></div>
+    <div class="ep-slider-row"><span class="ep-num">2</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">shadow blur</span><span class="ep-slider-val" id="val-shadowBlur">0.45</span></div><input type="range" min="0.2" max="3.0" step="0.05" value="0.45" data-param="shadowBlur"></div></div>
+  </div>
+  <div class="ep-group">
+    <div class="ep-group-title">2. Animation</div>
+    <div class="ep-slider-row"><span class="ep-num">3</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">draw speed</span><span class="ep-slider-val" id="val-drawSpeed">1.00</span></div><input type="range" min="0.3" max="3.0" step="0.05" value="1.0" data-param="drawSpeed"></div></div>
+    <div class="ep-slider-row"><span class="ep-num">4</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">bloom speed</span><span class="ep-slider-val" id="val-bloomSpeed">1.00</span></div><input type="range" min="0.3" max="3.0" step="0.05" value="1.0" data-param="bloomSpeed"></div></div>
+    <div class="ep-slider-row"><span class="ep-num">5</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">petal fade rate</span><span class="ep-slider-val" id="val-petalFadeRate">1.00</span></div><input type="range" min="0.3" max="3.0" step="0.05" value="1.0" data-param="petalFadeRate"></div></div>
+  </div>
+  <div class="ep-group">
+    <div class="ep-group-title">3. Tree Shape</div>
+    <div class="ep-slider-row"><span class="ep-num">6</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">trunk thickness</span><span class="ep-slider-val" id="val-trunkThickness">1.00</span></div><input type="range" min="0.5" max="2.0" step="0.05" value="1.0" data-param="trunkThickness"></div></div>
+    <div class="ep-slider-row"><span class="ep-num">7</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">branch spread</span><span class="ep-slider-val" id="val-branchSpread">1.00</span></div><input type="range" min="0.3" max="2.0" step="0.05" value="1.0" data-param="branchSpread"></div></div>
+    <div class="ep-slider-row"><span class="ep-num">8</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">max depth</span><span class="ep-slider-val" id="val-maxDepth">5</span></div><input type="range" min="3" max="7" step="1" value="5" data-param="maxDepth"></div></div>
+    <div class="ep-slider-row"><span class="ep-num">9</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">branch density</span><span class="ep-slider-val" id="val-branchDensity">1.00</span></div><input type="range" min="0.5" max="2.0" step="0.05" value="1.0" data-param="branchDensity"></div></div>
+    <div class="ep-slider-row"><span class="ep-num">10</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">tree height</span><span class="ep-slider-val" id="val-treeHeight">1.00</span></div><input type="range" min="0.3" max="2.0" step="0.05" value="1.0" data-param="treeHeight"></div></div>
+    <div class="ep-slider-row"><span class="ep-num">11</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">tree width</span><span class="ep-slider-val" id="val-treeWidth">1.00</span></div><input type="range" min="0.3" max="2.0" step="0.05" value="1.0" data-param="treeWidth"></div></div>
+    <div class="ep-slider-row"><span class="ep-num"></span><div class="ep-slider-wrap"><div class="ep-slider-name" style="margin-bottom:.3rem">tree style</div><div class="ep-styles" id="epStyles"></div></div></div>
+  </div>
+  <div class="ep-group">
+    <div class="ep-group-title">4. Petals</div>
+    <div class="ep-slider-row"><span class="ep-num">12</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">petal density</span><span class="ep-slider-val" id="val-petalDensity">1.00</span></div><input type="range" min="0.3" max="2.0" step="0.05" value="1.0" data-param="petalDensity"></div></div>
+    <div class="ep-slider-row"><span class="ep-num">13</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">glow intensity</span><span class="ep-slider-val" id="val-glowIntensity">1.00</span></div><input type="range" min="0" max="3.0" step="0.05" value="1.0" data-param="glowIntensity"></div></div>
+  </div>
+</div>
 
 <div class="content"><div class="ci">
 
@@ -595,6 +743,33 @@
 </script>
 
 <script>
+// ── Tree Parameters (edit panel) ──
+const treePresets={
+  'Dark Wood':{
+    shadowDarkness:2.4, shadowBlur:.45,
+    drawSpeed:1.0, bloomSpeed:1.0, petalFadeRate:1.0,
+    trunkThickness:1.0, branchSpread:1.0, maxDepth:5, branchDensity:1.0,
+    treeHeight:1.0, treeWidth:1.0, treeStyle:'bonsai',
+    petalDensity:1.0, glowIntensity:1.0,
+  },
+  'Shadow Cherry':{
+    shadowDarkness:1.3, shadowBlur:1.0,
+    drawSpeed:1.0, bloomSpeed:1.0, petalFadeRate:1.0,
+    trunkThickness:1.0, branchSpread:1.0, maxDepth:5, branchDensity:1.0,
+    treeHeight:1.0, treeWidth:1.0, treeStyle:'bonsai',
+    petalDensity:1.0, glowIntensity:1.0,
+  },
+  'Dark Blossom':{
+    shadowDarkness:2.2, shadowBlur:1.3,
+    drawSpeed:1.0, bloomSpeed:1.0, petalFadeRate:1.0,
+    trunkThickness:1.0, branchSpread:1.0, maxDepth:5, branchDensity:1.0,
+    treeHeight:1.0, treeWidth:1.0, treeStyle:'bonsai',
+    petalDensity:1.0, glowIntensity:1.4,
+  },
+};
+let currentPreset='Dark Wood';
+const treeParams=Object.assign({},treePresets['Dark Wood']);
+
 // W, H = canvas resolution (tree coordinate space)
 let W=window.innerWidth, H=window.innerHeight;
 let mx=-9999,my=-9999,nmx=.5,nmy=.5,smx=.5,smy=.5;
@@ -670,12 +845,13 @@ function makeBranch(x0,y0,cx0,cy0,cx1,cy1,x1,y1,thS,thE,parent,forkT,depth){
   const b={x0,y0,cx0,cy0,cx1,cy1,x1,y1,thS,thE,parent,forkT,depth,
     children:[],drawProg:0,drawSpeed:0,idx:allBranches.length};
   const len=Math.sqrt((x1-x0)**2+(y1-y0)**2);
-  b.drawSpeed = Math.max(len,60) / 120;
+  b.drawSpeed = Math.max(len,60) / (120 * treeParams.drawSpeed);
   allBranches.push(b);
   return b;
 }
 
 function addPetalsAlongBranch(b, count){
+  count=Math.round(count*treeParams.petalDensity);
   if(count<=0)return;
   for(let i=0;i<count;i++){
     const t=.15+R()*.85;
@@ -693,7 +869,10 @@ function addPetalsAlongBranch(b, count){
 
 function genBonsai(parent, forkT, x, y, angle, length, thickness, depth, maxDepth, side){
   if(depth>maxDepth||thickness<.7)return;
-  const bendStr=(.2+R()*.5)*(R()<.5?1:-1);
+  const style=treeParams.treeStyle||'bonsai';
+  let bendStr=(.2+R()*.5)*(R()<.5?1:-1);
+  if(style==='willow'&&depth>=1) bendStr+=.25;
+  if(style==='pine') bendStr*=.4;
   const ex=x+Math.cos(angle)*length,ey=y+Math.sin(angle)*length;
   const m1=.33,m2=.66;
   const cx0=x+Math.cos(angle+bendStr*.4)*length*m1;
@@ -711,6 +890,9 @@ function genBonsai(parent, forkT, x, y, angle, length, thickness, depth, maxDept
   else if(depth===1)numKids=2+Math.floor(R()*2);
   else if(depth===2)numKids=1+Math.floor(R()*2);
   else numKids=R()<.6?1:0;
+  if(style==='willow'&&depth>=2) numKids=Math.max(numKids,1+Math.floor(R()*2));
+  if(style==='pine'&&depth>=3) numKids=Math.min(numKids,R()<.4?1:0);
+  numKids=Math.max(Math.round(numKids*treeParams.branchDensity),0);
 
   const forkSpots=[];
   for(let i=0;i<numKids;i++)forkSpots.push(.35+R()*.55);
@@ -719,14 +901,18 @@ function genBonsai(parent, forkT, x, y, angle, length, thickness, depth, maxDept
   for(let i=0;i<numKids;i++){
     const ft=forkSpots[i];
     const forkPt=bzPt(ft,x,y,cx0,cy0,cx1,cy1,ex,ey);
-    const spreadBase=depth<2?(.6+R()*.6):(.4+R()*.5);
+    let spreadBase=(depth<2?(.6+R()*.6):(.4+R()*.5))*treeParams.branchSpread;
+    if(style==='willow') spreadBase*=1.3;
+    if(style==='pine') spreadBase*=.55;
     const childSide=(i%2===0?-1:1)*(side||1);
     const spreadAngle=spreadBase*childSide;
     const ft2=Math.min(ft+.02,1);
     const fp2=bzPt(ft2,x,y,cx0,cy0,cx1,cy1,ex,ey);
     const tangent=Math.atan2(fp2.y-forkPt.y,fp2.x-forkPt.x);
-    const childAngle=tangent+spreadAngle+(R()-.5)*.2;
-    const childLen=length*(.45+R()*.2);
+    let childAngle=tangent+spreadAngle+(R()-.5)*.2;
+    if(style==='willow'&&depth>=1) childAngle+=Math.min(depth*.12,.5);
+    if(style==='pine') childAngle+=(-Math.PI/2-childAngle)*.15;
+    const childLen=length*(.45+R()*.2)*treeParams.treeWidth;
     const childThick=thickness*(.4+R()*.2);
     genBonsai(b,ft,forkPt.x,forkPt.y,childAngle,childLen,childThick,depth+1,maxDepth,childSide);
   }
@@ -740,9 +926,9 @@ function generateTree(){
   const bx = isMobile ? W*(.5+R()*.15) : Math.min(W*(.65+R()*.1), W-80);
   const by = H*1.01;
   const trunkAngle=-Math.PI/2+(R()-.5)*.2;
-  const trunkLen = isMobile ? Math.min(H,W)*(.3+R()*.06) : H*(.25+R()*.08);
-  const trunkThick = isMobile ? 18+R()*6 : 22+R()*8;
-  const maxD=4+Math.floor(R()*2);
+  const trunkLen = (isMobile ? Math.min(H,W)*(.3+R()*.06) : H*(.25+R()*.08)) * treeParams.treeHeight;
+  const trunkThick = (isMobile ? 18+R()*6 : 22+R()*8) * treeParams.trunkThickness;
+  const maxD=treeParams.maxDepth;
   genBonsai(null,0,bx,by,trunkAngle,trunkLen,trunkThick,0,maxD,1);
   const t2angle=trunkAngle+(.2+R()*.3)*(R()<.5?-1:1);
   genBonsai(null,0,bx+(R()-.5)*8,by,t2angle,trunkLen*(.5+R()*.2),trunkThick*.45,1,maxD-1,-1);
@@ -1021,7 +1207,7 @@ function updatePetals(){
     if(pst[i]===1){
       // Only start fading once above the title
       if(ppy[i]<fadeY){
-        const fadeRate=pBright[i]?.0008:.0015;
+        const fadeRate=(pBright[i]?.0008:.0015)*treeParams.petalFadeRate;
         pal[i]-=fadeRate;
       }
       // Pull toward upper-left corner from current position
@@ -1066,7 +1252,7 @@ function updatePetals(){
         continue;
       }
       // Slower bloom fade-in
-      pal[i]+=.025;
+      pal[i]+=.025*treeParams.bloomSpeed;
       if(pal[i]>=1){pal[i]=1;pst[i]=0;pct[i]=-1;pvx[i]=0;pvy[i]=0}
     }
   }
@@ -1085,16 +1271,20 @@ const treeX=treeC.getContext('2d');treeX.lineCap='round';treeX.lineJoin='round';
 
 let shadowLayers=null,moonEdgeC=null;
 
-function computeShadows(){
-  renderFullTree(treeX);
+function buildShadowLayers(){
   shadowLayers=[];
-  [{blur:50,a:.07,ox:-6,oy:-6},{blur:28,a:.12,ox:-2,oy:-2},{blur:14,a:.16,ox:0,oy:0},{blur:5,a:.12,ox:1,oy:1}].forEach(p=>{
+  [{blur:50*treeParams.shadowBlur,a:.07,ox:-6,oy:-6},{blur:28*treeParams.shadowBlur,a:.12,ox:-2,oy:-2},{blur:14*treeParams.shadowBlur,a:.16,ox:0,oy:0},{blur:5*treeParams.shadowBlur,a:.12,ox:1,oy:1}].forEach(p=>{
     const c=document.createElement('canvas');c.width=W;c.height=H;
     const cx=c.getContext('2d');cx.filter=`blur(${p.blur}px)`;cx.drawImage(treeC,0,0,W,H);
     shadowLayers.push({canvas:c,alpha:p.a,ox:p.ox,oy:p.oy});
   });
   moonEdgeC=document.createElement('canvas');moonEdgeC.width=W;moonEdgeC.height=H;
   const me=moonEdgeC.getContext('2d');me.filter='blur(28px)';me.drawImage(treeC,0,0,W,H);
+}
+
+function computeShadows(){
+  renderFullTree(treeX);
+  buildShadowLayers();
 }
 
 let shOX=0,shOY=0,swT=0;
@@ -1104,7 +1294,7 @@ function renderShadow(){
   const tx=(smx-.5)*-3,ty=(smy-.5)*-2;
   shOX+=(tx-shOX)*.04;shOY+=(ty-shOY)*.04;swT+=.005;
   const dx=shOX+Math.sin(swT*.5)*.5,dy=shOY+Math.cos(swT*.35)*.4;
-  for(let i=0;i<shadowLayers.length;i++){const l=shadowLayers[i];ctx.globalAlpha=l.alpha;ctx.drawImage(l.canvas,dx+l.ox,dy+l.oy)}
+  for(let i=0;i<shadowLayers.length;i++){const l=shadowLayers[i];ctx.globalAlpha=l.alpha*treeParams.shadowDarkness;ctx.drawImage(l.canvas,dx+l.ox,dy+l.oy)}
   ctx.globalAlpha=.025;ctx.globalCompositeOperation='screen';
   ctx.drawImage(moonEdgeC,dx+3,dy+3);
   ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
@@ -1125,7 +1315,7 @@ function renderPetals(){
     if(pst[i]!==1)continue;if(pal[i]<=.01)continue;
     const x=ppx[i],y=ppy[i];
     const heightRatio=Math.max(0,1-y/H);
-    const glowIntensity=heightRatio*heightRatio;
+    const glowIntensity=heightRatio*heightRatio*treeParams.glowIntensity;
 
     // Gradual shrink: starts at 50% screen height, smoothstep to dot
     const shrinkStart=H*.5;
@@ -1210,13 +1400,7 @@ function renderGrain(){if(++gf%4!==0)return;for(let i=0;i<gd.length;i+=4){const 
 // ═══════════════════════════════════════════════
 // MAIN LOOP
 // ═══════════════════════════════════════════════
-const SOFT_OFFSETS=[
-  {dx:0,dy:0,a:.02},{dx:-3,dy:-3,a:.02},{dx:3,dy:3,a:.02},
-  {dx:-6,dy:-6,a:.018},{dx:6,dy:6,a:.018},{dx:-10,dy:-10,a:.012},
-  {dx:10,dy:10,a:.012},{dx:-15,dy:-15,a:.008},{dx:15,dy:15,a:.008},
-  {dx:0,dy:-8,a:.015},{dx:-8,dy:0,a:.012},{dx:8,dy:0,a:.012},
-  {dx:0,dy:8,a:.015},{dx:-12,dy:4,a:.01},{dx:12,dy:-4,a:.01},
-];
+let partialShadowFrame=0;
 
 function renderPartialShadow(){
   treeX.clearRect(0,0,W,H);treeX.lineCap='round';treeX.lineJoin='round';
@@ -1236,9 +1420,9 @@ function renderPartialShadow(){
       }
     }
   }
-  for(let i=0;i<SOFT_OFFSETS.length;i++){const o=SOFT_OFFSETS[i];ctx.globalAlpha=o.a;ctx.drawImage(treeC,o.dx,o.dy)}
-  ctx.globalAlpha=.02;ctx.globalCompositeOperation='screen';ctx.drawImage(treeC,3,3);
-  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+  // Recompute blur shadows from partial tree every 6 frames (same look as final)
+  if(++partialShadowFrame%6===0) buildShadowLayers();
+  if(shadowLayers) renderShadow();
 }
 
 let phase='drawing'; // drawing | blooming | interactive
@@ -1268,15 +1452,15 @@ function tick(now){
     for(let i=0;i<N;i++){
       if(pst[i]!==3) continue;
       const b=allBranches[pbI[i]];
-      const delay = b.depth <= 2 ? 80 : b.depth === 3 ? 200 : 350;
-      const jitter = pbT[i] * 120;
+      const delay = (b.depth <= 2 ? 80 : b.depth === 3 ? 200 : 350) / treeParams.bloomSpeed;
+      const jitter = pbT[i] * 120 / treeParams.bloomSpeed;
       if(elapsed >= delay + jitter){
         pst[i]=0; pal[i]=0; prt[i]=0;
       }
     }
     // Fade in visible petals
     for(let i=0;i<N;i++){
-      if(pst[i]===0 && pal[i]<1){pal[i]+=.035;if(pal[i]>1)pal[i]=1}
+      if(pst[i]===0 && pal[i]<1){pal[i]+=.035*treeParams.bloomSpeed;if(pal[i]>1)pal[i]=1}
     }
 
     renderPetals();
@@ -1423,7 +1607,7 @@ requestAnimationFrame(tick);
     const target = playing ? 1 : 0;
     amplitude += (target - amplitude) * .06;
     glowAmount += (target - glowAmount) * .04;
-    phase += playing ? .03 : .008;
+    phase += playing ? .034 : .0084;
 
     if(!playing && amplitude < .005) amplitude = 0;
 
@@ -1466,6 +1650,112 @@ requestAnimationFrame(tick);
     requestAnimationFrame(drawWave);
   }
   drawWave();
+})();
+</script>
+
+<script>
+// ── Edit Panel controller ──
+(function(){
+  const panel=document.getElementById('editPanel');
+  const closeBtn=document.getElementById('epClose');
+  const presetsEl=document.getElementById('epPresets');
+  let open=false;
+
+  const shapeParams=new Set(['trunkThickness','branchSpread','maxDepth','branchDensity','petalDensity','treeHeight','treeWidth']);
+  const shadowParams=new Set(['shadowDarkness','shadowBlur']);
+  const sliders=panel.querySelectorAll('input[type="range"]');
+  const stylesEl=document.getElementById('epStyles');
+  const treeStyles=['bonsai','willow','pine'];
+
+  function toggle(){open?close():openPanel()}
+  function openPanel(){open=true;panel.classList.add('open')}
+  function close(){open=false;panel.classList.remove('open')}
+
+  // Sync all sliders + style to current treeParams
+  function syncSliders(){
+    sliders.forEach(s=>{
+      const p=s.dataset.param;
+      const v=treeParams[p];
+      s.value=v;
+      document.getElementById('val-'+p).textContent=p==='maxDepth'?v:v.toFixed(2);
+    });
+    buildStyles();
+  }
+
+  // Build preset buttons
+  function buildPresets(){
+    presetsEl.innerHTML='';
+    Object.keys(treePresets).forEach(name=>{
+      const btn=document.createElement('button');
+      btn.className='ep-preset-btn'+(name===currentPreset?' active':'');
+      btn.textContent=name;
+      btn.addEventListener('click',()=>applyPreset(name));
+      presetsEl.appendChild(btn);
+    });
+  }
+
+  // Build tree style buttons
+  function buildStyles(){
+    stylesEl.innerHTML='';
+    treeStyles.forEach(s=>{
+      const btn=document.createElement('button');
+      btn.className='ep-style-btn'+(s===treeParams.treeStyle?' active':'');
+      btn.textContent=s;
+      btn.addEventListener('click',()=>{
+        treeParams.treeStyle=s;
+        buildStyles();
+        generateTree();initPetals();
+        phase='drawing';bloomStart=0;shadowLayers=null;
+        partialShadowFrame=0;
+      });
+      stylesEl.appendChild(btn);
+    });
+  }
+
+  function applyPreset(name){
+    currentPreset=name;
+    Object.assign(treeParams,treePresets[name]);
+    syncSliders();
+    buildPresets();
+    // Regen tree for shape params, recompute shadows
+    generateTree();initPetals();
+    phase='drawing';bloomStart=0;shadowLayers=null;
+    partialShadowFrame=0;
+  }
+
+  buildPresets();
+  buildStyles();
+
+  document.addEventListener('keydown',e=>{
+    if(e.ctrlKey&&e.shiftKey&&e.code==='KeyH'){e.preventDefault();toggle()}
+    if(e.key==='Escape'&&open){e.preventDefault();close()}
+  });
+  closeBtn.addEventListener('click',close);
+
+  // Slider events
+  sliders.forEach(slider=>{
+    const param=slider.dataset.param;
+    const valEl=document.getElementById('val-'+param);
+
+    slider.addEventListener('input',()=>{
+      const v=param==='maxDepth'?parseInt(slider.value):parseFloat(slider.value);
+      treeParams[param]=v;
+      valEl.textContent=param==='maxDepth'?v:v.toFixed(2);
+
+      if(shapeParams.has(param)){
+        generateTree();initPetals();
+        if(typeof computeShadows==='function'&&phase!=='drawing'){
+          computeShadows();
+        }
+        phase='drawing';bloomStart=0;shadowLayers=null;
+        partialShadowFrame=0;
+      } else if(shadowParams.has(param)){
+        if(typeof computeShadows==='function'&&phase!=='drawing'){
+          computeShadows();
+        }
+      }
+    });
+  });
 })();
 </script>
 </body>
