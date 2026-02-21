@@ -178,14 +178,15 @@
   }
   .now-playing{
     position:fixed;bottom:1.5rem;right:1.5rem;z-index:120;
-    pointer-events:none;
     text-align:right;
     opacity:0;
     transform:translateY(6px);
     transition:opacity .8s ease, transform .8s ease;
+    pointer-events:none;
   }
   .now-playing.show{
     opacity:1;transform:translateY(0);
+    pointer-events:auto;
   }
   .now-playing .np-label{
     font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
@@ -205,12 +206,18 @@
     vertical-align:middle;
     animation:npPulse 3s ease-in-out infinite;
   }
+  .now-playing .np-info{
+    cursor:pointer;
+    transition:color .3s ease;
+  }
+  .now-playing .np-info:hover .np-title{color:rgba(242,160,181,.9)}
   .now-playing .np-title{
     font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
     font-size:.65rem;
     color:rgba(242,160,181,.65);
     font-style:normal;
     letter-spacing:.04em;
+    transition:color .3s ease;
   }
   .now-playing .np-artist{
     font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
@@ -219,6 +226,48 @@
     margin-top:.15rem;
     letter-spacing:.06em;
   }
+
+  /* ── Song picker ── */
+  .song-picker{
+    position:fixed;bottom:4.5rem;right:1.5rem;z-index:130;
+    background:rgba(20,30,55,.92);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid rgba(242,160,181,.12);
+    border-radius:6px;
+    padding:.4rem 0;
+    opacity:0;
+    transform:translateY(8px) scale(.96);
+    transition:opacity .25s ease, transform .25s ease;
+    pointer-events:none;
+    min-width:180px;
+  }
+  .song-picker.open{
+    opacity:1;transform:translateY(0) scale(1);
+    pointer-events:auto;
+  }
+  .song-picker-item{
+    display:block;width:100%;border:none;background:none;
+    text-align:right;
+    padding:.45rem .8rem;
+    cursor:pointer;
+    transition:background .2s ease;
+  }
+  .song-picker-item:hover{background:rgba(242,160,181,.08)}
+  .song-picker-item.active{background:rgba(242,160,181,.06)}
+  .song-picker-item .sp-title{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.6rem;
+    color:rgba(242,160,181,.6);
+    letter-spacing:.03em;
+  }
+  .song-picker-item .sp-artist{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.45rem;
+    color:rgba(242,160,181,.3);
+    letter-spacing:.05em;
+  }
+  .song-picker-item.active .sp-title{color:rgba(242,160,181,.85)}
+  .song-picker-item.active .sp-artist{color:rgba(242,160,181,.5)}
 </style>
 </head>
 <body>
@@ -230,12 +279,15 @@
 <button class="audio-btn" id="audioBtn" aria-label="Toggle music">
   <canvas id="audioWave" width="24" height="24"></canvas>
 </button>
-<audio id="bgMusic" loop preload="auto"><source src="audio/oog_ascends_ost.mp3" type="audio/mpeg"></audio>
+<audio id="bgMusic" loop preload="auto"></audio>
 <div class="now-playing" id="nowPlaying">
   <div class="np-label"><span class="np-dot"></span>playing</div>
-  <div class="np-title">"Oogway Ascends"</div>
-  <div class="np-artist">Hans Zimmer</div>
+  <div class="np-info" id="npInfo">
+    <div class="np-title" id="npTitle"></div>
+    <div class="np-artist" id="npArtist"></div>
+  </div>
 </div>
+<div class="song-picker" id="songPicker"></div>
 
 <div class="content"><div class="ci">
 
@@ -1247,7 +1299,7 @@ requestAnimationFrame(tick);
 </script>
 
 <script>
-// ── Audio toggle with sine wave animation ──
+// ── Audio system with track picker ──
 (function(){
   const btn = document.getElementById('audioBtn');
   const audio = document.getElementById('bgMusic');
@@ -1257,10 +1309,62 @@ requestAnimationFrame(tick);
   const midY = h / 2;
 
   const npLabel = document.getElementById('nowPlaying');
+  const npInfo = document.getElementById('npInfo');
+  const npTitle = document.getElementById('npTitle');
+  const npArtist = document.getElementById('npArtist');
+  const picker = document.getElementById('songPicker');
+
+  // Track list — parsed from filenames (Song Name_Artist.mp3)
+  const tracks = [
+    'Oogway Ascends_Hans Zimmer.mp3',
+    'Moses_Ennio Morricone.mp3',
+  ];
+
+  function parseTrack(filename){
+    const name = filename.replace(/\.mp3$/,'');
+    const sep = name.indexOf('_');
+    return { file: filename, title: name.substring(0,sep), artist: name.substring(sep+1) };
+  }
+
+  const trackList = tracks.map(parseTrack);
+  let currentTrack = 0;
   let playing = false;
-  let amplitude = 0;   // 0 = flat line, 1 = full sine
+  let amplitude = 0;
   let phase = 0;
   let glowAmount = 0;
+  let pickerOpen = false;
+
+  // Build picker items
+  function buildPicker(){
+    picker.innerHTML = '';
+    trackList.forEach((t, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'song-picker-item' + (i === currentTrack ? ' active' : '');
+      btn.innerHTML = '<div class="sp-title">"'+t.title+'"</div><div class="sp-artist">'+t.artist+'</div>';
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        switchTrack(i);
+        closePicker();
+      });
+      picker.appendChild(btn);
+    });
+  }
+
+  function loadTrack(i){
+    currentTrack = i;
+    const t = trackList[i];
+    audio.src = 'audio/bgm/' + encodeURIComponent(t.file);
+    npTitle.textContent = '"' + t.title + '"';
+    npArtist.textContent = t.artist;
+  }
+
+  function switchTrack(i){
+    if(i === currentTrack && playing) return;
+    loadTrack(i);
+    audio.play();
+    startPlaying();
+    buildPicker();
+  }
 
   function startPlaying(){
     playing = true;
@@ -1271,7 +1375,25 @@ requestAnimationFrame(tick);
     playing = false;
     btn.classList.remove('playing');
     npLabel.classList.remove('show');
+    closePicker();
   }
+
+  function togglePicker(){
+    pickerOpen ? closePicker() : openPicker();
+  }
+  function openPicker(){
+    buildPicker();
+    pickerOpen = true;
+    picker.classList.add('open');
+  }
+  function closePicker(){
+    pickerOpen = false;
+    picker.classList.remove('open');
+  }
+
+  // Init first track
+  loadTrack(0);
+  buildPicker();
 
   btn.addEventListener('click', () => {
     if(!playing){
@@ -1279,28 +1401,35 @@ requestAnimationFrame(tick);
       startPlaying();
     } else {
       audio.pause();
-      sessionStorage.removeItem('audioPlaying');
       stopPlaying();
     }
   });
 
+  npInfo.addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePicker();
+  });
+
+  // Close picker on outside click
+  document.addEventListener('click', (e) => {
+    if(pickerOpen && !picker.contains(e.target) && !npInfo.contains(e.target)){
+      closePicker();
+    }
+  });
 
   function drawWave(){
     cx.clearRect(0, 0, w, h);
 
-    // Smooth transition
     const target = playing ? 1 : 0;
     amplitude += (target - amplitude) * .06;
     glowAmount += (target - glowAmount) * .04;
     phase += playing ? .03 : .008;
 
-    // Clamp near zero to avoid jitter
     if(!playing && amplitude < .005) amplitude = 0;
 
     const pad = 5;
     const lineW = w - pad * 2;
 
-    // Glow layer
     if(glowAmount > .01){
       cx.save();
       cx.filter = 'blur(3px)';
@@ -1318,7 +1447,6 @@ requestAnimationFrame(tick);
       cx.restore();
     }
 
-    // Main line
     const r = 255 - glowAmount * 13;
     const g = 255 - glowAmount * 95;
     const b = 255 - glowAmount * 60;
