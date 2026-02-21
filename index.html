@@ -555,6 +555,7 @@
     user-select:none;-webkit-user-select:none;
   }
   .nav-title.show{opacity:1;pointer-events:auto}
+  .nav-title:hover{text-shadow:0 0 12px rgba(212,216,232,.5),0 0 24px rgba(212,216,232,.25)}
 
   /* ── Reading section ── */
   .reading{
@@ -591,6 +592,9 @@
   }
   .scroll-hint-bottom.chraist-hint.visible{
     animation:chraistBreath 3s ease-in-out infinite;
+  }
+  .scroll-hint-bottom.chraist-hint:hover{
+    filter:drop-shadow(0 0 10px rgba(242,160,181,.5));opacity:1;
   }
   @keyframes chraistBreath{
     0%,100%{opacity:.35;filter:drop-shadow(0 0 4px rgba(242,160,181,.1))}
@@ -662,14 +666,20 @@
     font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
     font-size:.8rem;
     color:rgba(242,160,181,.7);
-    text-decoration:none;
-    border-bottom:1px solid rgba(242,160,181,.2);
-    transition:color .3s ease, border-color .3s ease;
+    text-decoration:underline;
+    text-decoration-color:rgba(242,160,181,.2);
+    text-underline-offset:3px;
+    transition:color .3s ease, text-decoration-color .3s ease;
     letter-spacing:.03em;
+    position:relative;
+  }
+  .reading-link-list a::before{
+    content:'';position:absolute;
+    top:-10px;bottom:-10px;left:-14px;right:-14px;
   }
   .reading-link-list a:hover{
     color:rgba(242,160,181,1);
-    border-color:rgba(242,160,181,.5);
+    text-decoration-color:rgba(242,160,181,.5);
   }
   .countdown{
     font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
@@ -761,9 +771,9 @@
   .tooltip-wrap{
     position:relative;
     display:inline;
-    cursor:default;
+    cursor:text;
     transition:color .35s ease, text-shadow .35s ease;
-    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+    padding:20px;margin:-20px;
   }
   .tooltip-wrap:hover,
   .tooltip-wrap.tapped{
@@ -1815,16 +1825,15 @@ async function loadEssay(slug){
         if(hintBottom){hintBottom.classList.add('visible');hintBottom.classList.add('tap-to-scroll')}
       }
 
-      // Scroll hint: on touch devices only show when locked; on desktop show when page overflows
+      // Scroll hint: on touch devices only show when locked; on desktop hide once text is visible
       if(hintBottom&&!essayOpen){
         if(isTouchDevice){
           // On mobile, hint is only visible in locked mode (managed by lock/unlock logic)
         } else if(!scrollLocked){
-          const atBottom=sy+window.innerHeight>=document.body.scrollHeight-20;
-          if(document.body.scrollHeight>window.innerHeight+50&&!atBottom)
-            hintBottom.classList.add('visible');
-          else
+          if(sy>50)
             hintBottom.classList.remove('visible');
+          else if(document.body.scrollHeight>window.innerHeight+50)
+            hintBottom.classList.add('visible');
         }
       }
 
