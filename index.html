@@ -250,11 +250,15 @@
     max-width:420px;width:90vw;position:relative;
   }
   .neodore-close{
-    position:absolute;top:.5rem;right:1rem;
-    font-size:1.4rem;color:rgba(242,160,181,.4);cursor:pointer;
-    transition:color .3s ease;
+    position:absolute;top:1rem;right:1rem;
+    width:28px;height:28px;
+    border:1px solid rgba(242,160,181,.15);border-radius:50%;
+    background:none;color:rgba(242,160,181,.5);
+    font-family:'SF Mono',monospace;font-size:.7rem;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:border-color .3s,color .3s;
   }
-  .neodore-close:hover{color:rgba(242,160,181,.8)}
+  .neodore-close:hover{border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8)}
   .neodore-title{
     font-family:'Cormorant Garamond',serif;
     font-weight:300;font-style:italic;
@@ -668,6 +672,99 @@
     color:rgba(242,160,181,.3);
     letter-spacing:.04em;
   }
+  .essay-draft{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.55rem;
+    color:rgba(242,160,181,.35);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+
+  /* ── Draft popup ── */
+  .draft-overlay{
+    position:fixed;inset:0;z-index:200;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(6,9,18,.85);
+    opacity:0;pointer-events:none;
+    transition:opacity .4s ease;
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  }
+  .draft-overlay.open{opacity:1;pointer-events:auto}
+  .draft-popup{
+    text-align:center;padding:2.5rem 2rem;
+    max-width:420px;width:90vw;position:relative;
+  }
+  .draft-close{
+    position:absolute;top:1rem;right:1rem;
+    width:28px;height:28px;
+    border:1px solid rgba(242,160,181,.15);border-radius:50%;
+    background:none;color:rgba(242,160,181,.5);
+    font-family:'SF Mono',monospace;font-size:.7rem;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:border-color .3s,color .3s;
+  }
+  .draft-close:hover{border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8)}
+  .draft-title{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;font-style:italic;
+    font-size:1.8rem;letter-spacing:.08em;
+    color:rgba(242,160,181,.85);
+    margin-bottom:1.5rem;
+  }
+  .draft-line{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.7rem;letter-spacing:.06em;
+    color:rgba(242,160,181,.55);
+    margin:0 0 .4rem;line-height:1.6;
+  }
+  .draft-timer{
+    margin-top:1.5rem;
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.85rem;letter-spacing:.08em;
+    color:rgba(242,160,181,.7);
+  }
+
+  /* ── Site footer ── */
+  .site-footer{
+    position:relative;z-index:10;
+    padding:4vh 10vw 6vh;
+    transition:opacity .5s ease;
+  }
+  .site-footer-text{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.55rem;letter-spacing:.04em;
+    color:rgba(242,160,181,.4);
+    line-height:1.8;
+  }
+
+  /* ── Tooltip ── */
+  .tooltip-wrap{
+    position:relative;
+    display:inline;
+    cursor:default;
+    transition:color .35s ease, text-shadow .35s ease;
+  }
+  .tooltip-wrap:hover,
+  .tooltip-wrap.tapped{
+    color:rgba(242,160,181,.85);
+    text-shadow:0 0 8px rgba(242,160,181,.4),0 0 16px rgba(242,160,181,.2);
+  }
+  .tooltip-text{
+    position:absolute;
+    bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;font-style:italic;
+    font-size:.85rem;letter-spacing:.06em;
+    color:rgba(242,160,181,.8);
+    white-space:nowrap;
+    opacity:0;
+    transition:opacity .35s ease;
+    pointer-events:none;
+  }
+  .tooltip-wrap:hover .tooltip-text,
+  .tooltip-wrap.tapped .tooltip-text{
+    opacity:1;
+  }
 </style>
 </head>
 <body>
@@ -847,10 +944,14 @@
 
 <section class="reading" id="readingSection">
   <div class="reading-inner">
-    <div class="reading-block">
-      <div class="reading-section-label">essays</div>
-      <ul class="reading-link-list">
-        <li><a href="#" data-essay="my-time-has-come">My Time Has Come</a> <span class="essay-date">February 20, 2026</span></li>
+    <div class="reading-block" id="publishedBlock" style="display:none">
+      <div class="reading-section-label">published</div>
+      <ul class="reading-link-list" id="publishedList"></ul>
+    </div>
+    <div class="reading-block" id="draftsBlock">
+      <div class="reading-section-label">currently being written</div>
+      <ul class="reading-link-list" id="draftsList">
+        <li data-draft><a href="#" data-essay="my-time-has-come">My Time Has Come</a> <span class="countdown" data-target="2026-02-21T19:00:00-08:00"></span></li>
       </ul>
     </div>
     <div class="reading-block">
@@ -867,6 +968,9 @@
     </div>
   </div>
 </section>
+<footer class="site-footer" id="siteFooter">
+  <div class="site-footer-text">This site was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+</footer>
 <div class="scroll-hint-bottom"></div>
 
 <div class="essay-view" id="essayView">
@@ -887,6 +991,15 @@
     <div class="neodore-timer"><span class="countdown" data-target="2026-02-27T08:17:00-08:00"></span></div>
     <div class="neodore-soon">launching soon</div>
     <p class="neodore-contact"><a href="https://x.com/suntzugi" target="_blank">follow me on twitter</a> or <a href="mailto:suntzoogway@gmail.com">email me</a> to be notified</p>
+  </div>
+</div>
+
+<div class="draft-overlay" id="draftOverlay">
+  <div class="draft-popup">
+    <div class="draft-close" id="draftClose">0</div>
+    <h2 class="draft-title" id="draftPopupTitle"></h2>
+    <p class="draft-line">Current draft being written.</p>
+    <div class="draft-timer"><span class="countdown" id="draftPopupCountdown"></span></div>
   </div>
 </div>
 
@@ -1057,12 +1170,7 @@
 const essayCache={};
 
 // Inline fallback (works on file:// protocol where fetch fails)
-const essayFallback={
-  'my-time-has-come':{
-    title:'My Time Has Come',
-    body:'<p>I don\u2019t normally celebrate my birthday. But this year, the timing is hard to ignore so enjoy my first foray into the world of micro-blogs for the ASI and the noosphere:</p>\n<p>On the day I turned another year older, Elon Musk declared Nick Land <a href="https://x.com/xenocosmography/status/2024677849870061968?s=20" target="_blank">Safety Tsar</a> of xAI; an attempt to compete with Anthropic\u2019s <a href="https://x.com/willmacaskill/status/2023084449051836701?s=20" target="_blank">Amanda Askell</a> by installing his own in house philosopher. This, one day after the AI arms race <a href="https://x.com/nickcammarata/status/2024622087676318205?s=20" target="_blank">publicly began</a> when Amodei and Altman refused to shake hands at India\u2019s AI safety summit.</p>\n<p>The aligners are failing to align. The people steering this ship are not the adults we were promised. And the cold kamikaze accelerationists, the ones who\u2019ve made peace with sacrificing humane futures, are growing in influence.</p>\n<p>I\u2019ve spent a long time quietly building relationships in TPOT (this part of Twitter). Playing the patient game as a lowbie, reply guying large accounts with alpha that would make them follow me despite being an anon schizo lowbie account. Building trust across ideological lines, including with figures like <a href="https://x.com/xenocosmography" target="_blank">Nick Land</a> himself, who follows me, and who <a href="https://x.com/suntzugi/status/1862676050636894216?s=20" target="_blank">I\u2019ve vowed to lovepill</a>. None of this was an accident. I\u2019ve been monkmoding since December 2022, focused on bringing about the aligned futures.</p>\n<p>Here\u2019s what I\u2019ve come to believe: the highest leverage move right now isn\u2019t to out argue the accelerationists. It\u2019s to lovepill them. If you can meet someone like Land where he is, understand why coldness appeals as a philosophy, and offer something warmer that doesn\u2019t require naivety, you don\u2019t just shift one mind. You shift the network downstream: the Thielites, the Muskians, and the millions who take their cues from these figures.</p>\n<p>I think of it as alignment work applied to the alignment community itself. The meta problem. The people building the future need to actually want a future worth living in, and right now, not all of them do.</p>\n<p>As Master Oogway put it: my time has come.</p>\n<p>I don\u2019t say that with delusions of grandeur. I say it the way anyone says it when they realise the thing they\u2019ve been preparing for is no longer hypothetical. The birthday felt like a threshold. So I\u2019m stepping through it.</p>\n<p>This is the next chapter. Not just for me, but, if I do this well, for the conversations and events that will shape what comes next for all caring beings.</p>\n<div class="essay-meta"><span>written: February 20, 2026</span> \u00b7 <span>last edited: February 20, 2026</span></div>'
-  }
-};
+const essayFallback={};
 
 function parseMd(md){
   const lines=md.split('\n');
@@ -1242,26 +1350,48 @@ async function loadEssay(slug){
       const entry={label:linkMatch[1],url:linkMatch[2]};
       const dm=line.match(/\{date:([^}]+)\}/);
       if(dm) entry.date=dm[1].trim();
+      const sm=line.match(/\{status:([^}]+)\}/);
+      if(sm) entry.status=sm[1].trim();
+      const cm=line.match(/\{countdown:([^}]+)\}/);
+      if(cm) entry.countdown=cm[1].trim();
       entries.push(entry);
     }
     if(!entries.length)return;
-    const blocks=document.querySelectorAll('.reading-block');
-    for(const block of blocks){
-      const label=block.querySelector('.reading-section-label');
-      if(label&&label.textContent.trim().toLowerCase()==='essays'){
-        const ul=block.querySelector('ul');
-        if(!ul)break;
-        ul.innerHTML=entries.map(l=>{
-          const hashMatch=l.url.match(/^#(.+)$/);
-          const slug=hashMatch?hashMatch[1]:l.label.toLowerCase().replace(/\s+/g,'-');
-          let html='<li><a href="#" data-essay="'+slug+'">'+l.label+'</a>';
-          if(l.date) html+=' <span class="essay-date">'+l.date+'</span>';
-          html+='</li>';
-          return html;
-        }).join('');
-        break;
+    const published=entries.filter(l=>l.status!=='draft');
+    const drafts=entries.filter(l=>l.status==='draft');
+    const pubBlock=document.getElementById('publishedBlock');
+    const pubList=document.getElementById('publishedList');
+    const draftBlock=document.getElementById('draftsBlock');
+    const draftList=document.getElementById('draftsList');
+
+    function renderEntry(l){
+      const hashMatch=l.url.match(/^#(.+)$/);
+      const slug=hashMatch?hashMatch[1]:l.label.toLowerCase().replace(/\s+/g,'-');
+      const isDraft=l.status==='draft';
+      let html='<li'+(isDraft?' data-draft':'')+'><a href="#" data-essay="'+slug+'">'+l.label+'</a>';
+      if(!isDraft&&l.date) html+=' <span class="essay-date">'+l.date+'</span>';
+      if(l.countdown) html+=' <span class="countdown" data-target="'+l.countdown+'"></span>';
+      html+='</li>';
+      return html;
+    }
+
+    if(pubBlock&&pubList){
+      if(published.length){
+        pubList.innerHTML=published.map(renderEntry).join('');
+        pubBlock.style.display='';
+      } else {
+        pubBlock.style.display='none';
       }
     }
+    if(draftBlock&&draftList){
+      if(drafts.length){
+        draftList.innerHTML=drafts.map(renderEntry).join('');
+        draftBlock.style.display='';
+      } else {
+        draftBlock.style.display='none';
+      }
+    }
+    startCountdowns();
   }
 
   function parseLinksWithMeta(section){
@@ -1306,6 +1436,7 @@ async function loadEssay(slug){
   }
 
   let countdownInterval=null;
+  window.startCountdowns=startCountdowns;
   function startCountdowns(){
     const els=document.querySelectorAll('.countdown[data-target]');
     if(!els.length)return;
@@ -1394,6 +1525,40 @@ async function loadEssay(slug){
 </script>
 
 <script>
+// ── Draft popup ──
+(function(){
+  const overlay=document.getElementById('draftOverlay');
+  const closeBtn=document.getElementById('draftClose');
+  if(!overlay)return;
+  closeBtn.addEventListener('click',()=>overlay.classList.remove('open'));
+  overlay.addEventListener('click',e=>{
+    if(e.target===overlay) overlay.classList.remove('open');
+  });
+})();
+</script>
+
+<script>
+// ── Tooltip (mobile tap support) ──
+(function(){
+  const wraps=document.querySelectorAll('.tooltip-wrap');
+  if(!wraps.length)return;
+  wraps.forEach(wrap=>{
+    wrap.addEventListener('touchstart',e=>{
+      e.preventDefault();
+      // Close other tooltips first
+      wraps.forEach(w=>{if(w!==wrap)w.classList.remove('tapped')});
+      wrap.classList.toggle('tapped');
+    },{passive:false});
+  });
+  document.addEventListener('touchstart',e=>{
+    if(!e.target.closest('.tooltip-wrap')){
+      wraps.forEach(w=>w.classList.remove('tapped'));
+    }
+  },{passive:true});
+})();
+</script>
+
+<script>
 // ── Scroll-driven hero collapse + essay mode ──
 (function(){
   const navTitle=document.getElementById('navTitle');
@@ -1459,10 +1624,30 @@ async function loadEssay(slug){
   }
 
   // Essay link clicks — delegated so dynamically inserted links work
+  const draftOverlay=document.getElementById('draftOverlay');
+  const draftPopupTitle=document.getElementById('draftPopupTitle');
+  const draftPopupCountdown=document.getElementById('draftPopupCountdown');
+  const footerEl=document.getElementById('siteFooter');
+
   document.addEventListener('click',async e=>{
     const link=e.target.closest('[data-essay]');
     if(!link)return;
     e.preventDefault();
+
+    // If parent <li> has data-draft, show draft popup instead of essay
+    const li=link.closest('li');
+    if(li&&li.hasAttribute('data-draft')){
+      draftPopupTitle.textContent=link.textContent;
+      // Copy countdown target from the li's countdown span
+      const cdSpan=li.querySelector('.countdown[data-target]');
+      if(cdSpan){
+        draftPopupCountdown.setAttribute('data-target',cdSpan.dataset.target);
+        window.startCountdowns();
+      }
+      draftOverlay.classList.add('open');
+      return;
+    }
+
     const slug=link.dataset.essay;
     const data=await loadEssay(slug);
     if(!data)return;
@@ -1470,6 +1655,7 @@ async function loadEssay(slug){
     // Fade out landing content
     if(contentEl) contentEl.style.opacity='0';
     if(readingSec) readingSec.style.opacity='0';
+    if(footerEl) footerEl.style.opacity='0';
     if(hintBottom) hintBottom.classList.remove('visible');
 
     // After fade, rebuild tree on the side and show essay
@@ -1507,6 +1693,7 @@ async function loadEssay(slug){
 
       if(contentEl) contentEl.style.opacity='1';
       if(readingSec) readingSec.style.opacity='1';
+      if(footerEl) footerEl.style.opacity='1';
       navTitle.classList.remove('show');
     },500);
   }
