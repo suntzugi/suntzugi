@@ -35,6 +35,13 @@
     font-size:clamp(3.2rem,8vw,6.5rem);
     line-height:1;letter-spacing:-.03em;
     margin-bottom:0;
+    text-shadow:
+      -1px -1px 0 rgba(10,14,30,.85),
+       1px -1px 0 rgba(10,14,30,.85),
+      -1px  1px 0 rgba(10,14,30,.85),
+       1px  1px 0 rgba(10,14,30,.85),
+       0 0 8px rgba(10,14,30,.7),
+       0 0 20px rgba(10,14,30,.4);
   }
   .syl{
     display:inline-block;
@@ -62,12 +69,30 @@
     pointer-events:none;
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(242,160,181,.3) transparent;
   }
-  .anno-card::-webkit-scrollbar{width:0}
+  .anno-card::-webkit-scrollbar{width:4px}
+  .anno-card::-webkit-scrollbar-track{background:transparent}
+  .anno-card::-webkit-scrollbar-thumb{background:rgba(242,160,181,.3);border-radius:2px}
+  .anno-card::-webkit-scrollbar-thumb:hover{background:rgba(242,160,181,.5)}
   .anno-card.show{
     opacity:1;transform:translateY(0);pointer-events:auto;
     user-select:text;-webkit-user-select:text;
+  }
+  .anno-card.scroll-glow::after{
+    content:'';
+    position:absolute;top:0;right:0;bottom:0;width:4px;
+    background:rgba(242,160,181,.7);
+    box-shadow:0 0 8px rgba(242,160,181,.5),0 0 16px rgba(242,160,181,.3);
+    border-radius:2px;
+    pointer-events:none;
+    animation:scrollGlow 1.2s ease-out forwards;
+  }
+  @keyframes scrollGlow{
+    0%{opacity:1}
+    60%{opacity:.6}
+    100%{opacity:0}
   }
 
   /* Card inner layout */
@@ -94,7 +119,12 @@
     color:#a0a8c8;
     line-height:1.7;
     max-width:500px;
-    text-shadow:0 1px 6px rgba(10,14,30,.7);
+    text-shadow:
+      -1px -1px 0 rgba(10,14,30,.8),
+       1px -1px 0 rgba(10,14,30,.8),
+      -1px  1px 0 rgba(10,14,30,.8),
+       1px  1px 0 rgba(10,14,30,.8),
+       0 0 8px rgba(10,14,30,.6);
   }
   .ac-quote{
     font-family:'Cormorant Garamond',serif;
@@ -105,7 +135,12 @@
     padding-left:1rem;
     border-left:1px solid rgba(242,160,181,.2);
     max-width:400px;
-    text-shadow:0 1px 6px rgba(10,14,30,.7);
+    text-shadow:
+      -1px -1px 0 rgba(10,14,30,.8),
+       1px -1px 0 rgba(10,14,30,.8),
+      -1px  1px 0 rgba(10,14,30,.8),
+       1px  1px 0 rgba(10,14,30,.8),
+       0 0 8px rgba(10,14,30,.6);
   }
   .ac-quote .attr{
     display:block;
@@ -151,7 +186,13 @@
     color:#d4d8e8;
     margin-bottom:3rem;
     line-height:1.3;
-    text-shadow:0 2px 16px rgba(10,14,30,.8);
+    text-shadow:
+      -1px -1px 0 rgba(10,14,30,.85),
+       1px -1px 0 rgba(10,14,30,.85),
+      -1px  1px 0 rgba(10,14,30,.85),
+       1px  1px 0 rgba(10,14,30,.85),
+       0 0 10px rgba(10,14,30,.7),
+       0 0 24px rgba(10,14,30,.4);
   }
   .essay-view-body{
     font-family:'Cormorant Garamond',serif;
@@ -160,7 +201,12 @@
     color:#a0a8c8;
     line-height:2.2;
     text-align:left;
-    text-shadow:0 1px 8px rgba(10,14,30,.6);
+    text-shadow:
+      -1px -1px 0 rgba(10,14,30,.8),
+       1px -1px 0 rgba(10,14,30,.8),
+      -1px  1px 0 rgba(10,14,30,.8),
+       1px  1px 0 rgba(10,14,30,.8),
+       0 0 8px rgba(10,14,30,.6);
   }
   .essay-view-body p{margin-bottom:1.5rem}
 
@@ -401,7 +447,13 @@
     font-family:'Cormorant Garamond',serif;
     font-size:1.5rem;font-weight:300;font-style:italic;
     color:#d4d8e8;
-    text-shadow:0 1px 8px rgba(10,14,30,.6);
+    text-shadow:
+      -1px -1px 0 rgba(10,14,30,.85),
+       1px -1px 0 rgba(10,14,30,.85),
+      -1px  1px 0 rgba(10,14,30,.85),
+       1px  1px 0 rgba(10,14,30,.85),
+       0 0 8px rgba(10,14,30,.7),
+       0 0 20px rgba(10,14,30,.4);
     opacity:0;
     transition:opacity .5s ease;
     cursor:pointer;
@@ -421,10 +473,14 @@
     position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);
     width:40px;height:1px;
     background:rgba(242,160,181,.5);
-    animation:scrollHintBreath 3s ease-in-out infinite;
     z-index:12;
     pointer-events:none;
-    transition:opacity .5s ease;
+    opacity:0;
+    transition:opacity .6s ease;
+  }
+  .scroll-hint-bottom.visible{
+    opacity:1;
+    animation:scrollHintBreath 3s ease-in-out infinite;
   }
   .reading-inner{
     max-width:640px;
@@ -438,7 +494,6 @@
     font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
     color:rgba(242,160,181,.5);
     margin-bottom:1rem;
-    text-shadow:0 1px 6px rgba(10,14,30,.7);
   }
   .reading-section-title{
     font-family:'Cormorant Garamond',serif;
@@ -470,7 +525,6 @@
     border-bottom:1px solid rgba(242,160,181,.2);
     transition:color .3s ease, border-color .3s ease;
     letter-spacing:.03em;
-    text-shadow:0 1px 6px rgba(10,14,30,.7);
   }
   .reading-link-list a:hover{
     color:rgba(242,160,181,1);
@@ -702,16 +756,24 @@
 
   function showCard(name){
     if(activeCard === name) return;
-    Object.values(cards).forEach(c => { c.classList.remove('show'); c.scrollTop = 0; });
+    Object.values(cards).forEach(c => { c.classList.remove('show','scroll-glow'); c.scrollTop = 0; });
     if(cards[name]){
-      cards[name].scrollTop = 0;
-      cards[name].classList.add('show');
+      const c=cards[name];
+      c.scrollTop = 0;
+      c.classList.add('show');
       activeCard = name;
+      // Glow the scrollbar if card content overflows
+      requestAnimationFrame(()=>{
+        if(c.scrollHeight>c.clientHeight){
+          c.classList.add('scroll-glow');
+          setTimeout(()=>c.classList.remove('scroll-glow'),1300);
+        }
+      });
     }
   }
 
   function hideAll(){
-    Object.values(cards).forEach(c => c.classList.remove('show'));
+    Object.values(cards).forEach(c => c.classList.remove('show','scroll-glow'));
     syls.forEach(s => s.classList.remove('lit'));
     activeCard = null;
     hoverHistory = [];
@@ -875,6 +937,9 @@ async function loadEssay(slug){
   setTimeout(()=>{
     revealDone=true;
     if(ciEl){ciEl.style.animation='none';ciEl.style.opacity='1';ciEl.style.transform='translateY(0)'}
+    // Show scroll hint if page has overflow
+    if(hintBottom&&document.body.scrollHeight>window.innerHeight+50)
+      hintBottom.classList.add('visible');
   },1500);
 
   const contentEl=document.querySelector('.content');
@@ -897,7 +962,7 @@ async function loadEssay(slug){
       // Fade out landing content
       if(contentEl) contentEl.style.opacity='0';
       if(readingSec) readingSec.style.opacity='0';
-      if(hintBottom) hintBottom.style.opacity='0';
+      if(hintBottom) hintBottom.classList.remove('visible');
 
       // After fade, rebuild tree on the side and show essay
       setTimeout(()=>{
@@ -927,7 +992,6 @@ async function loadEssay(slug){
 
       if(contentEl) contentEl.style.opacity='1';
       if(readingSec) readingSec.style.opacity='1';
-      if(hintBottom) hintBottom.style.opacity='1';
       navTitle.classList.remove('show');
     },500);
   }
@@ -966,6 +1030,15 @@ async function loadEssay(slug){
       // Nav-title fades in when scrolled past halfway (or stays on in essay mode)
       if(essayOpen||progress>.5) navTitle.classList.add('show');
       else navTitle.classList.remove('show');
+
+      // Scroll hint: show when page has overflow, hide near bottom or in essay mode
+      if(hintBottom&&!essayOpen){
+        const atBottom=sy+window.innerHeight>=document.body.scrollHeight-20;
+        if(document.body.scrollHeight>window.innerHeight+50&&!atBottom)
+          hintBottom.classList.add('visible');
+        else
+          hintBottom.classList.remove('visible');
+      }
 
       ticking=false;
     });
@@ -1337,29 +1410,7 @@ function initPetals(){
 }
 initPetals();
 
-// Subtle petal dim under text — petals stay visible, just slightly muted
-const _dimStatic=[document.querySelector('.ci'),document.querySelector('.reading')];
-const _dimEssayInner=document.querySelector('.essay-view-inner');
-const _dimNav=document.getElementById('navTitle');
-function petalDim(x,y){
-  // Static text areas (hero + reading section)
-  for(let i=0;i<_dimStatic.length;i++){
-    const el=_dimStatic[i];if(!el)continue;
-    const r=el.getBoundingClientRect();if(r.width===0||r.height===0)continue;
-    if(x>=r.left-1&&x<=r.right+1&&y>=r.top-1&&y<=r.bottom+1) return .8;
-  }
-  // Essay view inner (only when open)
-  if(_dimEssayInner&&_dimEssayInner.parentElement.classList.contains('open')){
-    const r=_dimEssayInner.getBoundingClientRect();
-    if(r.width>0&&r.height>0&&x>=r.left-1&&x<=r.right+1&&y>=r.top-1&&y<=r.bottom+1) return .8;
-  }
-  // Nav title
-  if(_dimNav&&_dimNav.classList.contains('show')){
-    const r=_dimNav.getBoundingClientRect();
-    if(r.width>0&&r.height>0&&x>=r.left-8&&x<=r.right+8&&y>=r.top-4&&y<=r.bottom+4) return .8;
-  }
-  return 1;
-}
+
 
 
 function freeP(i,fromCursor){
@@ -1578,7 +1629,6 @@ function renderPetals(){
   for(let i=0;i<N;i++){
     if(pst[i]!==1)continue;if(pal[i]<=.01)continue;
     const x=ppx[i],y=ppy[i];
-    const dimMul=petalDim(x,y);
     const heightRatio=Math.max(0,1-y/H);
     const glowIntensity=heightRatio*heightRatio*treeParams.glowIntensity;
 
@@ -1604,27 +1654,27 @@ function renderPetals(){
       gr.addColorStop(0,`rgba(${wr|0},${wg|0},${wb|0},${pal[i]*glowAlpha})`);
       gr.addColorStop(.5,`rgba(${wr|0},${wg|0},${wb|0},${pal[i]*glowAlpha*.3})`);
       gr.addColorStop(1,`rgba(${wr|0},${wg|0},${wb|0},0)`);
-      ctx.globalAlpha=dimMul;ctx.fillStyle=gr;
+      ctx.globalAlpha=1;ctx.fillStyle=gr;
       ctx.beginPath();ctx.arc(x,y,gRad,0,Math.PI*2);ctx.fill();
     }
 
     // Flower sprite
     const fs=fSpr[pci[i]][psi[i]];
     const brightBoost=pBright[i]?glowIntensity*.5:glowIntensity*.3;
-    ctx.globalAlpha=Math.min(pal[i]*(1+brightBoost),1)*dimMul;
+    ctx.globalAlpha=Math.min(pal[i]*(1+brightBoost),1);
     ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.rotate(pro[i]*.3);
     ctx.drawImage(fs.canvas,-fs.cx,-fs.cy);ctx.restore();
 
     // Petal sprite
     const ps=pSpr[pci[i]][psi[i]];
-    ctx.globalAlpha=Math.min(pal[i]*(1+brightBoost),1)*dimMul;
+    ctx.globalAlpha=Math.min(pal[i]*(1+brightBoost),1);
     ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.rotate(pro[i]);
     ctx.drawImage(ps.canvas,-ps.cx,-ps.cy);ctx.restore();
 
     // Bright petals: white screen overlay
     if(pBright[i]&&glowIntensity>.15){
       ctx.globalCompositeOperation='screen';
-      ctx.globalAlpha=pal[i]*glowIntensity*.6*dimMul;
+      ctx.globalAlpha=pal[i]*glowIntensity*.6;
       ctx.fillStyle='rgba(255,240,250,.9)';
       ctx.beginPath();ctx.arc(x,y,(3+glowIntensity*4)*scale,0,Math.PI*2);ctx.fill();
       ctx.globalCompositeOperation='source-over';
