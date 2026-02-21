@@ -1614,13 +1614,17 @@ function updateMoon(){smx+=(nmx-smx)*.08;smy+=(nmy-smy)*.08;moonEl.style.setProp
 
 // Live resize — no reload, just update canvases
 let resizeTimer=null;
+let lastResizeW=window.innerWidth;
 window.addEventListener('resize',()=>{
   clearTimeout(resizeTimer);
   resizeTimer=setTimeout(onResize, 150);
 });
 
 function onResize(){
-  W=window.innerWidth; H=window.innerHeight;
+  const newW=window.innerWidth, newH=window.innerHeight;
+  const widthChanged=newW!==lastResizeW;
+  lastResizeW=newW;
+  W=newW; H=newH;
 
   // Resize canvases
   scene.width=W; scene.height=H;
@@ -1637,14 +1641,17 @@ function onResize(){
   grainImg=gctx.createImageData(GW,GH); gd=grainImg.data;
   for(let i=3;i<gd.length;i+=4) gd[i]=10;
 
-  // Regenerate tree and petals
-  generateTree();
-  initPetals();
-
-  // Reset animation phase so tree regrows
-  phase='drawing';
-  bloomStart=0;
-  shadowLayers=null;
+  // Only regenerate tree if width changed (skip mobile URL bar height changes)
+  if(widthChanged){
+    generateTree();
+    initPetals();
+    phase='drawing';
+    bloomStart=0;
+    shadowLayers=null;
+  } else {
+    // Height-only change: redraw existing tree at current state
+    shadowLayers=null;
+  }
 }
 
 
