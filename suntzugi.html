@@ -63,20 +63,26 @@
     pointer-events:none;
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
-    scrollbar-width:thin;
-    scrollbar-color:rgba(242,160,181,.3) transparent;
+    scrollbar-width:none;
   }
-  .anno-card::-webkit-scrollbar{width:3px}
-  .anno-card::-webkit-scrollbar-track{background:transparent}
-  .anno-card::-webkit-scrollbar-thumb{
-    background:rgba(242,160,181,.3);
-    border-radius:3px;
-    transition:background .3s ease;
-  }
-  .anno-card::-webkit-scrollbar-thumb:hover{background:rgba(242,160,181,.5)}
+  .anno-card::-webkit-scrollbar{width:0}
   .anno-card.show{
     opacity:1;transform:translateY(0);pointer-events:auto;
     user-select:text;-webkit-user-select:text;
+  }
+  /* Custom scroll indicator */
+  .scroll-track{
+    position:absolute;right:0;top:0;bottom:0;width:3px;
+    pointer-events:none;opacity:0;transition:opacity .8s ease;
+    z-index:2;
+  }
+  .scroll-track.visible{opacity:1}
+  .scroll-thumb{
+    position:absolute;right:0;width:3px;
+    background:rgba(242,160,181,.4);
+    border-radius:3px;
+    box-shadow:0 0 6px rgba(242,160,181,.3);
+    transition:background .3s ease, box-shadow .3s ease;
   }
 
   /* Card inner layout */
@@ -84,10 +90,6 @@
     display:flex;align-items:baseline;gap:1rem;
     margin-bottom:.5rem;
     flex-shrink:0;
-    position:sticky;top:0;
-    background:linear-gradient(to bottom, #1e2a4a 80%, transparent);
-    padding-bottom:.4rem;
-    z-index:1;
   }
   .ac-char{
     font-family:'Cormorant Garamond',serif;
@@ -153,6 +155,70 @@
     opacity:0;pointer-events:none;
     transition:opacity .4s ease;
   }
+
+  /* ── Audio toggle ── */
+  .audio-btn{
+    position:fixed;top:1.5rem;right:1.5rem;z-index:120;
+    width:40px;height:40px;
+    border-radius:50%;border:none;outline:none;
+    background:transparent;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .4s ease;
+    pointer-events:auto;
+  }
+  .audio-btn:hover{background:rgba(242,160,181,.08)}
+  .audio-btn.playing{background:rgba(242,160,181,.12)}
+  .audio-btn canvas{display:block}
+
+  /* ── Now playing label ── */
+  @keyframes npPulse{
+    0%,100%{opacity:.5;text-shadow:0 0 4px rgba(242,160,181,.1)}
+    50%{opacity:1;text-shadow:0 0 8px rgba(242,160,181,.25)}
+  }
+  .now-playing{
+    position:fixed;bottom:1.5rem;right:1.5rem;z-index:120;
+    pointer-events:none;
+    text-align:right;
+    opacity:0;
+    transform:translateY(6px);
+    transition:opacity .8s ease, transform .8s ease;
+  }
+  .now-playing.show{
+    opacity:1;transform:translateY(0);
+  }
+  .now-playing .np-label{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.5rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:rgba(242,160,181,.4);
+    margin-bottom:.2rem;
+    animation:npPulse 3s ease-in-out infinite;
+  }
+  .now-playing .np-dot{
+    display:inline-block;
+    width:4px;height:4px;
+    border-radius:50%;
+    background:rgba(242,160,181,.6);
+    margin-right:.4rem;
+    vertical-align:middle;
+    animation:npPulse 3s ease-in-out infinite;
+  }
+  .now-playing .np-title{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.65rem;
+    color:rgba(242,160,181,.65);
+    font-style:normal;
+    letter-spacing:.04em;
+  }
+  .now-playing .np-artist{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.5rem;
+    color:rgba(242,160,181,.35);
+    margin-top:.15rem;
+    letter-spacing:.06em;
+  }
 </style>
 </head>
 <body>
@@ -161,6 +227,16 @@
 <div class="moonlight" id="moon"></div>
 <div class="vignette"></div>
 
+<button class="audio-btn" id="audioBtn" aria-label="Toggle music">
+  <canvas id="audioWave" width="24" height="24"></canvas>
+</button>
+<audio id="bgMusic" loop preload="auto"><source src="audio/oog_ascends_ost.mp3" type="audio/mpeg"></audio>
+<div class="now-playing" id="nowPlaying">
+  <div class="np-label"><span class="np-dot"></span>playing</div>
+  <div class="np-title">"Oogway Ascends"</div>
+  <div class="np-artist">Hans Zimmer</div>
+</div>
+
 <div class="content"><div class="ci">
 
   <div class="hover-zone" id="hoverZone">
@@ -168,6 +244,7 @@
 
   <!-- Annotation zone: only one card visible at a time -->
   <div class="anno-zone" id="annoZone">
+    <div class="scroll-track" id="scrollTrack"><div class="scroll-thumb" id="scrollThumb"></div></div>
 
     <!-- Single: Sun -->
     <div class="anno-card" id="card-sun">
@@ -307,13 +384,50 @@
   let leaveTimer = null;
   let insideZone = false;
 
+  const scrollTrack=document.getElementById('scrollTrack');
+  const scrollThumb=document.getElementById('scrollThumb');
+  let scrollHintTimer=null;
+  let activeScrollCard=null;
+
+  function updateScrollThumb(){
+    if(!activeScrollCard)return;
+    const el=activeScrollCard;
+    const ratio=el.clientHeight/el.scrollHeight;
+    const thumbH=Math.max(ratio*el.clientHeight,16);
+    const scrollFrac=el.scrollTop/(el.scrollHeight-el.clientHeight);
+    const trackH=el.clientHeight-thumbH;
+    scrollThumb.style.height=thumbH+'px';
+    scrollThumb.style.top=(scrollFrac*trackH)+'px';
+  }
+
   function showCard(name){
     if(activeCard === name) return;
+    if(scrollHintTimer){clearTimeout(scrollHintTimer);scrollHintTimer=null}
+    if(activeScrollCard){activeScrollCard.removeEventListener('scroll',updateScrollThumb);activeScrollCard=null}
+    scrollTrack.classList.remove('visible');
     Object.values(cards).forEach(c => { c.classList.remove('show'); c.scrollTop = 0; });
     if(cards[name]){
       cards[name].scrollTop = 0;
       cards[name].classList.add('show');
       activeCard = name;
+      // Check overflow after render
+      requestAnimationFrame(()=>{
+        const el=cards[name];
+        if(el.scrollHeight>el.clientHeight){
+          activeScrollCard=el;
+          updateScrollThumb();
+          let scrollFadeTimer=null;
+          el.addEventListener('scroll',()=>{
+            updateScrollThumb();
+            scrollTrack.classList.add('visible');
+            if(scrollFadeTimer)clearTimeout(scrollFadeTimer);
+            scrollFadeTimer=setTimeout(()=>scrollTrack.classList.remove('visible'),1200);
+          },{passive:true});
+          // Initial glow hint then fade
+          scrollTrack.classList.add('visible');
+          scrollHintTimer=setTimeout(()=>scrollTrack.classList.remove('visible'),1500);
+        }
+      });
     }
   }
 
@@ -429,8 +543,8 @@
 </script>
 
 <script>
-// W, H = original canvas resolution (tree coordinate space)
-const W=window.innerWidth, H=window.innerHeight;
+// W, H = canvas resolution (tree coordinate space)
+let W=window.innerWidth, H=window.innerHeight;
 let mx=-9999,my=-9999,nmx=.5,nmy=.5,smx=.5,smy=.5;
 document.addEventListener('mousemove',e=>{
   mx=e.clientX; my=e.clientY;
@@ -452,12 +566,40 @@ document.addEventListener('touchstart',e=>{
 const moonEl=document.getElementById('moon');
 function updateMoon(){smx+=(nmx-smx)*.08;smy+=(nmy-smy)*.08;moonEl.style.setProperty('--mx',(25+smx*40)+'%');moonEl.style.setProperty('--my',(3+smy*20)+'%')}
 
-// Regenerate tree on resize (debounced — waits until user stops resizing)
+// Live resize — no reload, just update canvases
 let resizeTimer=null;
 window.addEventListener('resize',()=>{
   clearTimeout(resizeTimer);
-  resizeTimer=setTimeout(()=>location.reload(), 300);
+  resizeTimer=setTimeout(onResize, 150);
 });
+
+function onResize(){
+  W=window.innerWidth; H=window.innerHeight;
+
+  // Resize canvases
+  scene.width=W; scene.height=H;
+  treeC.width=W; treeC.height=H;
+  treeX.lineCap='round'; treeX.lineJoin='round';
+
+  // Spatial hash
+  COLS=Math.ceil(W/CELL)+1; ROWS=Math.ceil(H/CELL)+1;
+  grid=new Array(COLS*ROWS);
+
+  // Grain
+  GW=(W/4)|0; GH=(H/4)|0;
+  grainC.width=GW; grainC.height=GH;
+  grainImg=gctx.createImageData(GW,GH); gd=grainImg.data;
+  for(let i=3;i<gd.length;i+=4) gd[i]=10;
+
+  // Regenerate tree and petals
+  generateTree();
+  initPetals();
+
+  // Reset animation phase so tree regrows
+  phase='drawing';
+  bloomStart=0;
+  shadowLayers=null;
+}
 
 
 // ═══════════════════════════════════════════════
@@ -469,8 +611,8 @@ function bzPt(t,x0,y0,cx0,cy0,cx1,cy1,x1,y1){
 }
 
 const R=Math.random;
-const allBranches=[];
-const petalAnchors=[];
+let allBranches=[];
+let petalAnchors=[];
 
 function makeBranch(x0,y0,cx0,cy0,cx1,cy1,x1,y1,thS,thE,parent,forkT,depth){
   const b={x0,y0,cx0,cy0,cx1,cy1,x1,y1,thS,thE,parent,forkT,depth,
@@ -538,42 +680,48 @@ function genBonsai(parent, forkT, x, y, angle, length, thickness, depth, maxDept
   }
 }
 
-// Responsive tree position: keep on screen even on phone
-const isMobile = W < 768;
-const bx = isMobile ? W*(.5+R()*.15) : Math.min(W*(.65+R()*.1), W-80);
-const by = H*1.01;
-const trunkAngle=-Math.PI/2+(R()-.5)*.2;
-const trunkLen = isMobile ? Math.min(H,W)*(.3+R()*.06) : H*(.25+R()*.08);
-const trunkThick = isMobile ? 18+R()*6 : 22+R()*8;
-const maxD=4+Math.floor(R()*2);
-genBonsai(null,0,bx,by,trunkAngle,trunkLen,trunkThick,0,maxD,1);
-const t2angle=trunkAngle+(.2+R()*.3)*(R()<.5?-1:1);
-genBonsai(null,0,bx+(R()-.5)*8,by,t2angle,trunkLen*(.5+R()*.2),trunkThick*.45,1,maxD-1,-1);
+function generateTree(){
+  allBranches.length=0;
+  petalAnchors.length=0;
 
-// Add small flowering spurs to depth 0-1 branches (like real bonsai)
-allBranches.forEach(b => {
-  if(b.depth > 1) return;
-  const numSpurs = b.depth === 0 ? 2+Math.floor(R()*3) : 1+Math.floor(R()*2);
-  for(let s=0; s<numSpurs; s++){
-    const ft = .25 + R()*.6; // position along parent
-    const fp = bzPt(ft, b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
-    const ft2 = Math.min(ft+.02, 1);
-    const fp2 = bzPt(ft2, b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
-    const tang = Math.atan2(fp2.y-fp.y, fp2.x-fp.x);
-    const side = (s%2===0?1:-1) * (R()<.3?-1:1);
-    const spurAngle = tang + side*(.6+R()*.8);
-    const spurLen = 15+R()*20;
-    const ex = fp.x+Math.cos(spurAngle)*spurLen;
-    const ey = fp.y+Math.sin(spurAngle)*spurLen;
-    const cx0 = fp.x+Math.cos(spurAngle+.2)*spurLen*.4;
-    const cy0 = fp.y+Math.sin(spurAngle+.2)*spurLen*.4;
-    const cx1 = fp.x+Math.cos(spurAngle-.1)*spurLen*.7;
-    const cy1 = fp.y+Math.sin(spurAngle-.1)*spurLen*.7;
-    const spur = makeBranch(fp.x,fp.y,cx0,cy0,cx1,cy1,ex,ey, 2, .6, b, ft, b.depth+2);
-    b.children.push(spur);
-    addPetalsAlongBranch(spur, 4+Math.floor(R()*4));
-  }
-});
+  const isMobile = W < 768;
+  const bx = isMobile ? W*(.5+R()*.15) : Math.min(W*(.65+R()*.1), W-80);
+  const by = H*1.01;
+  const trunkAngle=-Math.PI/2+(R()-.5)*.2;
+  const trunkLen = isMobile ? Math.min(H,W)*(.3+R()*.06) : H*(.25+R()*.08);
+  const trunkThick = isMobile ? 18+R()*6 : 22+R()*8;
+  const maxD=4+Math.floor(R()*2);
+  genBonsai(null,0,bx,by,trunkAngle,trunkLen,trunkThick,0,maxD,1);
+  const t2angle=trunkAngle+(.2+R()*.3)*(R()<.5?-1:1);
+  genBonsai(null,0,bx+(R()-.5)*8,by,t2angle,trunkLen*(.5+R()*.2),trunkThick*.45,1,maxD-1,-1);
+
+  // Add small flowering spurs to depth 0-1 branches
+  const branchSnapshot=allBranches.slice();
+  branchSnapshot.forEach(b => {
+    if(b.depth > 1) return;
+    const numSpurs = b.depth === 0 ? 2+Math.floor(R()*3) : 1+Math.floor(R()*2);
+    for(let s=0; s<numSpurs; s++){
+      const ft = .25 + R()*.6;
+      const fp = bzPt(ft, b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+      const ft2 = Math.min(ft+.02, 1);
+      const fp2 = bzPt(ft2, b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+      const tang = Math.atan2(fp2.y-fp.y, fp2.x-fp.x);
+      const side = (s%2===0?1:-1) * (R()<.3?-1:1);
+      const spurAngle = tang + side*(.6+R()*.8);
+      const spurLen = 15+R()*20;
+      const ex = fp.x+Math.cos(spurAngle)*spurLen;
+      const ey = fp.y+Math.sin(spurAngle)*spurLen;
+      const cx0 = fp.x+Math.cos(spurAngle+.2)*spurLen*.4;
+      const cy0 = fp.y+Math.sin(spurAngle+.2)*spurLen*.4;
+      const cx1 = fp.x+Math.cos(spurAngle-.1)*spurLen*.7;
+      const cy1 = fp.y+Math.sin(spurAngle-.1)*spurLen*.7;
+      const spur = makeBranch(fp.x,fp.y,cx0,cy0,cx1,cy1,ex,ey, 2, .6, b, ft, b.depth+2);
+      b.children.push(spur);
+      addPetalsAlongBranch(spur, 4+Math.floor(R()*4));
+    }
+  });
+}
+generateTree();
 
 
 // ═══════════════════════════════════════════════
@@ -644,7 +792,7 @@ for(let ci=0;ci<4;ci++){fSpr[ci]=[];pSpr[ci]=[];const[r,g,b]=PC[ci];for(let si=0
 // ═══════════════════════════════════════════════
 // 4. SPATIAL HASH
 // ═══════════════════════════════════════════════
-const CELL=40,COLS=Math.ceil(W/CELL)+1,ROWS=Math.ceil(H/CELL)+1,grid=new Array(COLS*ROWS);
+const CELL=40;let COLS=Math.ceil(W/CELL)+1,ROWS=Math.ceil(H/CELL)+1,grid=new Array(COLS*ROWS);
 function gCl(){for(let i=0;i<grid.length;i++)grid[i]=null}
 function gIn(idx,x,y){const c=(x/CELL|0),r=(y/CELL|0);if(c<0||c>=COLS||r<0||r>=ROWS)return;const k=r*COLS+c;if(!grid[k])grid[k]=[idx];else grid[k].push(idx)}
 function gQ(x,y,rad){const res=[],cr=Math.ceil(rad/CELL),cc=(x/CELL|0),rc=(y/CELL|0);for(let dr=-cr;dr<=cr;dr++)for(let dc=-cr;dc<=cr;dc++){const c=cc+dc,r=rc+dr;if(c<0||c>=COLS||r<0||r>=ROWS)continue;const cl=grid[r*COLS+c];if(cl)for(let i=0;i<cl.length;i++)res.push(cl[i])}return res}
@@ -653,54 +801,64 @@ function gQ(x,y,rad){const res=[],cr=Math.ceil(rad/CELL),cc=(x/CELL|0),rc=(y/CEL
 // ═══════════════════════════════════════════════
 // 5. PETALS
 // ═══════════════════════════════════════════════
-const N=petalAnchors.length;
+let N=petalAnchors.length;
 const CURSOR_R=50,CURSOR_R2=CURSOR_R*CURSOR_R;
 const CHAIN_R=30,CHAIN_R2=CHAIN_R*CHAIN_R;
 const BLOOM_R=22,BLOOM_R2=BLOOM_R*BLOOM_R;
 
-const ppx=new Float32Array(N),ppy=new Float32Array(N);
-const pax=new Float32Array(N),pay=new Float32Array(N);
-const pvx=new Float32Array(N),pvy=new Float32Array(N);
-const pro=new Float32Array(N),prv=new Float32Array(N);
-const psp=new Float32Array(N),pss=new Float32Array(N),psa=new Float32Array(N);
-const pgp=new Float32Array(N),pal=new Float32Array(N);
-const pci=new Uint8Array(N),psi=new Uint8Array(N);
-const pst=new Uint8Array(N),pct=new Int16Array(N),prt=new Float32Array(N);
-const pbI=new Uint16Array(N),pbT=new Float32Array(N);
+let ppx,ppy,pax,pay,pvx,pvy,pro,prv,psp,pss,psa,pgp,pal;
+let pci,psi,pst,pct,prt,pbI,pbT,pBright;
+let brSwX,brSwY,brMidX,brMidY;
 
-for(let i=0;i<N;i++){
-  pax[i]=ppx[i]=petalAnchors[i].x;pay[i]=ppy[i]=petalAnchors[i].y;
-  pbI[i]=petalAnchors[i].brIdx;pbT[i]=petalAnchors[i].t;
-  pro[i]=R()*Math.PI*2;psp[i]=R()*Math.PI*2;pss[i]=.015+R()*.01;psa[i]=.5+R();pgp[i]=R()*Math.PI*2;
-  pal[i]=0;const r=R();pci[i]=r<.45?0:r<.75?1:r<.9?2:3;psi[i]=(R()*3)|0;
-  pst[i]=3;pct[i]=-1;prt[i]=0;
-}
-
-// Y threshold: petals only start fading above the title
 const titleEl=document.getElementById('title');
-const fadeY=titleEl?titleEl.getBoundingClientRect().bottom:H*.45;
-// Bright flag: ~30% of petals glow whiter as they ascend
-const pBright=new Uint8Array(N);
-for(let i=0;i<N;i++) pBright[i]=R()<.3?1:0;
-
-// Petal cycle: 'active' = push off freely, 'reblooming' = cursor reblooms
+let fadeY=titleEl?titleEl.getBoundingClientRect().bottom:H*.45;
 let petalCycle='active';
-
-// Cursor velocity for wind
 let prevMx=mx,prevMy=my,curVX=0,curVY=0;
 const SWAY_RANGE=200,SWAY_RANGE2=SWAY_RANGE*SWAY_RANGE;
 
-// Per-branch sway — branches wobble as units
-const brSwX=new Float32Array(allBranches.length);
-const brSwY=new Float32Array(allBranches.length);
-// Branch midpoints for distance checking
-const brMidX=new Float32Array(allBranches.length);
-const brMidY=new Float32Array(allBranches.length);
-for(let i=0;i<allBranches.length;i++){
-  const b=allBranches[i];
-  const mp=bzPt(.5,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
-  brMidX[i]=mp.x;brMidY[i]=mp.y;
+// Track which branches are blooming
+let bloomBranches=new Map();
+let bloomFrame=0;
+const BLOOM_HOP_DELAY=10;
+
+function initPetals(){
+  N=petalAnchors.length;
+  ppx=new Float32Array(N);ppy=new Float32Array(N);
+  pax=new Float32Array(N);pay=new Float32Array(N);
+  pvx=new Float32Array(N);pvy=new Float32Array(N);
+  pro=new Float32Array(N);prv=new Float32Array(N);
+  psp=new Float32Array(N);pss=new Float32Array(N);psa=new Float32Array(N);
+  pgp=new Float32Array(N);pal=new Float32Array(N);
+  pci=new Uint8Array(N);psi=new Uint8Array(N);
+  pst=new Uint8Array(N);pct=new Int16Array(N);prt=new Float32Array(N);
+  pbI=new Uint16Array(N);pbT=new Float32Array(N);
+  pBright=new Uint8Array(N);
+
+  for(let i=0;i<N;i++){
+    pax[i]=ppx[i]=petalAnchors[i].x;pay[i]=ppy[i]=petalAnchors[i].y;
+    pbI[i]=petalAnchors[i].brIdx;pbT[i]=petalAnchors[i].t;
+    pro[i]=R()*Math.PI*2;psp[i]=R()*Math.PI*2;pss[i]=.015+R()*.01;psa[i]=.5+R();pgp[i]=R()*Math.PI*2;
+    pal[i]=0;const r=R();pci[i]=r<.45?0:r<.75?1:r<.9?2:3;psi[i]=(R()*3)|0;
+    pst[i]=3;pct[i]=-1;prt[i]=0;
+    pBright[i]=R()<.3?1:0;
+  }
+
+  fadeY=titleEl?titleEl.getBoundingClientRect().bottom:H*.45;
+  petalCycle='active';
+  bloomBranches=new Map();bloomFrame=0;
+
+  // Branch sway arrays
+  brSwX=new Float32Array(allBranches.length);
+  brSwY=new Float32Array(allBranches.length);
+  brMidX=new Float32Array(allBranches.length);
+  brMidY=new Float32Array(allBranches.length);
+  for(let i=0;i<allBranches.length;i++){
+    const b=allBranches[i];
+    const mp=bzPt(.5,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
+    brMidX[i]=mp.x;brMidY[i]=mp.y;
+  }
 }
+initPetals();
 
 
 function freeP(i,fromCursor){
@@ -725,11 +883,6 @@ function chain(i){
 }
 
 // Petals revealed in blooming phase (see main loop)
-
-// Track which branches are blooming: Map of branchIdx → frame when added
-let bloomBranches=new Map();
-let bloomFrame=0;
-const BLOOM_HOP_DELAY=10; // frames between each hop to children
 
 function spreadBloom(){
   bloomFrame++;
@@ -993,10 +1146,10 @@ function renderPetals(){
 // 7. FILM GRAIN
 // ═══════════════════════════════════════════════
 const grainC=document.getElementById('grain');
-const GW=(W/4)|0,GH=(H/4)|0;
+let GW=(W/4)|0,GH=(H/4)|0;
 grainC.width=GW;grainC.height=GH;grainC.style.width='100%';grainC.style.height='100%';
 const gctx=grainC.getContext('2d');
-const grainImg=gctx.createImageData(GW,GH);const gd=grainImg.data;
+let grainImg=gctx.createImageData(GW,GH);let gd=grainImg.data;
 for(let i=3;i<gd.length;i+=4)gd[i]=10;
 let gf=0;
 function renderGrain(){if(++gf%4!==0)return;for(let i=0;i<gd.length;i+=4){const v=(R()*255)|0;gd[i]=gd[i+1]=gd[i+2]=v}gctx.putImageData(grainImg,0,0)}
@@ -1091,6 +1244,101 @@ function tick(now){
   requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);
+</script>
+
+<script>
+// ── Audio toggle with sine wave animation ──
+(function(){
+  const btn = document.getElementById('audioBtn');
+  const audio = document.getElementById('bgMusic');
+  const cvs = document.getElementById('audioWave');
+  const cx = cvs.getContext('2d');
+  const w = cvs.width, h = cvs.height;
+  const midY = h / 2;
+
+  const npLabel = document.getElementById('nowPlaying');
+  let playing = false;
+  let amplitude = 0;   // 0 = flat line, 1 = full sine
+  let phase = 0;
+  let glowAmount = 0;
+
+  function startPlaying(){
+    playing = true;
+    btn.classList.add('playing');
+    npLabel.classList.add('show');
+  }
+  function stopPlaying(){
+    playing = false;
+    btn.classList.remove('playing');
+    npLabel.classList.remove('show');
+  }
+
+  btn.addEventListener('click', () => {
+    if(!playing){
+      audio.play();
+      startPlaying();
+    } else {
+      audio.pause();
+      sessionStorage.removeItem('audioPlaying');
+      stopPlaying();
+    }
+  });
+
+
+  function drawWave(){
+    cx.clearRect(0, 0, w, h);
+
+    // Smooth transition
+    const target = playing ? 1 : 0;
+    amplitude += (target - amplitude) * .06;
+    glowAmount += (target - glowAmount) * .04;
+    phase += playing ? .03 : .008;
+
+    // Clamp near zero to avoid jitter
+    if(!playing && amplitude < .005) amplitude = 0;
+
+    const pad = 5;
+    const lineW = w - pad * 2;
+
+    // Glow layer
+    if(glowAmount > .01){
+      cx.save();
+      cx.filter = 'blur(3px)';
+      cx.strokeStyle = `rgba(242,160,181,${glowAmount * .5})`;
+      cx.lineWidth = 2.5;
+      cx.beginPath();
+      for(let i = 0; i <= lineW; i++){
+        const t = i / lineW;
+        const x = pad + i;
+        const waveY = Math.sin(t * Math.PI * 2.5 + phase) * amplitude * 5;
+        const y = midY + waveY;
+        i === 0 ? cx.moveTo(x, y) : cx.lineTo(x, y);
+      }
+      cx.stroke();
+      cx.restore();
+    }
+
+    // Main line
+    const r = 255 - glowAmount * 13;
+    const g = 255 - glowAmount * 95;
+    const b = 255 - glowAmount * 60;
+    cx.strokeStyle = `rgba(${r|0},${g|0},${b|0},${.6 + glowAmount * .3})`;
+    cx.lineWidth = 1.2;
+    cx.lineCap = 'round';
+    cx.beginPath();
+    for(let i = 0; i <= lineW; i++){
+      const t = i / lineW;
+      const x = pad + i;
+      const waveY = Math.sin(t * Math.PI * 2.5 + phase) * amplitude * 5;
+      const y = midY + waveY;
+      i === 0 ? cx.moveTo(x, y) : cx.lineTo(x, y);
+    }
+    cx.stroke();
+
+    requestAnimationFrame(drawWave);
+  }
+  drawWave();
+})();
 </script>
 </body>
 </html>
