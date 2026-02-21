@@ -573,6 +573,12 @@
     color:rgba(242,160,181,1);
     border-color:rgba(242,160,181,.5);
   }
+  .countdown{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.65rem;
+    color:rgba(242,160,181,.45);
+    letter-spacing:.05em;
+  }
 </style>
 </head>
 <body>
@@ -761,12 +767,13 @@
     <div class="reading-block">
       <div class="reading-section-label">links</div>
       <ul class="reading-link-list">
-        <li><a href="https://substack.com/@suntzugi" target="_blank">Substack</a></li>
         <li><a href="https://x.com/suntzugi" target="_blank">Twitter</a></li>
         <li><a href="mailto:suntzoogway@gmail.com">Email</a></li>
-        <li><a href="https://github.com/suntzugi" target="_blank">Github</a></li>
         <li><a href="https://lovepill.org" target="_blank">Lovepill AI</a></li>
         <li><a href="https://chraist.ai" target="_blank">Chraist</a></li>
+        <li><a href="https://github.com/suntzugi" target="_blank">Github</a></li>
+        <li><a href="https://substack.com/@suntzugi" target="_blank">Substack</a></li>
+        <li><a href="#">Neodore (stealth)</a> <span class="countdown" data-target="2026-02-23T17:55:00-08:00"></span></li>
       </ul>
     </div>
   </div>
@@ -1126,8 +1133,22 @@ async function loadEssay(slug){
     }
   }
 
+  function parseLinksWithMeta(section){
+    const results=[];
+    const lines=section.split('\n').filter(l=>l.trim().startsWith('- ['));
+    for(const line of lines){
+      const linkMatch=line.match(/\[([^\]]+)\]\(([^)]+)\)/);
+      if(!linkMatch)continue;
+      const entry={label:linkMatch[1],url:linkMatch[2]};
+      const cdMatch=line.match(/\{countdown:([^}]+)\}/);
+      if(cdMatch) entry.countdown=cdMatch[1].trim();
+      results.push(entry);
+    }
+    return results;
+  }
+
   function applyLinks(section){
-    const links=parseMarkdownLinks(section);
+    const links=parseLinksWithMeta(section);
     if(!links.length)return;
     const blocks=document.querySelectorAll('.reading-block');
     for(const block of blocks){
@@ -1137,11 +1158,39 @@ async function loadEssay(slug){
         if(!ul)break;
         ul.innerHTML=links.map(l=>{
           const isMailto=l.url.startsWith('mailto:');
-          return '<li><a href="'+l.url+'"'+(isMailto?'':' target="_blank"')+'>'+l.label+'</a></li>';
+          const isHash=l.url==='#';
+          const target=(!isMailto&&!isHash)?' target="_blank"':'';
+          let html='<li><a href="'+l.url+'"'+target+'>'+l.label+'</a>';
+          if(l.countdown) html+=' <span class="countdown" data-target="'+l.countdown+'"></span>';
+          html+='</li>';
+          return html;
         }).join('');
+        startCountdowns();
         break;
       }
     }
+  }
+
+  let countdownInterval=null;
+  function startCountdowns(){
+    const els=document.querySelectorAll('.countdown[data-target]');
+    if(!els.length)return;
+    if(countdownInterval){clearInterval(countdownInterval);countdownInterval=null;}
+    function tick(){
+      const now=Date.now();
+      els.forEach(el=>{
+        const target=new Date(el.dataset.target).getTime();
+        const diff=target-now;
+        if(diff<=0){el.textContent='launched';return;}
+        const d=Math.floor(diff/86400000);
+        const h=Math.floor((diff%86400000)/3600000);
+        const m=Math.floor((diff%3600000)/60000);
+        const s=Math.floor((diff%60000)/1000);
+        el.textContent=d+'d '+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+      });
+    }
+    tick();
+    countdownInterval=setInterval(tick,1000);
   }
 
   function applyAudioTracks(section){
@@ -1183,7 +1232,9 @@ async function loadEssay(slug){
     }catch(e){/* fetch fails on file:// — HTML fallback stays */}
   }
 
-  loadContent();
+  loadContent().then(()=>startCountdowns());
+  // Also start countdowns for HTML fallback (file:// where fetch fails)
+  startCountdowns();
 })();
 </script>
 
