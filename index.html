@@ -7,7 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  body{background:#1e2a4a;color:#d4d8e8;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;cursor:default}
+  body{background:#1e2a4a;color:#d4d8e8;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;cursor:default;
+    scrollbar-width:thin;scrollbar-color:rgba(242,160,181,.3) transparent}
+  body::-webkit-scrollbar{width:4px}
+  body::-webkit-scrollbar-track{background:transparent}
+  body::-webkit-scrollbar-thumb{background:rgba(242,160,181,.3);border-radius:2px}
+  body::-webkit-scrollbar-thumb:hover{background:rgba(242,160,181,.5)}
   .grain{position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.18;mix-blend-mode:screen}
   #scene{position:fixed;inset:0;z-index:2;pointer-events:none}
   .moonlight{position:fixed;inset:0;z-index:1;pointer-events:none;
@@ -171,7 +176,12 @@
     overflow-y:auto;
     opacity:0;pointer-events:none;
     transition:opacity .5s ease;
+    scrollbar-width:thin;scrollbar-color:rgba(242,160,181,.3) transparent;
   }
+  .essay-view::-webkit-scrollbar{width:4px}
+  .essay-view::-webkit-scrollbar-track{background:transparent}
+  .essay-view::-webkit-scrollbar-thumb{background:rgba(242,160,181,.3);border-radius:2px}
+  .essay-view::-webkit-scrollbar-thumb:hover{background:rgba(242,160,181,.5)}
   .essay-view.open{opacity:1;pointer-events:auto}
   .essay-view-inner{
     max-width:600px;
@@ -486,6 +496,7 @@
     animation:scrollHintBreath 3s ease-in-out infinite;
   }
   body.scroll-locked{overflow:hidden;touch-action:none}
+  body.scroll-unlocking{overflow:auto;touch-action:none}
   .scroll-hint-bottom.tap-to-scroll{pointer-events:auto;cursor:pointer}
   body.no-text-border .title,
   body.no-text-border .ac-body,
@@ -1025,21 +1036,26 @@ async function loadEssay(slug){
     phase='drawing';bloomStart=0;shadowLayers=null;
   }
 
-  // Pink line tap → unlock scroll + nudge down on mobile
+  // Pink line tap → nudge scroll down, then unlock on mobile
   if(hintBottom){
     hintBottom.addEventListener('touchstart',(e)=>{
       if(!scrollLocked) return;
       e.preventDefault();
-      // Brief visual flash
       hintBottom.classList.add('tapped');
       setTimeout(()=>hintBottom.classList.remove('tapped'),200);
-      scrollLocked=false;
-      document.body.classList.remove('scroll-locked');
       hintBottom.classList.remove('tap-to-scroll');
-      // Slight scroll nudge to signal scroll is unlocked
-      setTimeout(()=>{
-        window.scrollTo({top:80,behavior:'smooth'});
-      },100);
+      scrollLocked=false;
+      // Phase 1: allow overflow but block touch-action so user finger doesn't hijack
+      document.body.classList.remove('scroll-locked');
+      document.body.classList.add('scroll-unlocking');
+      // Phase 2: nudge scroll down
+      requestAnimationFrame(()=>{
+        window.scrollTo({top:100,behavior:'smooth'});
+        // Phase 3: fully unlock touch after smooth scroll settles
+        setTimeout(()=>{
+          document.body.classList.remove('scroll-unlocking');
+        },600);
+      });
     },{passive:false});
   }
 
