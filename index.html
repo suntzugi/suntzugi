@@ -578,6 +578,27 @@
   }
   body.scroll-locked{overflow:hidden;touch-action:none}
   body.scroll-unlocking{overflow:auto;touch-action:none}
+  body.cursor-chraist-dark,body.cursor-chraist-dark *{cursor:url('assets/chraist/cursor-dark.png') 16 16,default!important}
+  body.cursor-chraist-white,body.cursor-chraist-white *{cursor:url('assets/chraist/cursor-white.png') 16 16,default!important}
+  .scroll-hint-bottom.chraist-hint{
+    width:28px;height:28px;
+    background:none;
+    background-image:url('assets/chraist/symbol-white.png');
+    background-size:contain;
+    background-repeat:no-repeat;
+    background-position:center;
+    transform:translateX(-50%) scaleY(-1);
+  }
+  @media (hover:none) and (pointer:coarse){
+    .scroll-hint-bottom.chraist-hint{transform:scaleY(-1)}
+  }
+  .scroll-hint-bottom.chraist-hint.visible{
+    animation:chraistBreath 3s ease-in-out infinite;
+  }
+  @keyframes chraistBreath{
+    0%,100%{opacity:.35;filter:drop-shadow(0 0 4px rgba(242,160,181,.1))}
+    50%{opacity:.8;filter:drop-shadow(0 0 8px rgba(242,160,181,.35))}
+  }
   .scroll-hint-bottom.tap-to-scroll{pointer-events:auto;cursor:pointer}
   .scroll-hint-bottom.tap-to-scroll::before{
     content:'';position:absolute;
@@ -825,6 +846,14 @@
   <div class="ep-group">
     <div class="ep-group-title">5. Typography</div>
     <div class="ep-toggle-row"><button class="ep-toggle" id="toggleTextBorder"></button><span class="ep-slider-name">text border</span></div>
+  </div>
+  <div class="ep-group">
+    <div class="ep-group-title">6. Scroll Pointer</div>
+    <div class="ep-toggle-row"><button class="ep-toggle" id="toggleChraistHint"></button><span class="ep-slider-name">chraist symbol</span></div>
+  </div>
+  <div class="ep-group">
+    <div class="ep-group-title">7. Cursor</div>
+    <div class="ep-slider-row"><span class="ep-num"></span><div class="ep-slider-wrap"><div class="ep-styles" id="epCursorStyles"></div></div></div>
   </div>
 </div>
 
@@ -2838,6 +2867,44 @@ requestAnimationFrame(tick);
     textBorderBtn.classList.toggle('active',textBorderOn);
     document.body.classList.toggle('no-text-border',!textBorderOn);
   });
+
+  // Chraist symbol scroll pointer toggle (on by default)
+  const chraistHintBtn=document.getElementById('toggleChraistHint');
+  const scrollHint=document.querySelector('.scroll-hint-bottom');
+  let chraistHintOn=true;
+  chraistHintBtn.classList.add('active');
+  if(scrollHint) scrollHint.classList.add('chraist-hint');
+  chraistHintBtn.addEventListener('click',()=>{
+    chraistHintOn=!chraistHintOn;
+    chraistHintBtn.classList.toggle('active',chraistHintOn);
+    if(scrollHint) scrollHint.classList.toggle('chraist-hint',chraistHintOn);
+  });
+
+  // Cursor style picker — mutually exclusive: arrow | chraist dark | chraist white
+  const cursorOptions=[
+    {name:'arrow',label:'arrow',bodyClass:null},
+    {name:'dark',label:'chraist dark',bodyClass:'cursor-chraist-dark'},
+    {name:'white',label:'chraist white',bodyClass:'cursor-chraist-white'}
+  ];
+  let activeCursor='arrow';
+  const cursorStylesEl=document.getElementById('epCursorStyles');
+  function buildCursorStyles(){
+    cursorStylesEl.innerHTML='';
+    cursorOptions.forEach(opt=>{
+      const btn=document.createElement('button');
+      btn.className='ep-style-btn'+(activeCursor===opt.name?' active':'');
+      btn.textContent=opt.label;
+      btn.addEventListener('click',()=>{
+        // Remove all cursor classes
+        cursorOptions.forEach(o=>{if(o.bodyClass)document.body.classList.remove(o.bodyClass)});
+        activeCursor=opt.name;
+        if(opt.bodyClass) document.body.classList.add(opt.bodyClass);
+        buildCursorStyles();
+      });
+      cursorStylesEl.appendChild(btn);
+    });
+  }
+  buildCursorStyles();
 })();
 </script>
 </body>
