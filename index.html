@@ -1291,13 +1291,14 @@ async function loadEssay(slug){
       // Phase 1: allow overflow but block touch-action so user finger doesn't hijack
       document.body.classList.remove('scroll-locked');
       document.body.classList.add('scroll-unlocking');
-      // Phase 2: nudge scroll down
+      // Phase 2: scroll down to reading/links section
       requestAnimationFrame(()=>{
-        window.scrollTo({top:100,behavior:'smooth'});
+        const scrollTarget=readingSec?readingSec.offsetTop:document.body.scrollHeight;
+        window.scrollTo({top:scrollTarget,behavior:'smooth'});
         // Phase 3: fully unlock touch after smooth scroll settles
         setTimeout(()=>{
           document.body.classList.remove('scroll-unlocking');
-        },600);
+        },1200);
       });
     },{passive:false});
   }
