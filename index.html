@@ -154,14 +154,14 @@
     letter-spacing:.15em;text-transform:uppercase;
     color:#6b7394;
   }
-  .ac-body a, .ac-link{
+  .ac-body a, .ac-quote a, .ac-link{
     color:#f2a0b5;opacity:.7;
     text-decoration:none;
     border-bottom:1px solid rgba(242,160,181,.25);
     transition:opacity .3s ease, border-color .3s ease;
     pointer-events:auto;
   }
-  .ac-body a:hover, .ac-link:hover{
+  .ac-body a:hover, .ac-quote a:hover, .ac-link:hover{
     opacity:1;border-color:rgba(242,160,181,.6);
   }
   .ac-sep{
@@ -643,18 +643,17 @@
     <div class="anno-card" id="card-sun">
       <div class="ac-top">
         <span class="ac-char">孫</span>
-        <span class="ac-label">sūn · chinese — descendant, the eternal child</span>
+        <span class="ac-label">sūn · chinese — grandchild, descedant</span>
       </div>
       <div class="ac-body">
-        The sun — the star that gave life to everything on earth without ever
-        asking to be close to it. Warmth from a distance. Light as a gift, not a transaction.
-        In Chinese, sūn 孫 means grandchild, descendant — the eternal child.
-        To embody the sun is to give like it does: endlessly, from where you are,
-        trusting that the light will reach what it needs to reach.
+        The sun is the star that gave life to everything on earth. Different traditions throughout our human history have worshipped the sun for bringing light to the dark and life to the dead. All calendars and religious holidays are mapped to the stars and the cycles caused by the sun, even the moon cycles exist because of the light reflected by the sun on the moon. Many people have begun to call me sun on twitter as an abbreviation for Suntzoogway and Suntzugi, this wasn't planned, but I take it in stride as I see symbolically as others choosing to call me a bringer of light and warmth; I endeavour to do so.
+      </div>
+      <div class="ac-body" style="margin-top:.4rem">
+        Interestingly in Chinese, sūn 孫 means grandchild, descendant. The english language mirrors this beautifully with the homonym son. As the son of the sun, I hope to do this beautiful word, I have been bestowed as a name by my twitter friends, justice and keep my inner child's curiosity and wonder alive.
       </div>
       <div class="ac-quote">
         "Truly I tell you, unless you change and become like little children, you will never enter the kingdom of heaven."
-        <span class="attr">— Matthew 18:3</span>
+        <span class="attr">— <a href="https://www.biblegateway.com/passage/?search=Matthew%2018%3A3&version=NIV" target="_blank">Matthew 18:3</a></span>
       </div>
     </div>
 
@@ -665,8 +664,7 @@
         <span class="ac-label">zǐ · chinese — master, child</span>
       </div>
       <div class="ac-body">
-        The master, the teacher — the one who studies.
-        To learn is to master, and the eternal master remains forever a student.
+        In Chinese Tzu is a title meaning Master. To learn is to master, and the eternal master remains forever a student.
       </div>
     </div>
 
@@ -691,7 +689,7 @@
         <span class="ac-label">sūn zǐ · chinese — the art of war</span>
       </div>
       <div class="ac-body">
-        The ancient strategist who taught that the greatest victories require no battle.
+        The ancient Chinese strategist who taught that the greatest victory comes without violence.
       </div>
       <div class="ac-quote">
         "To win one hundred victories in one hundred battles is not the acme of skill. To subdue the enemy without fighting is the acme of skill."
@@ -978,7 +976,7 @@ function parseMd(md){
 async function loadEssay(slug){
   if(essayCache[slug]) return essayCache[slug];
   try{
-    const res=await fetch('essays/'+slug+'.md');
+    const res=await fetch('texts/essays/'+slug+'.md');
     if(res.ok){
       const md=await res.text();
       const parsed=parseMd(md);
@@ -993,6 +991,110 @@ async function loadEssay(slug){
   }
   return null;
 }
+</script>
+
+<script>
+// ── Suntzugi content loader — extracts text from texts/suntzugi/content.md ──
+(function(){
+  const cardMap={
+    'Card 1: Sun':'card-sun',
+    'Card 2: Tzu':'card-tzu',
+    'Card 3: Gi':'card-gi',
+    'Card 4: SunTzu':'card-suntzu',
+    'Card 5: Tzugi':'card-tzugi',
+    'Card 6: Suntzugi':'card-full'
+  };
+
+  function parseContentMd(md){
+    const sections={};
+    const blocks=md.split(/^## /m).slice(1);
+    for(const block of blocks){
+      const lines=block.split('\n');
+      const heading=lines[0].trim();
+      const body=lines.slice(1).join('\n');
+      sections[heading]=body;
+    }
+    return sections;
+  }
+
+  function extractField(text,field){
+    const re=new RegExp('\\*\\*'+field+':\\*\\*\\s*(.+?)(?=\\n\\n\\*\\*|\\n---|\\_$)','s');
+    const m=text.match(re);
+    return m?m[1].trim():null;
+  }
+
+  function mdInline(s){
+    if(!s)return '';
+    return s.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>')
+            .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g,'<em>$1</em>');
+  }
+
+  function applyCard(id,section){
+    const el=document.getElementById(id);
+    if(!el)return;
+
+    const character=extractField(section,'Character');
+    const label=extractField(section,'Label');
+    const body=extractField(section,'Body');
+    const bodyP1=extractField(section,'Body Part 1');
+    const bodyP2=extractField(section,'Body Part 2');
+    const quote=extractField(section,'Quote');
+    const quoteAttr=extractField(section,'Quote Attribution');
+    const link=extractField(section,'Link');
+
+    if(character){
+      const charEl=el.querySelector('.ac-char');
+      if(charEl) charEl.textContent=character;
+    }
+    if(label){
+      const labelEl=el.querySelector('.ac-label');
+      if(labelEl) labelEl.textContent=label;
+    }
+
+    // Collect all .ac-body and .ac-quote elements
+    const bodies=el.querySelectorAll('.ac-body');
+    const quotes=el.querySelectorAll('.ac-quote');
+    const seps=el.querySelectorAll('.ac-sep');
+
+    if(bodyP1&&bodyP2){
+      // Two-part body (e.g. Tzugi card)
+      if(bodies[0]) bodies[0].innerHTML=mdInline(bodyP1);
+      if(bodies[1]) bodies[1].innerHTML=mdInline(bodyP2);
+    } else if(body){
+      if(bodies[0]) bodies[0].innerHTML=mdInline(body);
+    }
+
+    if(quote&&quotes[0]){
+      quotes[0].innerHTML=mdInline(quote)+(quoteAttr?'\n<span class="attr">— '+mdInline(quoteAttr)+'</span>':'');
+    }
+
+    if(link){
+      // Find or create the link body element
+      const linkBody=bodies[bodies.length-1];
+      if(linkBody&&linkBody.querySelector('a')){
+        linkBody.innerHTML=mdInline(link);
+      }
+    }
+  }
+
+  async function loadContent(){
+    try{
+      const res=await fetch('texts/suntzugi/content.md');
+      if(!res.ok)return;
+      const md=await res.text();
+      const sections=parseContentMd(md);
+
+      for(const[heading,cardId] of Object.entries(cardMap)){
+        // Match section headings that start with the card name
+        const key=Object.keys(sections).find(k=>k.startsWith(heading));
+        if(key) applyCard(cardId,sections[key]);
+      }
+    }catch(e){/* fetch fails on file:// — HTML fallback stays */}
+  }
+
+  loadContent();
+})();
 </script>
 
 <script>
