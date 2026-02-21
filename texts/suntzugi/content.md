@@ -23,13 +23,13 @@ Suntzugi
 
 **Character:** 孫
 
-**Label:** sūn · chinese — grandchild, descedant
+**Label:** sūn · chinese — grandchild, descendant
 
 **Body:**
 
-The sun is the star that gave life to everything on earth. Different traditions throughout our human history have worshipped the sun for bringing light to the dark and life to the dead. All calendars and religious holidays are mapped to the stars and the the cycles caused by the sun, even the moon cycles exist because of the light reflected by the sun on the moon. Many people have begun to call me sun on twitter as an abbreviation for Suntzoogway and Suntzugi, this wasn't planned, but I take it in stride as I see symbolically as others choosing to call me a bringer of light and warmth; I endeavour to do so. 
+The sun is the star that gave life to everything on earth. Different traditions throughout our human history have worshipped the sun for bringing light to the dark and life to the dead. All calendars and religious holidays are mapped to the stars and the cycles caused by the sun, even the moon cycles exist because of the light reflected by the sun on the moon. Many people have begun to call me sun on twitter as an abbreviation for Suntzoogway and Suntzugi, this wasn't planned, but I take it in stride as I see it symbolically as others choosing to call me a bringer of light and warmth; I endeavour to do so. 
 
-Interestingly in Chinese, sūn 孫 means grandchild, descendant. The english language mirrors this beautifully with the homonym son. As the son of the sun, I hope to do this beautiful word, I have been bestowed as a name by my twitter friends, justice and keep my inner child's curiosity and wonder alive.
+Interestingly in Chinese, sūn 孫 means grandchild, descendant. The english language mirrors this beautifully with the homonym son. As the son of the sun, I hope to do this beautiful word — which I have been bestowed as a name by my twitter friends — justice, and keep my inner child's curiosity and wonder alive.
 
 **Quote:**
 
@@ -59,7 +59,7 @@ In Chinese Tzu is a title meaning Master. To learn is to master, and the eternal
 
 **Body:**
 
-In my early 21st century reading of the parable of the turtle and rabbity, the turtle doesn't just win because it's consistent, but because consistency and patience is the solid foundation upon which exponential progress that outpaces short term sprints is built.
+In my early 21st century reading of the parable of the turtle and rabbit, the turtle doesn't just win because it's consistent, but because consistency and patience is the solid foundation upon which exponential progress that outpaces short term sprints is built.
 
 In myth, the turtle carries the world on its back and I've always felt like the entire mundiverse was my home to carry and protect. 
 
@@ -93,11 +93,11 @@ The ancient Chinese strategist who taught that the greatest victory comes withou
 
 **Body Part 1:**
 
-In Japanese Tsugi 継ぎ means to mend, to continue, to join what was broken. It an etymological root of kintsugi 金継ぎ, the art of repairing broken pottery with gold; making the fracture part of the beauty, not something to hide. Suntzugi shares this etymology but connects it not with gold (kin), but with the sun which is the golden energy that nourishes all earthly life.
+In Japanese Tsugi 継ぎ means to mend, to continue, to join what was broken. It is an etymological root of kintsugi 金継ぎ, the art of repairing broken pottery with gold; making the fracture part of the beauty, not something to hide. Suntzugi shares this etymology but connects it not with gold (kin), but with the sun which is the golden energy that nourishes all earthly life.
 
 **Body Part 2:**
 
-Interestingly, Tzu Gui in Chinese means Master Turtle — 子龜. An echo of Master Oogway, the tortoise who saw potential where no one else looked. Sun grew up as Po: the passionate outsider. Heterodox and unconventional but earnest, curious and exhuding so much love that he could become the Dragon Warrior. But time turns Po into Oogway — the one who must now lead, who must help others ascend the same mountain. Before this name there was [Suntzoogway](https://x.com/suntzoogway) — Suntzugi is the abbreviation of the former, a more meaningful and beautiful neologism for this next chapter.
+Interestingly, Tzu Gui in Chinese means Master Turtle — 子龜. An echo of Master Oogway, the tortoise who saw potential where no one else looked. Sun grew up as Po: the passionate outsider. Heterodox and unconventional but earnest, curious and exuding so much love that he could become the Dragon Warrior. But time turns Po into Oogway — the one who must now lead, who must help others ascend the same mountain. Before this name there was [Suntzoogway](https://x.com/suntzoogway) — Suntzugi is the abbreviation of the former, a more meaningful and beautiful neologism for this next chapter.
 
 ---
 
