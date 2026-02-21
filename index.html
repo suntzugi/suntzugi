@@ -651,14 +651,6 @@ for(let i=0;i<allBranches.length;i++){
   brMidX[i]=mp.x;brMidY[i]=mp.y;
 }
 
-// Wind wisps — curved, fading arcs near cursor
-const WISP_N=20;
-const wispX=new Float32Array(WISP_N),wispY=new Float32Array(WISP_N);
-const wispVx=new Float32Array(WISP_N),wispVy=new Float32Array(WISP_N);
-const wispAl=new Float32Array(WISP_N),wispLife=new Float32Array(WISP_N);
-const wispCurve=new Float32Array(WISP_N); // perpendicular curve amount
-const wispLen=new Float32Array(WISP_N);
-for(let i=0;i<WISP_N;i++) wispLife[i]=0;
 
 function freeP(i,fromCursor){
   if(pst[i]!==0)return;pst[i]=1;pal[i]=1;
@@ -729,28 +721,6 @@ function updatePetals(){
     }
   }
 
-  // Wind wisps update
-  for(let i=0;i<WISP_N;i++){
-    if(wispLife[i]<=0){
-      if(curSpeed>2&&R()<.25){
-        const angle=Math.atan2(curVY,curVX);
-        const spread=angle+(R()-.5)*1.2;
-        wispX[i]=mx+(R()-.5)*40;
-        wispY[i]=my+(R()-.5)*40;
-        wispVx[i]=Math.cos(spread)*curSpeed*(.15+R()*.15);
-        wispVy[i]=Math.sin(spread)*curSpeed*(.15+R()*.15);
-        wispAl[i]=.06+R()*.06;
-        wispLife[i]=35+R()*30|0;
-        wispCurve[i]=(R()-.5)*8;
-        wispLen[i]=8+curSpeed*2+R()*6;
-      }
-      continue;
-    }
-    wispLife[i]--;
-    wispX[i]+=wispVx[i];wispY[i]+=wispVy[i];
-    wispVx[i]*=.96;wispVy[i]*=.96;
-    wispAl[i]*=.975;
-  }
 
   let flyingCount=0, barrenCount=0, restingCount=0;
   for(let i=0;i<N;i++){
@@ -963,28 +933,6 @@ function renderPetals(){
     ctx.beginPath();ctx.arc(mx,my,gustR,0,Math.PI*2);ctx.fill();
   }
 
-  // Wind wisps — soft curved arcs trailing cursor
-  ctx.lineCap='round';
-  for(let i=0;i<WISP_N;i++){
-    if(wispLife[i]<=0)continue;
-    const al=wispAl[i]*Math.min(wispLife[i]/12,1);
-    if(al<.005)continue;
-    const spd=Math.sqrt(wispVx[i]*wispVx[i]+wispVy[i]*wispVy[i]);
-    if(spd<.2)continue;
-    const nx=wispVx[i]/(spd||1),ny=wispVy[i]/(spd||1);
-    const len=wispLen[i]*Math.min(wispLife[i]/15,1);
-    // Curved wisp: start → control point (perpendicular offset) → end
-    const ex=wispX[i]-nx*len,ey=wispY[i]-ny*len;
-    const cpx=(wispX[i]+ex)/2+(-ny)*wispCurve[i];
-    const cpy=(wispY[i]+ey)/2+(nx)*wispCurve[i];
-    ctx.globalAlpha=al;
-    ctx.strokeStyle='rgba(235,210,225,.4)';
-    ctx.lineWidth=.5+al*3;
-    ctx.beginPath();
-    ctx.moveTo(wispX[i],wispY[i]);
-    ctx.quadraticCurveTo(cpx,cpy,ex,ey);
-    ctx.stroke();
-  }
 
   ctx.globalAlpha=1;
 }
