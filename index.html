@@ -482,6 +482,31 @@
     opacity:1;
     animation:scrollHintBreath 3s ease-in-out infinite;
   }
+  body.scroll-locked{overflow:hidden;touch-action:none}
+  .scroll-hint-bottom.tap-to-scroll{pointer-events:auto;cursor:pointer}
+  body.no-text-border .title,
+  body.no-text-border .ac-body,
+  body.no-text-border .ac-quote,
+  body.no-text-border .essay-view-title,
+  body.no-text-border .essay-view-body,
+  body.no-text-border .nav-title{text-shadow:none}
+  .edit-panel .ep-toggle-row{
+    display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;
+  }
+  .edit-panel .ep-toggle{
+    position:relative;width:28px;height:14px;
+    background:rgba(242,160,181,.12);border-radius:7px;
+    border:none;cursor:pointer;flex-shrink:0;
+    transition:background .3s ease;
+  }
+  .edit-panel .ep-toggle::after{
+    content:'';position:absolute;top:2px;left:2px;
+    width:10px;height:10px;border-radius:50%;
+    background:rgba(242,160,181,.5);
+    transition:transform .3s ease,background .3s ease;
+  }
+  .edit-panel .ep-toggle.active{background:rgba(242,160,181,.3)}
+  .edit-panel .ep-toggle.active::after{transform:translateX(14px);background:rgba(242,160,181,.8)}
   .reading-inner{
     max-width:640px;
   }
@@ -586,6 +611,10 @@
     <div class="ep-group-title">4. Petals</div>
     <div class="ep-slider-row"><span class="ep-num">12</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">petal density</span><span class="ep-slider-val" id="val-petalDensity">1.00</span></div><input type="range" min="0.3" max="2.0" step="0.05" value="1.0" data-param="petalDensity"></div></div>
     <div class="ep-slider-row"><span class="ep-num">13</span><div class="ep-slider-wrap"><div class="ep-slider-info"><span class="ep-slider-name">glow intensity</span><span class="ep-slider-val" id="val-glowIntensity">1.00</span></div><input type="range" min="0" max="3.0" step="0.05" value="1.0" data-param="glowIntensity"></div></div>
+  </div>
+  <div class="ep-group">
+    <div class="ep-group-title">5. Typography</div>
+    <div class="ep-toggle-row"><button class="ep-toggle" id="toggleTextBorder"></button><span class="ep-slider-name">text border</span></div>
   </div>
 </div>
 
@@ -862,6 +891,51 @@
       hideAll();
     }
   }, {passive:true});
+
+  // ── Touch slide: finger drag across syllables ──
+  let lastTouchSyl = -1;
+  let lastTouchTime = 0;
+
+  document.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    if(!touch) return;
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if(!el) return;
+    const syl = el.closest('.syl');
+    if(syl){
+      e.preventDefault();
+      const i = parseInt(syl.dataset.i, 10);
+      if(leaveTimer){clearTimeout(leaveTimer);leaveTimer=null}
+      insideZone = true;
+      const now = Date.now();
+      if(i !== lastTouchSyl || now - lastTouchTime > 100){
+        lastTouchSyl = i;
+        lastTouchTime = now;
+        hoverHistory.push({index:i, time:now});
+        if(hoverHistory.length > 12) hoverHistory = hoverHistory.slice(-8);
+        evaluateState(i);
+      }
+    } else {
+      // Finger slid off syllables — start dismiss timer
+      lastTouchSyl = -1;
+      if(!leaveTimer){
+        insideZone = false;
+        leaveTimer = setTimeout(() => {
+          if(!insideZone) hideAll();
+        }, 500);
+      }
+    }
+  }, {passive:false});
+
+  document.addEventListener('touchend', () => {
+    lastTouchSyl = -1;
+    if(activeCard){
+      insideZone = false;
+      leaveTimer = setTimeout(() => {
+        if(!insideZone) hideAll();
+      }, 500);
+    }
+  }, {passive:true});
 })();
 </script>
 
@@ -937,8 +1011,8 @@ async function loadEssay(slug){
   setTimeout(()=>{
     revealDone=true;
     if(ciEl){ciEl.style.animation='none';ciEl.style.opacity='1';ciEl.style.transform='translateY(0)'}
-    // Show scroll hint if page has overflow
-    if(hintBottom&&document.body.scrollHeight>window.innerHeight+50)
+    // Show scroll hint if touch device or page has overflow
+    if(hintBottom&&(isTouchDevice||document.body.scrollHeight>window.innerHeight+50))
       hintBottom.classList.add('visible');
   },1500);
 
@@ -946,9 +1020,33 @@ async function loadEssay(slug){
   const readingSec=document.getElementById('readingSection');
   const hintBottom=document.querySelector('.scroll-hint-bottom');
 
+  const isTouchDevice=('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  let scrollLocked=false;
+
+  // Initial scroll lock on touch devices
+  if(isTouchDevice){
+    scrollLocked=true;
+    document.body.classList.add('scroll-locked');
+    if(hintBottom) hintBottom.classList.add('tap-to-scroll');
+  }
+
   function rebuildTree(){
     generateTree();initPetals();
     phase='drawing';bloomStart=0;shadowLayers=null;
+  }
+
+  // Pink line tap → unlock scroll on mobile
+  if(hintBottom){
+    hintBottom.addEventListener('touchstart',(e)=>{
+      if(!scrollLocked) return;
+      e.preventDefault();
+      // Brief visual flash
+      hintBottom.classList.add('tapped');
+      setTimeout(()=>hintBottom.classList.remove('tapped'),200);
+      scrollLocked=false;
+      document.body.classList.remove('scroll-locked');
+      hintBottom.classList.remove('tap-to-scroll');
+    },{passive:false});
   }
 
   // Essay link clicks — fetch from essays/{slug}.md
@@ -975,6 +1073,7 @@ async function loadEssay(slug){
         essayView.classList.add('open');
         essayOpen=true;
         navTitle.classList.add('show');
+        if(isTouchDevice){scrollLocked=true;document.body.classList.add('scroll-locked')}
       },500);
     });
   });
@@ -983,6 +1082,13 @@ async function loadEssay(slug){
     // Fade out essay view first
     essayView.classList.remove('open');
     essayOpen=false;
+
+    // Unlock scroll on touch devices
+    if(isTouchDevice){
+      scrollLocked=false;
+      document.body.classList.remove('scroll-locked');
+      if(hintBottom){hintBottom.classList.add('visible');hintBottom.classList.remove('tap-to-scroll')}
+    }
 
     // After fade completes, rebuild tree in original position and restore landing
     setTimeout(()=>{
@@ -2070,6 +2176,16 @@ requestAnimationFrame(tick);
         }
       }
     });
+  });
+
+  // Text border toggle (on by default → toggle removes it)
+  const textBorderBtn=document.getElementById('toggleTextBorder');
+  let textBorderOn=true;
+  textBorderBtn.classList.add('active');
+  textBorderBtn.addEventListener('click',()=>{
+    textBorderOn=!textBorderOn;
+    textBorderBtn.classList.toggle('active',textBorderOn);
+    document.body.classList.toggle('no-text-border',!textBorderOn);
   });
 })();
 </script>
