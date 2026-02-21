@@ -109,7 +109,7 @@ Interestingly, Tzu Gui in Chinese means Master Turtle — 子龜. An echo of Mas
 
 **Body:**
 
-Mastering the art of repairing with light; the belief that the world can be mended with love, just as the sun brought life to earth from its quiet position in the heavens. A neologism built from Chinese, Japanese, English, Germanic, and Spanish. Combining the meanings found in all the different syllabic components of the word which come together to spell out a philosophy, aesthetic, and my Sun's full name. 
+Mastering the art of repairing with light; the belief that the world can be mended with love, just as the sun brought life to earth from its quiet position in the heavens. A neologism built from Chinese, Japanese, English, Germanic, and Spanish. Combining the meanings found in all the different syllabic components of the word which come together to spell out a philosophy, aesthetic, and Sun's full name. 
 
 **Link:** [@suntzugi](https://x.com/suntzugi)
 
