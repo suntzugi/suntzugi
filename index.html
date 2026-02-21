@@ -259,7 +259,7 @@
     cursor:pointer;display:flex;align-items:center;justify-content:center;
     transition:border-color .3s,color .3s;
   }
-  .neodore-close:hover{border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8)}
+  .neodore-close:hover,.neodore-close.tap-glow{border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8);box-shadow:0 0 10px rgba(242,160,181,.3)}
   .neodore-title{
     font-family:'Cormorant Garamond',serif;
     font-weight:300;font-style:italic;
@@ -480,8 +480,8 @@
     cursor:pointer;display:flex;align-items:center;justify-content:center;
     transition:border-color .3s,color .3s;flex-shrink:0;
   }
-  .edit-panel .ep-close:hover{
-    border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8);
+  .edit-panel .ep-close:hover,.edit-panel .ep-close.tap-glow{
+    border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8);box-shadow:0 0 10px rgba(242,160,181,.3);
   }
   .edit-panel .ep-group{margin-bottom:1.2rem}
   .edit-panel .ep-group-title{
@@ -726,7 +726,7 @@
     cursor:pointer;display:flex;align-items:center;justify-content:center;
     transition:border-color .3s,color .3s;
   }
-  .draft-close:hover{border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8)}
+  .draft-close:hover,.draft-close.tap-glow{border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8);box-shadow:0 0 10px rgba(242,160,181,.3)}
   .draft-title{
     font-family:'Cormorant Garamond',serif;
     font-weight:300;font-style:italic;
@@ -1576,6 +1576,18 @@ async function loadEssay(slug){
 </script>
 
 <script>
+// ── Close button tap glow (mobile feedback) ──
+(function(){
+  document.querySelectorAll('.neodore-close,.draft-close,.ep-close').forEach(btn=>{
+    btn.addEventListener('touchstart',()=>{
+      btn.classList.add('tap-glow');
+      setTimeout(()=>btn.classList.remove('tap-glow'),250);
+    },{passive:true});
+  });
+})();
+</script>
+
+<script>
 // ── Tooltip (mobile tap support) ──
 (function(){
   const wraps=document.querySelectorAll('.tooltip-wrap');
@@ -1646,6 +1658,7 @@ async function loadEssay(slug){
       hintBottom.classList.add('tapped');
       setTimeout(()=>hintBottom.classList.remove('tapped'),200);
       hintBottom.classList.remove('tap-to-scroll');
+      hintBottom.classList.remove('visible');
       scrollLocked=false;
       wasScrolledPast=false;
       // Phase 1: allow overflow but block touch-action so user finger doesn't hijack
@@ -1738,7 +1751,8 @@ async function loadEssay(slug){
     },500);
   }
 
-  navTitle.addEventListener('click',()=>{
+  navTitle.addEventListener('click',e=>{
+    e.preventDefault();
     if(essayOpen){
       closeEssay();
       window.scrollTo({top:0,behavior:'smooth'});
@@ -1746,6 +1760,10 @@ async function loadEssay(slug){
       window.scrollTo({top:0,behavior:'smooth'});
     }
   });
+  navTitle.addEventListener('touchend',e=>{
+    e.preventDefault();
+    navTitle.click();
+  },{passive:false});
 
   window.addEventListener('scroll',()=>{
     if(ticking)return;
@@ -1785,13 +1803,17 @@ async function loadEssay(slug){
         if(hintBottom){hintBottom.classList.add('visible');hintBottom.classList.add('tap-to-scroll')}
       }
 
-      // Scroll hint: show when page has overflow, hide near bottom or in essay mode
-      if(hintBottom&&!essayOpen&&!scrollLocked){
-        const atBottom=sy+window.innerHeight>=document.body.scrollHeight-20;
-        if(document.body.scrollHeight>window.innerHeight+50&&!atBottom)
-          hintBottom.classList.add('visible');
-        else
-          hintBottom.classList.remove('visible');
+      // Scroll hint: on touch devices only show when locked; on desktop show when page overflows
+      if(hintBottom&&!essayOpen){
+        if(isTouchDevice){
+          // On mobile, hint is only visible in locked mode (managed by lock/unlock logic)
+        } else if(!scrollLocked){
+          const atBottom=sy+window.innerHeight>=document.body.scrollHeight-20;
+          if(document.body.scrollHeight>window.innerHeight+50&&!atBottom)
+            hintBottom.classList.add('visible');
+          else
+            hintBottom.classList.remove('visible');
+        }
       }
 
       ticking=false;
