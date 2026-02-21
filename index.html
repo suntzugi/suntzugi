@@ -1885,13 +1885,9 @@ function onResize(){
     phase='drawing';
     bloomStart=0;
     shadowLayers=null;
-    // Update locked CSS heights on mobile
+    // Update locked CSS height on mobile (scene only, bottom-anchored)
     if(isMobileTouch){
-      const lockH=H+'px';
-      scene.style.height=lockH;
-      document.querySelector('.grain').style.height=lockH;
-      document.getElementById('moon').style.height=lockH;
-      document.querySelector('.vignette').style.height=lockH;
+      scene.style.height=H+'px';
     }
   } else {
     // Height-only change on desktop: recompute shadows
@@ -2349,14 +2345,14 @@ const scene=document.getElementById('scene');
 scene.width=W;scene.height=H;
 const ctx=scene.getContext('2d');
 
-// On mobile, lock CSS height of fixed layers to prevent stretching
-// when the browser URL bar collapses/expands during scroll
+// On mobile, lock scene canvas height and anchor to BOTTOM of viewport.
+// When the URL bar collapses/expands, the viewport grows/shrinks from the top,
+// so bottom-anchoring keeps the tree stable at the screen bottom.
+// Other layers (moonlight, vignette, grain) keep inset:0 — their gradients/noise
+// stretch imperceptibly.
 if(isMobileTouch){
-  const lockH=H+'px';
-  scene.style.height=lockH;
-  document.querySelector('.grain').style.height=lockH;
-  document.getElementById('moon').style.height=lockH;
-  document.querySelector('.vignette').style.height=lockH;
+  scene.style.height=H+'px';
+  scene.style.top='auto';   // override inset:0's top:0 so bottom:0 anchors it
 }
 
 const treeC=document.createElement('canvas');treeC.width=W;treeC.height=H;
