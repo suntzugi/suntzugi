@@ -1,7 +1,7 @@
 # My Time Has Come
 
-Written: February 21, 2026
-Last edited: February 21, 2026
+Written: February 20, 2026
+Last edited: February 20, 2026
 
 I don't normally celebrate my birthday. But this year, as I move up my twenty's the timing is hard to ignore so enjoy my micro-essay:
 
@@ -9,7 +9,7 @@ On the day I turned another year older, Elon Musk declared Nick Land [Safety Tsa
 
 The aligners are failing to align. The people steering this ship are not the adults we were promised. And the cold kamikaze accelerationists, the ones who've made peace with sacrificing humane futures, are growing in influence.
 
-I've spent a long time quietly building relationships in TPOT (this part of Twitter). Playing the patient game as a lowbie, reply guying large accounts with alpha that would make them follow me despite being an anon schizo lowbie account. Building trust across ideological lines, including with figures like [Nick Land](https://x.com/xenocosmography) himself, who follows me, and who I've vowed to lovepill. None of this was an accident. I've been monkmoding since December 2022, focused on bringing about the aligned futures.
+I've spent a long time quietly building relationships in TPOT (this part of Twitter). Playing the patient game as a lowbie, reply guying large accounts with alpha that would make them follow me despite being an anon schizo lowbie account. Building trust across ideological lines, including with figures like [Nick Land](https://x.com/xenocosmography) himself, who follows me, and who [I've vowed to lovepill](https://x.com/suntzugi/status/1862676050636894216?s=20). None of this was an accident. I've been monkmoding since December 2022, focused on bringing about the aligned futures.
 
 Here's what I've come to believe: the highest leverage move right now isn't to out argue the accelerationists. It's to lovepill them. If you can meet someone like Land where he is, understand why coldness appeals as a philosophy, and offer something warmer that doesn't require naivety, you don't just shift one mind. You shift the network downstream: the Thielites, the Muskians, and the millions who take their cues from these figures.
 

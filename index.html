@@ -646,6 +646,12 @@
     color:rgba(242,160,181,.35);
     letter-spacing:.06em;
   }
+  .essay-date{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.55rem;
+    color:rgba(242,160,181,.3);
+    letter-spacing:.04em;
+  }
 </style>
 </head>
 <body>
@@ -828,7 +834,7 @@
     <div class="reading-block">
       <div class="reading-section-label">essays</div>
       <ul class="reading-link-list">
-        <li><a href="#" data-essay="my-time-has-come">My Time Has Come</a> <span class="essay-premiere">substack premiere <span class="countdown" data-target="2026-02-23T17:55:00-08:00"></span></span></li>
+        <li><a href="#" data-essay="my-time-has-come">My Time Has Come</a> <span class="essay-date">February 20, 2026</span></li>
       </ul>
     </div>
     <div class="reading-block">
@@ -839,7 +845,7 @@
         <li><a href="https://lovepill.org" target="_blank">Lovepill AI</a></li>
         <li><a href="https://chraist.ai" target="_blank">Chraist</a></li>
         <li><a href="https://github.com/suntzugi" target="_blank">Github</a></li>
-        <li><a href="https://substack.com/@suntzugi" target="_blank">Substack</a></li>
+        <li><a href="https://substack.com/@suntzugi" target="_blank">Substack</a> <span class="essay-premiere">premiere <span class="countdown" data-target="2026-02-23T17:55:00-08:00"></span></span></li>
         <li><a href="#neodore" data-neodore>Neodore (stealth)</a> <span class="countdown" data-target="2026-02-27T08:17:00-08:00"></span></li>
       </ul>
     </div>
@@ -1037,7 +1043,7 @@ const essayCache={};
 const essayFallback={
   'my-time-has-come':{
     title:'My Time Has Come',
-    body:'<p>I don\u2019t normally celebrate my birthday. But this year, the timing is hard to ignore so enjoy my micro-essay:</p>\n<p>On the day I turned another year older, Elon Musk declared Nick Land <a href="https://x.com/xenocosmography/status/2024677849870061968?s=20" target="_blank">Safety Tsar</a> of xAI; an attempt to compete with Anthropic\u2019s <a href="https://x.com/willmacaskill/status/2023084449051836701?s=20" target="_blank">Amanda Askell</a> by installing his own in house philosopher. This, one day after the AI arms race <a href="https://x.com/nickcammarata/status/2024622087676318205?s=20" target="_blank">publicly began</a> when Amodei and Altman refused to shake hands at India\u2019s AI safety summit.</p>\n<p>The aligners are failing to align. The people steering this ship are not the adults we were promised. And the cold kamikaze accelerationists, the ones who\u2019ve made peace with sacrificing humane futures, are growing in influence.</p>\n<p>I\u2019ve spent a long time quietly building relationships in TPOT (this part of Twitter). Playing the patient game as a lowbie, reply guying large accounts with alpha that would make them follow me despite being an anon schizo lowbie account. Building trust across ideological lines, including with figures like <a href="https://x.com/xenocosmography" target="_blank">Nick Land</a> himself, who follows me, and who I\u2019ve vowed to lovepill. None of this was an accident. I\u2019ve been monkmoding since December 2022, focused on bringing about the aligned futures.</p>\n<p>Here\u2019s what I\u2019ve come to believe: the highest leverage move right now isn\u2019t to out argue the accelerationists. It\u2019s to lovepill them. If you can meet someone like Land where he is, understand why coldness appeals as a philosophy, and offer something warmer that doesn\u2019t require naivety, you don\u2019t just shift one mind. You shift the network downstream: the Thielites, the Muskians, and the millions who take their cues from these figures.</p>\n<p>I think of it as alignment work applied to the alignment community itself. The meta problem. The people building the future need to actually want a future worth living in, and right now, not all of them do.</p>\n<p>As Master Oogway put it: my time has come.</p>\n<p>I don\u2019t say that with delusions of grandeur. I say it the way anyone says it when they realise the thing they\u2019ve been preparing for is no longer hypothetical. The birthday felt like a threshold. So I\u2019m stepping through it.</p>\n<p>This is the next chapter. Not just for me, but, if I do this well, for the conversations and events that will shape what comes next for all caring beings.</p>\n<div class="essay-meta"><span>written: February 21, 2026</span> \u00b7 <span>last edited: February 21, 2026</span></div>'
+    body:'<p>I don\u2019t normally celebrate my birthday. But this year, the timing is hard to ignore so enjoy my micro-essay:</p>\n<p>On the day I turned another year older, Elon Musk declared Nick Land <a href="https://x.com/xenocosmography/status/2024677849870061968?s=20" target="_blank">Safety Tsar</a> of xAI; an attempt to compete with Anthropic\u2019s <a href="https://x.com/willmacaskill/status/2023084449051836701?s=20" target="_blank">Amanda Askell</a> by installing his own in house philosopher. This, one day after the AI arms race <a href="https://x.com/nickcammarata/status/2024622087676318205?s=20" target="_blank">publicly began</a> when Amodei and Altman refused to shake hands at India\u2019s AI safety summit.</p>\n<p>The aligners are failing to align. The people steering this ship are not the adults we were promised. And the cold kamikaze accelerationists, the ones who\u2019ve made peace with sacrificing humane futures, are growing in influence.</p>\n<p>I\u2019ve spent a long time quietly building relationships in TPOT (this part of Twitter). Playing the patient game as a lowbie, reply guying large accounts with alpha that would make them follow me despite being an anon schizo lowbie account. Building trust across ideological lines, including with figures like <a href="https://x.com/xenocosmography" target="_blank">Nick Land</a> himself, who follows me, and who I\u2019ve vowed to lovepill. None of this was an accident. I\u2019ve been monkmoding since December 2022, focused on bringing about the aligned futures.</p>\n<p>Here\u2019s what I\u2019ve come to believe: the highest leverage move right now isn\u2019t to out argue the accelerationists. It\u2019s to lovepill them. If you can meet someone like Land where he is, understand why coldness appeals as a philosophy, and offer something warmer that doesn\u2019t require naivety, you don\u2019t just shift one mind. You shift the network downstream: the Thielites, the Muskians, and the millions who take their cues from these figures.</p>\n<p>I think of it as alignment work applied to the alignment community itself. The meta problem. The people building the future need to actually want a future worth living in, and right now, not all of them do.</p>\n<p>As Master Oogway put it: my time has come.</p>\n<p>I don\u2019t say that with delusions of grandeur. I say it the way anyone says it when they realise the thing they\u2019ve been preparing for is no longer hypothetical. The birthday felt like a threshold. So I\u2019m stepping through it.</p>\n<p>This is the next chapter. Not just for me, but, if I do this well, for the conversations and events that will shape what comes next for all caring beings.</p>\n<div class="essay-meta"><span>written: February 20, 2026</span> \u00b7 <span>last edited: February 20, 2026</span></div>'
   }
 };
 
@@ -1217,8 +1223,8 @@ async function loadEssay(slug){
       const linkMatch=line.match(/\[([^\]]+)\]\(([^)]+)\)/);
       if(!linkMatch)continue;
       const entry={label:linkMatch[1],url:linkMatch[2]};
-      const pm=line.match(/\{substack-premiere:([^}]+)\}/);
-      if(pm) entry.premiere=pm[1].trim();
+      const dm=line.match(/\{date:([^}]+)\}/);
+      if(dm) entry.date=dm[1].trim();
       entries.push(entry);
     }
     if(!entries.length)return;
@@ -1232,11 +1238,10 @@ async function loadEssay(slug){
           const hashMatch=l.url.match(/^#(.+)$/);
           const slug=hashMatch?hashMatch[1]:l.label.toLowerCase().replace(/\s+/g,'-');
           let html='<li><a href="#" data-essay="'+slug+'">'+l.label+'</a>';
-          if(l.premiere) html+=' <span class="essay-premiere">substack premiere <span class="countdown" data-target="'+l.premiere+'"></span></span>';
+          if(l.date) html+=' <span class="essay-date">'+l.date+'</span>';
           html+='</li>';
           return html;
         }).join('');
-        startCountdowns();
         break;
       }
     }
@@ -1251,6 +1256,8 @@ async function loadEssay(slug){
       const entry={label:linkMatch[1],url:linkMatch[2]};
       const cdMatch=line.match(/\{countdown:([^}]+)\}/);
       if(cdMatch) entry.countdown=cdMatch[1].trim();
+      const spMatch=line.match(/\{substack-premiere:([^}]+)\}/);
+      if(spMatch) entry.premiere=spMatch[1].trim();
       results.push(entry);
     }
     return results;
@@ -1270,6 +1277,7 @@ async function loadEssay(slug){
           const isHash=l.url==='#'||l.url.startsWith('#');
           const target=(!isMailto&&!isHash)?' target="_blank"':'';
           let html='<li><a href="'+l.url+'"'+target+'>'+l.label+'</a>';
+          if(l.premiere) html+=' <span class="essay-premiere">premiere <span class="countdown" data-target="'+l.premiere+'"></span></span>';
           if(l.countdown) html+=' <span class="countdown" data-target="'+l.countdown+'"></span>';
           html+='</li>';
           return html;

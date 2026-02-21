@@ -126,7 +126,7 @@ Mastering the art of repairing with light; the belief that the world can be mend
 
 ## Essays
 
-- [My Time Has Come](#my-time-has-come) {substack-premiere:2026-02-23T17:55:00-08:00}
+- [My Time Has Come](#my-time-has-come) {date:February 20, 2026}
 
 ---
 
@@ -137,5 +137,5 @@ Mastering the art of repairing with light; the belief that the world can be mend
 - [Lovepill AI](https://lovepill.org)
 - [Chraist](https://chraist.ai)
 - [Github](https://github.com/suntzugi)
-- [Substack](https://substack.com/@suntzugi)
+- [Substack](https://substack.com/@suntzugi) {substack-premiere:2026-02-23T17:55:00-08:00}
 - [Neodore (stealth)](#neodore) {countdown:2026-02-27T08:17:00-08:00}
