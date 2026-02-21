@@ -6,7 +6,7 @@
 <title>Suntzugi</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{background:#1e2a4a;color:#d4d8e8;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;cursor:default;
     scrollbar-width:thin;scrollbar-color:rgba(242,160,181,.3) transparent}
   body::-webkit-scrollbar{width:4px}
@@ -40,6 +40,7 @@
     font-size:clamp(3.2rem,8vw,6.5rem);
     line-height:1;letter-spacing:-.03em;
     margin-bottom:0;
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
     text-shadow:
       -1px -1px 0 rgba(10,14,30,.85),
        1px -1px 0 rgba(10,14,30,.85),
@@ -311,6 +312,7 @@
     display:flex;align-items:center;justify-content:center;
     transition:background .4s ease;
     pointer-events:auto;
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
   }
   .audio-btn:hover{background:rgba(242,160,181,.08)}
   .audio-btn.playing{background:rgba(242,160,181,.12)}
@@ -751,6 +753,9 @@
     padding:4vh 10vw 6vh;
     transition:opacity .5s ease;
   }
+  @media (hover:none) and (pointer:coarse){
+    .site-footer{padding-bottom:10vh}
+  }
   .site-footer-text{
     font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
     font-size:.55rem;letter-spacing:.04em;
@@ -764,6 +769,7 @@
     display:inline;
     cursor:default;
     transition:color .35s ease, text-shadow .35s ease;
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
   }
   .tooltip-wrap:hover,
   .tooltip-wrap.tapped{
@@ -772,7 +778,7 @@
   }
   .tooltip-text{
     position:absolute;
-    bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+    bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);
     font-family:'Cormorant Garamond',serif;
     font-weight:300;font-style:italic;
     font-size:.85rem;letter-spacing:.06em;
@@ -781,6 +787,9 @@
     opacity:0;
     transition:opacity .35s ease;
     pointer-events:none;
+  }
+  @media (hover:none) and (pointer:coarse){
+    .tooltip-text{bottom:calc(100% + 18px);font-size:.95rem}
   }
   .tooltip-wrap:hover .tooltip-text,
   .tooltip-wrap.tapped .tooltip-text{
@@ -1885,9 +1894,12 @@ function onResize(){
     phase='drawing';
     bloomStart=0;
     shadowLayers=null;
-    // Update locked CSS height on mobile (scene only, bottom-anchored)
+    // Update locked CSS heights on mobile (all layers, bottom-anchored)
     if(isMobileTouch){
-      scene.style.height=H+'px';
+      const lockH=H+'px';
+      [scene,document.querySelector('.grain'),document.getElementById('moon'),document.querySelector('.vignette')].forEach(el=>{
+        el.style.height=lockH;
+      });
     }
   } else {
     // Height-only change on desktop: recompute shadows
@@ -2345,14 +2357,15 @@ const scene=document.getElementById('scene');
 scene.width=W;scene.height=H;
 const ctx=scene.getContext('2d');
 
-// On mobile, lock scene canvas height and anchor to BOTTOM of viewport.
-// When the URL bar collapses/expands, the viewport grows/shrinks from the top,
-// so bottom-anchoring keeps the tree stable at the screen bottom.
-// Other layers (moonlight, vignette, grain) keep inset:0 — their gradients/noise
-// stretch imperceptibly.
+// On mobile, lock ALL fixed visual layers to the same height, bottom-anchored.
+// This prevents the URL bar collapse/expand from causing any layer to move
+// at a different rate, which would create a visible seam between layers.
 if(isMobileTouch){
-  scene.style.height=H+'px';
-  scene.style.top='auto';   // override inset:0's top:0 so bottom:0 anchors it
+  const lockH=H+'px';
+  [scene,document.querySelector('.grain'),document.getElementById('moon'),document.querySelector('.vignette')].forEach(el=>{
+    el.style.height=lockH;
+    el.style.top='auto';  // override inset:0's top:0; bottom:0 anchors to viewport bottom
+  });
 }
 
 const treeC=document.createElement('canvas');treeC.width=W;treeC.height=H;
