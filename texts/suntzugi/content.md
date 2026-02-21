@@ -93,7 +93,7 @@ The ancient Chinese strategist who taught that the greatest victory comes withou
 
 **Body Part 1:**
 
-In Japanese Tsugi 継ぎ: to mend, to continue, to join what was broken. In Japanese, it is the heart of kintsugi 金継ぎ, the art of repairing broken pottery with gold; making the fracture part of the beauty, not something to hide. Suntzugi shares this etymology but connects it not with gold (kin), but with the sun which is golden energy.
+In Japanese Tsugi 継ぎ means to mend, to continue, to join what was broken. It an etymological root of kintsugi 金継ぎ, the art of repairing broken pottery with gold; making the fracture part of the beauty, not something to hide. Suntzugi shares this etymology but connects it not with gold (kin), but with the sun which is the golden energy that nourishes all earthly life.
 
 **Body Part 2:**
 
