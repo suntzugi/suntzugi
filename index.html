@@ -1553,6 +1553,9 @@ async function loadEssay(slug){
   overlay.addEventListener('click',e=>{
     if(e.target===overlay) overlay.classList.remove('open');
   });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&overlay.classList.contains('open')){e.preventDefault();overlay.classList.remove('open')}
+  });
 })();
 </script>
 
@@ -1565,6 +1568,9 @@ async function loadEssay(slug){
   closeBtn.addEventListener('click',()=>overlay.classList.remove('open'));
   overlay.addEventListener('click',e=>{
     if(e.target===overlay) overlay.classList.remove('open');
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&overlay.classList.contains('open')){e.preventDefault();overlay.classList.remove('open')}
   });
 })();
 </script>
@@ -1766,6 +1772,10 @@ async function loadEssay(slug){
     e.preventDefault();
     navTitle.click();
   },{passive:false});
+
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&essayOpen){e.preventDefault();closeEssay()}
+  });
 
   window.addEventListener('scroll',()=>{
     if(ticking)return;
