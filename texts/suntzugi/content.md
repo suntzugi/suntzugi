@@ -126,7 +126,7 @@ Mastering the art of repairing with light; the belief that the world can be mend
 
 ## Essays
 
-- [My Time Has Come](#my-time-has-come)
+- [My Time Has Come](#my-time-has-come) {substack-premiere:2026-02-23T17:55:00-08:00}
 
 ---
 

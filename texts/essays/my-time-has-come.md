@@ -1,5 +1,8 @@
 # My Time Has Come
 
+Written: February 21, 2026
+Last edited: February 21, 2026
+
 I don't normally celebrate my birthday. But this year, as I move up my twenty's the timing is hard to ignore so enjoy my micro-essay:
 
 On the day I turned another year older, Elon Musk declared Nick Land [Safety Tsar](https://x.com/xenocosmography/status/2024677849870061968?s=20) of xAI; an attempt to compete with Anthropic's [Amanda Askell](https://x.com/willmacaskill/status/2023084449051836701?s=20) by installing his own in house philosopher. This, one day after the AI arms race [publicly began](https://x.com/nickcammarata/status/2024622087676318205?s=20) when Amodei and Altman refused to shake hands at India's AI safety summit.
