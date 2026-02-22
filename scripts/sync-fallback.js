@@ -264,5 +264,42 @@ if (ready.length) {
   );
 }
 
+// ── Sync audio tracks from audio/bgm/ folder ──
+const bgmDir = path.join(root, 'audio/bgm');
+if (fs.existsSync(bgmDir)) {
+  const mp3s = fs.readdirSync(bgmDir).filter(f => f.endsWith('.mp3')).sort();
+  if (mp3s.length) {
+    // Parse filenames (Title_Artist.mp3)
+    const tracks = mp3s.map(f => {
+      const name = f.replace(/\.mp3$/, '');
+      const sep = name.indexOf('_');
+      if (sep === -1) return { title: name, artist: 'Unknown', file: f };
+      return { title: name.substring(0, sep), artist: name.substring(sep + 1), file: f };
+    });
+
+    // Update content.md Audio Tracks table
+    let table = '| # | Title | Artist |\n|---|-------|--------|\n';
+    tracks.forEach((t, i) => {
+      table += '| ' + (i + 1) + ' | ' + t.title + ' | ' + t.artist + ' |\n';
+    });
+    contentMd = fs.readFileSync(contentPath, 'utf8'); // Re-read after essay update
+    contentMd = contentMd.replace(
+      /(## Audio Tracks\n)\n[\s\S]*?(\n---)/,
+      '$1\n' + table + '$2'
+    );
+    fs.writeFileSync(contentPath, contentMd, 'utf8');
+    console.log('  updated: Audio Tracks (' + tracks.length + ' tracks from audio/bgm/)');
+
+    // Update hardcoded tracks array in index.html
+    const trackStrings = mp3s.map(f => "    '" + f.replace(/'/g, "\\'") + "'").join(',\n');
+    indexHtml = indexHtml.replace(
+      /let tracks = \[\n[\s\S]*?\];/,
+      'let tracks = [\n' + trackStrings + ',\n  ];'
+    );
+    console.log('  updated: hardcoded tracks array in HTML');
+    changes++;
+  }
+}
+
 fs.writeFileSync(indexPath, indexHtml, 'utf8');
 console.log('\n' + (changes ? changes + ' HTML section(s) updated.' : 'No HTML changes needed.'));

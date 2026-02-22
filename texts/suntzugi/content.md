@@ -119,8 +119,9 @@ Mastering the art of repairing with light; the belief that the world can be mend
 
 | # | Title | Artist |
 |---|-------|--------|
-| 1 | Oogway Ascends | Hans Zimmer |
-| 2 | Moses | Ennio Morricone |
+| 1 | Moses | Ennio Morricone |
+| 2 | Oogway Ascends | Hans Zimmer |
+| 3 | Seeing Is Believing | Alan Silvestri |
 
 ---
 

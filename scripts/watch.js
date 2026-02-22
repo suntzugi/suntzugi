@@ -26,6 +26,7 @@ const watchPaths = [
   path.join(root, 'texts/ready-to-publish'),
   path.join(root, 'texts/essays'),
   path.join(root, 'texts/suntzugi/content.md'),
+  path.join(root, 'audio/bgm'),
 ];
 
 let debounce = null;

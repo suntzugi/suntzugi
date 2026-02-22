@@ -2691,8 +2691,9 @@ requestAnimationFrame(tick);
 
   // Track list — parsed from filenames (Song Name_Artist.mp3)
   let tracks = [
-    'Oogway Ascends_Hans Zimmer.mp3',
     'Moses_Ennio Morricone.mp3',
+    'Oogway Ascends_Hans Zimmer.mp3',
+    'Seeing Is Believing_Alan Silvestri.mp3',
   ];
 
   function parseTrack(filename){
@@ -2766,8 +2767,9 @@ requestAnimationFrame(tick);
     picker.classList.remove('open');
   }
 
-  // Init first track
-  loadTrack(0);
+  // Init — default to Oogway Ascends
+  var defaultIdx=trackList.findIndex(t=>t.title==='Oogway Ascends');
+  loadTrack(defaultIdx>=0?defaultIdx:0);
   buildPicker();
 
   // Allow content loader to update tracks from content.md
@@ -2775,7 +2777,7 @@ requestAnimationFrame(tick);
     tracks = newTracks;
     trackList = tracks.map(parseTrack);
     buildPicker();
-    if(!playing) loadTrack(0);
+    if(!playing){var di=trackList.findIndex(t=>t.title==='Oogway Ascends');loadTrack(di>=0?di:0);}
   };
 
   btn.addEventListener('click', () => {
