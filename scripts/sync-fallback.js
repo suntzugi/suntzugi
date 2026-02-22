@@ -301,5 +301,21 @@ if (fs.existsSync(bgmDir)) {
   }
 }
 
+// ── Stamp last-updated date + time (Paris) ──
+const now = new Date();
+const paris = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Europe/Paris',
+  day: '2-digit', month: '2-digit', year: 'numeric',
+  hour: '2-digit', minute: '2-digit', hour12: false,
+}).formatToParts(now);
+const pp = {};
+paris.forEach(p => { pp[p.type] = p.value; });
+const dateStr = pp.day + '/' + pp.month + '/' + pp.year + ' · ' + pp.hour + ':' + pp.minute + ' Paris';
+indexHtml = indexHtml.replace(
+  /(<span class="tooltip-text" id="lastUpdated">)last updated: [^<]*/,
+  '$1last updated: ' + dateStr
+);
+console.log('  stamped: last updated ' + dateStr);
+
 fs.writeFileSync(indexPath, indexHtml, 'utf8');
 console.log('\n' + (changes ? changes + ' HTML section(s) updated.' : 'No HTML changes needed.'));
