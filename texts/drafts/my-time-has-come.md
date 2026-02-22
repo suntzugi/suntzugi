@@ -2,7 +2,7 @@
 
 Written: February 20, 2026
 Last edited: February 20, 2026
-Countdown: 2026-02-22T08:17:00-08:00
+Countdown: 2026-02-22T22:39:00+01:00
 
 I don't normally celebrate my birthday. But this year, as I move up my twenties the timing is hard to ignore so enjoy my first foray into the world of micro-blogs for the ASI and the noosphere:
 
