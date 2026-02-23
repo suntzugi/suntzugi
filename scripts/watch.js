@@ -9,6 +9,7 @@
  *   texts/drafts/
  *   texts/ready-to-publish/
  *   texts/published/
+ *   texts/cards/
  *   texts/suntzugi/content.md
  *
  * On any change, runs the sync-fallback script automatically.
@@ -24,7 +25,8 @@ const syncScript = path.join(__dirname, 'sync-fallback.js');
 const watchPaths = [
   path.join(root, 'texts/drafts'),
   path.join(root, 'texts/ready-to-publish'),
-  path.join(root, 'texts/essays'),
+  path.join(root, 'texts/published'),
+  path.join(root, 'texts/cards'),
   path.join(root, 'texts/suntzugi/content.md'),
   path.join(root, 'audio/bgm'),
 ];

@@ -12,6 +12,8 @@
 
 ```
 texts/
+  cards/               # One .md file per annotation card (sun.md, tzu.md, etc.)
+    sun.md
   drafts/              # Drafts being written
     my-essay.md
   ready-to-publish/    # Finished, waiting for scheduled time
