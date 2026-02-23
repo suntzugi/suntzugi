@@ -1095,12 +1095,9 @@
       <div class="reading-section-label">published</div>
       <ul class="reading-link-list" id="publishedList"></ul>
     </div>
-    <div class="reading-block" id="readyBlock">
+    <div class="reading-block" id="readyBlock" style="display:none">
       <div class="reading-section-label">soon to be released</div>
-      <ul class="reading-link-list" id="readyList">
-        <li data-ready data-pub-time="2026-02-23T11:29:20-08:00"><a href="#" data-essay="test-auto-publish-2">Test Auto-Publish 2</a> <span class="countdown" data-target="2026-02-23T11:29:20-08:00"></span></li>
-        <li data-ready data-pub-time="2026-02-23T11:29:05-08:00"><a href="#" data-essay="test-auto-publish">Test Auto-Publish</a> <span class="countdown" data-target="2026-02-23T11:29:05-08:00"></span></li>
-      </ul>
+      <ul class="reading-link-list" id="readyList"></ul>
     </div>
     <div class="reading-block" id="draftsBlock">
       <div class="reading-section-label">currently being written</div>
@@ -1123,7 +1120,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 20:38 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 20:46 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -3421,6 +3418,90 @@ requestAnimationFrame(tick);
     });
   }
   buildCursorStyles();
+})();
+
+// ── Test toggle — ephemeral test essays for pipeline verification ──
+(function(){
+  var active=false;
+  var tests=[
+    {slug:'test-alpha',title:'Test Alpha',delay:30000},
+    {slug:'test-beta',title:'Test Beta',delay:60000}
+  ];
+
+  // Tiny toggle button in bottom-right
+  var btn=document.createElement('div');
+  btn.textContent='test';
+  btn.style.cssText='position:fixed;bottom:8px;right:8px;font-size:.4rem;opacity:.15;cursor:pointer;z-index:300;font-family:"SF Mono","Fira Code",monospace;color:#f2a0b5;letter-spacing:.12em;text-transform:uppercase;transition:opacity .3s;';
+  btn.addEventListener('mouseenter',function(){btn.style.opacity=active?'.7':'.4';});
+  btn.addEventListener('mouseleave',function(){btn.style.opacity=active?'.5':'.15';});
+  document.body.appendChild(btn);
+
+  btn.addEventListener('click',function(){
+    active=!active;
+    btn.style.opacity=active?'.5':'.15';
+    if(active) activate(); else deactivate();
+  });
+
+  function activate(){
+    var readyList=document.getElementById('readyList');
+    var readyBlock=document.getElementById('readyBlock');
+    if(!readyList||!readyBlock) return;
+
+    // Refresh the section label with amor word
+    var lbl=readyBlock.querySelector('.reading-section-label');
+    if(lbl&&typeof txt_lists!=='undefined'&&txt_lists.amor){
+      lbl.innerHTML='soon to be released with '+pickFrom(txt_lists.amor)+' '+makeWhisperFlor();
+      lbl.style.color='rgba(242,160,181,.9)';
+      lbl.style.animation='whisperPulse 3.5s ease-in-out infinite';
+    }
+
+    var now=Date.now();
+    tests.forEach(function(t){
+      var target=new Date(now+t.delay).toISOString();
+      var li=document.createElement('li');
+      li.setAttribute('data-ready','');
+      li.setAttribute('data-pub-time',target);
+      li.setAttribute('data-test','');
+      li.innerHTML='<a href="#" data-essay="'+t.slug+'">'+t.title+'</a> '+
+        '<span class="essay-date" style="display:none">'+formatPubTime(target)+'</span> '+
+        '<span class="countdown" data-target="'+target+'"></span>';
+      readyList.appendChild(li);
+
+      // Inject fallback so reading mode works after auto-publish
+      essayFallback[t.slug]={
+        title:t.title,
+        body:'<p>This is a test essay verifying the publish pipeline.</p>'+
+             '<p>If you can read this, the auto-publish transition worked correctly.</p>'+
+             '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>'
+      };
+    });
+
+    readyBlock.style.display='';
+    startCountdowns();
+  }
+
+  function deactivate(){
+    // Remove all test items from both ready and published sections
+    var items=document.querySelectorAll('[data-test]');
+    for(var i=0;i<items.length;i++) items[i].remove();
+
+    // Clean caches
+    tests.forEach(function(t){
+      delete essayFallback[t.slug];
+      delete essayCache[t.slug];
+    });
+
+    // Hide empty sections
+    var readyList=document.getElementById('readyList');
+    var readyBlock=document.getElementById('readyBlock');
+    var pubList=document.getElementById('publishedList');
+    var pubBlock=document.getElementById('publishedBlock');
+    if(readyList&&!readyList.children.length&&readyBlock) readyBlock.style.display='none';
+    if(pubList&&!pubList.children.length&&pubBlock) pubBlock.style.display='none';
+
+    // Restart countdowns for any remaining real entries
+    startCountdowns();
+  }
 })();
 </script>
 </body>
