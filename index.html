@@ -138,8 +138,24 @@
   .ac-whisper{
     font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
     font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;
-    color:rgba(242,160,181,.35);
+    color:rgba(242,160,181,.9);
     display:block;margin-top:.5rem;
+    animation:whisperPulse 3.5s ease-in-out infinite;
+  }
+  @keyframes whisperPulse{
+    0%,100%{opacity:.6}
+    50%{opacity:1}
+  }
+  .whisper-flor{
+    display:inline-block;
+    vertical-align:middle;
+    margin-left:.4em;
+    animation:florPulse 3.5s ease-in-out infinite;
+  }
+  body.no-whisper-flor .whisper-flor{display:none}
+  @keyframes florPulse{
+    0%,100%{opacity:.55;transform:scale(1)}
+    50%{opacity:1;transform:scale(1.1)}
   }
   .ac-quote{
     font-family:'Cormorant Garamond',serif;
@@ -170,6 +186,11 @@
     border-bottom:1px solid rgba(242,160,181,.25);
     transition:opacity .3s ease, border-color .3s ease;
     pointer-events:auto;
+    position:relative;
+  }
+  .ac-body a:not(.fn-ref)::before, .ac-quote a:not(.fn-ref)::before, .ac-link::before{
+    content:'';position:absolute;
+    top:-10px;bottom:-10px;left:-12px;right:-12px;
   }
   .ac-body a:hover, .ac-quote a:hover, .ac-link:hover{
     opacity:1;border-color:rgba(242,160,181,.6);
@@ -280,7 +301,7 @@
   .ac-quote a.fn-ref{
     display:inline-block;
     font-size:.8em;vertical-align:super;
-    padding:.15em .25em;
+    padding:.35em .5em;
     margin:0 .1em;cursor:pointer;
     color:rgba(242,160,181,.9);
     text-decoration:none;
@@ -299,6 +320,7 @@
     font-size:.85rem;margin-left:.3em;
     text-decoration:none;color:rgba(242,160,181,.5);
     cursor:pointer;
+    padding:.4em .5em;
     transition:color .2s;
   }
   .fn-back:hover{color:rgba(242,160,181,.9);}
@@ -615,7 +637,7 @@
        0 0 8px rgba(10,14,30,.7),
        0 0 20px rgba(10,14,30,.4);
     opacity:0;
-    transition:opacity .5s ease;
+    transition:opacity .5s ease, text-shadow .4s ease;
     cursor:pointer;
     pointer-events:none;
     user-select:none;-webkit-user-select:none;
@@ -637,11 +659,16 @@
     z-index:12;
     pointer-events:auto;cursor:pointer;
     opacity:0;
-    transition:opacity .6s ease;
+    transition:opacity .6s ease, box-shadow .3s ease, background .3s ease;
   }
   .scroll-hint-bottom.visible{
     opacity:1;
     animation:scrollHintBreath 3s ease-in-out infinite;
+  }
+  .scroll-hint-bottom:hover{
+    opacity:1;animation:none;
+    background:rgba(242,160,181,.9);
+    box-shadow:0 0 10px rgba(242,160,181,.5),0 0 20px rgba(242,160,181,.25);
   }
   body.scroll-locked{overflow:hidden;touch-action:none}
   body.scroll-unlocking{overflow:auto;touch-action:none}
@@ -660,7 +687,7 @@
     animation:chraistBreath 3s ease-in-out infinite;
   }
   .scroll-hint-bottom.chraist-hint:hover{
-    filter:drop-shadow(0 0 10px rgba(242,160,181,.5));opacity:1;
+    filter:drop-shadow(0 0 14px rgba(242,160,181,.7)) drop-shadow(0 0 28px rgba(242,160,181,.35));opacity:1;animation:none;
   }
   @keyframes chraistBreath{
     0%,100%{opacity:.35;filter:drop-shadow(0 0 4px rgba(242,160,181,.1))}
@@ -703,7 +730,7 @@
   .reading-section-label{
     font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
     font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
-    color:rgba(242,160,181,.5);
+    color:rgba(242,160,181,.6);
     margin-bottom:1rem;
   }
   .reading-section-title{
@@ -741,7 +768,7 @@
   }
   .reading-link-list a::before{
     content:'';position:absolute;
-    top:-10px;bottom:-10px;left:-14px;right:-14px;
+    top:-12px;bottom:-12px;left:-18px;right:-18px;
   }
   .reading-link-list a:hover{
     color:rgba(242,160,181,1);
@@ -931,7 +958,11 @@
     <div class="ep-toggle-row"><button class="ep-toggle" id="toggleChraistHint"></button><span class="ep-slider-name">chraist symbol</span></div>
   </div>
   <div class="ep-group">
-    <div class="ep-group-title">7. Cursor</div>
+    <div class="ep-group-title">7. Whisper Flowers</div>
+    <div class="ep-toggle-row"><button class="ep-toggle" id="toggleWhisperFlor"></button><span class="ep-slider-name">spinning flowers</span></div>
+  </div>
+  <div class="ep-group">
+    <div class="ep-group-title">8. Cursor</div>
     <div class="ep-slider-row"><span class="ep-num"></span><div class="ep-slider-wrap"><div class="ep-styles" id="epCursorStyles"></div></div></div>
   </div>
 </div>
@@ -960,9 +991,7 @@
       </div>
       <div class="ac-body" style="margin-top:.4rem">
         As the son of the sun, this word weighs. But when I hear it, I am light.
-      </div>
-      <div class="ac-body" style="margin-top:.4rem">
-        <a class="fn-ref" href="javascript:void(0)" data-fn="fn-2" id="fnref-2">2</a> A higher storyteller is a steller. Steller is a neologism that came to me in the feverdream of this morning's writing; the etymological fruit of stellar storyteller, where stelle (Germanic for star) carries the sense of both the heavens, the higher powers, and excellence.
+
       </div>
       <div class="ac-quote">
         "Truly I tell you, unless you change and become like little children, you will never enter the kingdom of heaven."
@@ -970,6 +999,7 @@
       </div>
       <div class="ac-footnotes essay-footnotes"><ol>
         <li id="fn-1">If this is the first sentence you read from me, don't be dismayed by the jargon! I, too, appreciate clear and concise writing. However, I'm also whimsical. I couldn't resist writing a sentence playing with the irony of doubling down on the verbosity I intend to move away from when seeking grace and beauty. In fact, Suntzugi was coined as an attempt to simplify the handle and make it easier to read and remember... it just so happened to be richer in meaning, which is a new aesthetic and philosophical pursuit of mine. <a class="fn-back" data-fn="fnref-1" title="Back to text">↩</a></li>
+        <li id="fn-2">A higher storyteller is a steller. Steller is a neologism that came to me in the feverdream of this morning's writing; the etymological fruit of stellar storyteller, where stelle (Germanic for star) carries the sense of both the heavens, the higher powers, and excellence. <a class="fn-back" data-fn="fnref-2" title="Back to text">↩</a></li>
       </ol></div>
     </div>
 
@@ -1056,7 +1086,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 08:57 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 09:38 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -1125,7 +1155,7 @@
       if(!hasRealBody && typeof txt_lists!=='undefined' && txt_lists.paciencia){
         let wrap=c.querySelector('.ac-whisper-wrap');
         if(!wrap){wrap=document.createElement('div');wrap.className='ac-whisper-wrap';const top=c.querySelector('.ac-top');top.after(wrap);}
-        wrap.innerHTML='<span class="ac-whisper">currently being written with '+pickFrom(txt_lists.amor)+', '+pickFrom(txt_lists.paciencia)+'</span>';
+        wrap.innerHTML='<span class="ac-whisper">currently being written with '+pickFrom(txt_lists.amor)+', '+pickFrom(txt_lists.paciencia)+' '+makeWhisperFlor()+'</span>';
       } else {
         const oldWrap=c.querySelector('.ac-whisper-wrap');
         if(oldWrap) oldWrap.remove();
@@ -1376,7 +1406,7 @@ var txt_lists = {
   amor: [
     'love',
     'care',
-    'ai',
+    '爱(Ài)',
     'amor',
     'cariño',
     'positive sum qualia',
@@ -1391,9 +1421,41 @@ var txt_lists = {
     'never rush art',
     'rome wasn\'t built in a day',
     'patience is a virtue',
+    'good things come to those who wait',
+    'when the time is right, I,  will make it happen',
+    'flow and steady wins the grace',
+    'a watched pot never boils',
+    'all in good time',
+    'nature does not hurry, yet everything is accomplished',
+    'just take it easy man',
+    'there are no accidents',
+    'Believe',
   ],
 };
 function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+// Generate an inline SVG flower matching the cherry blossom tree's makeFlower()
+// Variable size, color, opacity, rotation — like the tree's natural variation
+var florPC=[[245,175,195],[255,140,180],[250,225,235],[230,120,160]];
+function makeWhisperFlor(){
+  var c=pickFrom(florPC),r=c[0],g=c[1],b=c[2];
+  var sz=4.5+Math.random()*3.5; // tree uses 3.5-6.5, we shift up to ~4.5-8
+  var d=sz*4,cx=d/2,cy=d/2;
+  var op=.75+Math.random()*.2; // petal opacity variation
+  var spin=Math.random()*72; // random base rotation (within one petal gap)
+  var px=Math.round(13+Math.random()*6); // rendered size 13-19px
+  var petals='';
+  for(var i=0;i<5;i++){
+    var a=spin*Math.PI/180+(Math.PI*2*i)/5;
+    var ex=cx+Math.cos(a)*sz*.35,ey=cy+Math.sin(a)*sz*.35;
+    var deg=a*180/Math.PI;
+    var rx=sz*(.45+Math.random()*.1),ry=sz*(.2+Math.random()*.1); // slight petal shape variation
+    petals+='<ellipse cx="'+ex.toFixed(1)+'" cy="'+ey.toFixed(1)+'" rx="'+rx.toFixed(1)+'" ry="'+ry.toFixed(1)+'" transform="rotate('+deg.toFixed(1)+' '+ex.toFixed(1)+' '+ey.toFixed(1)+')" fill="rgba('+r+','+g+','+b+','+op.toFixed(2)+')"/>';
+  }
+  return '<svg class="whisper-flor" style="width:'+px+'px;height:'+px+'px" viewBox="0 0 '+d.toFixed(1)+' '+d.toFixed(1)+'" xmlns="http://www.w3.org/2000/svg">'
+    +petals
+    +'<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(sz*.12).toFixed(1)+'" fill="rgba(255,240,245,.7)"/>'
+    +'</svg>';
+}
 // Load txt_lists from manifest (overrides fallbacks on GitHub Pages; silently skips on file://)
 (function(){
   function parseTxt(t){ return t.split('\n').map(function(l){return l.trim()}).filter(Boolean); }
@@ -1409,7 +1471,7 @@ function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 // Randomize the drafts section label
 (function(){
   var db=document.getElementById('draftsBlock');
-  if(db){var lbl=db.querySelector('.reading-section-label');if(lbl) lbl.textContent='currently being written with '+pickFrom(txt_lists.amor);}
+  if(db){var lbl=db.querySelector('.reading-section-label');if(lbl){lbl.innerHTML='currently being written with '+pickFrom(txt_lists.amor)+' '+makeWhisperFlor();lbl.style.animation='whisperPulse 3.5s ease-in-out infinite';}}
 })();
 </script>
 
@@ -3166,6 +3228,16 @@ requestAnimationFrame(tick);
     chraistHintOn=!chraistHintOn;
     chraistHintBtn.classList.toggle('active',chraistHintOn);
     if(scrollHint) scrollHint.classList.toggle('chraist-hint',chraistHintOn);
+  });
+
+  // Whisper flower spinning toggle (on by default)
+  const florBtn=document.getElementById('toggleWhisperFlor');
+  let florOn=true;
+  florBtn.classList.add('active');
+  florBtn.addEventListener('click',()=>{
+    florOn=!florOn;
+    florBtn.classList.toggle('active',florOn);
+    document.body.classList.toggle('no-whisper-flor',!florOn);
   });
 
   // Cursor style picker — mutually exclusive: arrow | chraist dark | chraist white
