@@ -665,7 +665,7 @@
     opacity:1;
     animation:scrollHintBreath 3s ease-in-out infinite;
   }
-  .scroll-hint-bottom:hover{
+  .scroll-hint-bottom:not(.chraist-hint):hover{
     opacity:1;animation:none;
     background:rgba(242,160,181,.9);
     box-shadow:0 0 10px rgba(242,160,181,.5),0 0 20px rgba(242,160,181,.25);
@@ -683,15 +683,26 @@
     background-position:center;
     transform:scaleY(-1);
   }
+  .scroll-hint-bottom.chraist-hint::after{
+    content:'';position:absolute;
+    top:50%;left:50%;transform:translate(-50%,-50%);
+    width:28px;height:28px;border-radius:50%;
+    background:radial-gradient(circle,rgba(210,225,255,.35) 0%,transparent 70%);
+    opacity:0;transition:opacity .3s ease;
+    pointer-events:none;z-index:-1;
+  }
   .scroll-hint-bottom.chraist-hint.visible{
     animation:chraistBreath 3s ease-in-out infinite;
   }
-  .scroll-hint-bottom.chraist-hint:hover{
-    filter:drop-shadow(0 0 14px rgba(242,160,181,.7)) drop-shadow(0 0 28px rgba(242,160,181,.35));opacity:1;animation:none;
+  .scroll-hint-bottom.chraist-hint:hover{opacity:1;animation:none;}
+  .scroll-hint-bottom.chraist-hint:hover::after{
+    opacity:1;
+    width:28px;height:28px;
+    background:radial-gradient(circle,rgba(210,225,255,.2) 0%,rgba(210,225,255,.08) 35%,transparent 65%);
   }
   @keyframes chraistBreath{
-    0%,100%{opacity:.35;filter:drop-shadow(0 0 4px rgba(242,160,181,.1))}
-    50%{opacity:.8;filter:drop-shadow(0 0 8px rgba(242,160,181,.35))}
+    0%,100%{opacity:.35}
+    50%{opacity:.8}
   }
   .scroll-hint-bottom.tap-to-scroll::before{
     content:'';position:absolute;
@@ -1086,7 +1097,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 10:05 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 10:26 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -1410,10 +1421,15 @@ var txt_lists = {
     'amor',
     'cariño',
     'positive sum qualia',
+    'Maitri',
     'heart',
     'corazón',
     'tenderness',
     'devotion',
+    'Metta',
+    'حُبّ',
+    'मैत्री',
+    'मेत्ता',
   ],
   paciencia: [
     'please be patient',
@@ -1421,6 +1437,7 @@ var txt_lists = {
     'never rush art',
     'rome wasn\'t built in a day',
     'patience is a virtue',
+    'La paciencia es la madre de la ciencia',
     'good things come to those who wait',
     'when the time is right, I,  will make it happen',
     'flow and steady wins the grace',
@@ -1428,8 +1445,11 @@ var txt_lists = {
     'all in good time',
     'nature does not hurry, yet everything is accomplished',
     'just take it easy man',
+    'Poco a poco',
     'there are no accidents',
     'Believe',
+    'No por mucho madrugar amanece más temprano',
+    'صبر تلخ است ولیکن برِ شیرین دارد',
   ],
 };
 function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
