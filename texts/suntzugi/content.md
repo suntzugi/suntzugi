@@ -35,7 +35,9 @@ In Chinese, sūn 孫 means grandchild and descendant. The English language mirro
 
 As the son of the sun, this word carries a lot of weight. But when I hear it, I am light.
 
-[^1]: If this is the first sentence you read from me, don't be dismayed by the jargon! I, too, appreciate clear and concise writing. However, I'm also whimsical, and I couldn't resist writing a sentence playing with the irony of doubling down on the verbosity I intend to move away from when seeking grace and beauty. In fact, Suntzugi was coined as an attempt to simplify the handle and make it easier to read and remember... it just so happened to be richer in meaning too, which is a new aesthetic and philosophical pursuit of mine.
+[^1]: If this is the first sentence you read from me, don't be dismayed by the jargon! I, too, appreciate clear and concise writing. However, I'm also whimsical. I couldn't resist writing a sentence playing with the irony of doubling down on the verbosity I intend to move away from when seeking grace and beauty.
+
+In fact, Suntzugi was coined as an attempt to simplify the handle and make it easier to read and remember... it just so happened to be richer in meaning, which is a new aesthetic and philosophical pursuit of mine.
 
 **Quote:**
 
