@@ -66,7 +66,7 @@ As the son of the sun, this word weighs. But when I hear it, I am light.
 
 **Character:** 孫子
 
-**Label:** sūn zǐ · chinese — the art of war
+**Label:** sūn zǐ · chinese strategist & philosopher — c. 544–496 BC
 
 **Quote:**
 
