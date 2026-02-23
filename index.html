@@ -69,7 +69,9 @@
     position:relative;
   }
   .anno-card{
-    position:absolute;inset:0;
+    position:absolute;top:0;bottom:0;left:0;
+    max-width:540px;
+    padding-right:14px;
     opacity:0;
     transform:translateY(6px);
     transition:opacity .4s ease, transform .4s cubic-bezier(.22,1,.36,1);
@@ -236,6 +238,64 @@
     font-size:.55rem;letter-spacing:.08em;
     color:rgba(242,160,181,.3);
   }
+  .essay-footnotes{
+    margin-top:1.5rem;padding-top:.8rem;
+    border-top:1px solid rgba(242,160,181,.15);
+    max-width:500px;
+  }
+  .essay-footnotes ol{
+    list-style:none;counter-reset:fn;
+    padding:0;margin:0;
+  }
+  .essay-footnotes li{
+    counter-increment:fn;
+    font-family:'Cormorant Garamond',serif;
+    font-size:.88rem;line-height:1.7;font-weight:300;
+    color:rgba(160,168,200,.8);
+    margin-bottom:.5rem;
+    position:relative;padding-left:1.6em;
+  }
+  .essay-footnotes li::before{
+    content:counter(fn) ".";
+    position:absolute;left:0;
+    color:rgba(242,160,181,.5);
+    font-size:.8rem;
+  }
+  .essay-footnotes li a{
+    color:rgba(242,160,181,.7);
+    text-decoration:none;
+    transition:color .2s;
+  }
+  .essay-footnotes li a:hover{
+    color:rgba(242,160,181,1);
+  }
+  a.fn-ref,
+  .ac-body a.fn-ref,
+  .ac-quote a.fn-ref{
+    display:inline-block;
+    font-size:.8em;vertical-align:super;
+    padding:.15em .25em;
+    margin:0 .1em;cursor:pointer;
+    color:rgba(242,160,181,.9);
+    text-decoration:none;
+    border-bottom:none;
+    opacity:1;
+    position:relative;z-index:2;
+    pointer-events:auto;
+    transition:color .2s, text-shadow .2s;
+  }
+  a.fn-ref:hover,
+  .ac-body a.fn-ref:hover{
+    color:rgba(242,160,181,1);
+    text-shadow:0 0 8px rgba(242,160,181,.6),0 0 16px rgba(242,160,181,.3);
+  }
+  .fn-back{
+    font-size:.85rem;margin-left:.3em;
+    text-decoration:none;color:rgba(242,160,181,.5);
+    cursor:pointer;
+    transition:color .2s;
+  }
+  .fn-back:hover{color:rgba(242,160,181,.9);}
 
   /* ── Neodore popup ── */
   .neodore-overlay{
@@ -884,15 +944,25 @@
         <span class="ac-label">sūn · chinese — grandchild, descendant</span>
       </div>
       <div class="ac-body">
-        The sun is the star that gave life to everything on earth. Different traditions throughout our human history have worshipped the sun for bringing light to the dark and life to the dead. All calendars and religious holidays are mapped to the stars and the cycles caused by the sun, even the moon cycles exist because of the light reflected by the sun on the moon. Many people have begun to call me sun on twitter as an abbreviation for Suntzoogway and Suntzugi, this wasn't planned, but I take it in stride as I see it symbolically as others choosing to call me a bringer of light and warmth; I endeavour to do so. 
+        I was christened "Sun" by many of my online neighbours who, finding "Suntzoogway" <a href="https://dictionary.cambridge.org/es/diccionario/ingles/sesquipedalian" target="_blank">sesquipedalian</a>, began to call me by the celestial <a href="https://anglish.org/wiki/Anglish" target="_blank">Anglish</a> <a href="https://en.wikipedia.org/wiki/Hypocorism" target="_blank">hypocorism</a>.<a class="fn-ref" href="javascript:void(0)" data-fn="fn-1" id="fnref-1">1</a>
       </div>
       <div class="ac-body" style="margin-top:.4rem">
-        Interestingly in Chinese, sūn 孫 means grandchild, descendant. The english language mirrors this beautifully with the homonym son. As the son of the sun, I hope to do this beautiful word — which I have been bestowed as a name by my twitter friends — justice, and keep my inner child's curiosity and wonder alive.
+        Whether it was subconsciously chosen or foreshadowing penned by a higher storyteller, I did not consciously choose my old pseudonym because it included "sun", but because I liked the portmanteau of Sun Tzu and Oogway... but as the latter said: <a href="https://www.youtube.com/watch?v=hYAQtEs2Img&t=37s" target="_blank">there are no accidents</a>.
+      </div>
+      <div class="ac-body" style="margin-top:.4rem">
+        In Chinese, sūn 孫 means grandchild and descendant. The English language mirrors this beautifully with the homonym son. So sun contains both the child and the star; a compressed way of saying starchild. We're all little starchildren, little suns, as is our sun (stars all the way up); I pray we don't lose the warmth and wonder we're from.
+      </div>
+      <div class="ac-body" style="margin-top:.4rem">
+        As the son of the sun, this word carries a lot of weight. But when I hear it, I am light.
+
       </div>
       <div class="ac-quote">
         "Truly I tell you, unless you change and become like little children, you will never enter the kingdom of heaven."
         <span class="attr">— <a href="https://www.biblegateway.com/passage/?search=Matthew%2018%3A3&version=NIV" target="_blank">Matthew 18:3</a></span>
       </div>
+      <div class="ac-footnotes essay-footnotes"><ol>
+        <li id="fn-1">If this is the first sentence you read from me, don't be dismayed by the jargon! I, too, appreciate clear and concise writing. However, I'm also whimsical, and I couldn't resist writing a sentence playing with the irony of doubling down on the verbosity I intend to move away from when seeking grace and beauty. In fact, Suntzugi was coined as an attempt to simplify the handle and make it easier to read and remember... it just so happened to be richer in meaning too, which is a new aesthetic and philosophical pursuit of mine. <a class="fn-back" data-fn="fnref-1" title="Back to text">↩</a></li>
+      </ol></div>
     </div>
 
     <!-- Single: tzu -->
@@ -1003,7 +1073,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 03:25 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 05:25 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -1229,13 +1299,39 @@ function parseMd(md){
     if(pastTitle) bodyLines.push(line);
   }
   const raw=bodyLines.join('\n').trim();
-  let body=raw.split(/\n\n+/).map(block=>{
+  // Extract footnote definitions [^N]: text
+  const footnotes={};
+  const contentLines=raw.split('\n').filter(line=>{
+    const fm=line.match(/^\[\^(\w+)\]:\s*(.+)/);
+    if(fm){footnotes[fm[1]]=fm[2].trim();return false;}
+    return true;
+  });
+  const cleanRaw=contentLines.join('\n').trim();
+  let body=cleanRaw.split(/\n\n+/).map(block=>{
     let html=block.replace(/\n/g,' ')
       .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
       .replace(/\*(.+?)\*/g,'<em>$1</em>')
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+    // Replace inline footnote refs [^N] with superscript links
+    html=html.replace(/\[\^(\w+)\]/g,(m,id)=>{
+      return '<a class="fn-ref" href="javascript:void(0)" data-fn="fn-'+id+'" id="fnref-'+id+'">'+id+'</a>';
+    });
     return '<p>'+html+'</p>';
   }).join('\n');
+  // Append footnotes section if any
+  const fnKeys=Object.keys(footnotes);
+  if(fnKeys.length){
+    let fnHtml='<div class="essay-footnotes"><ol>';
+    fnKeys.forEach(id=>{
+      let text=footnotes[id]
+        .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g,'<em>$1</em>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+      fnHtml+='<li id="fn-'+id+'">'+text+' <a class="fn-back" data-fn="fnref-'+id+'" title="Back to text">\u21a9</a></li>';
+    });
+    fnHtml+='</ol></div>';
+    body+='\n'+fnHtml;
+  }
   if(written||edited){
     let meta='<div class="essay-meta">';
     if(written) meta+='<span>written: '+written+'</span>';
@@ -1310,7 +1406,18 @@ async function loadEssay(slug){
     if(!s)return '';
     return s.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>')
             .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-            .replace(/\*(.+?)\*/g,'<em>$1</em>');
+            .replace(/\*(.+?)\*/g,'<em>$1</em>')
+            .replace(/\[\^(\w+)\]/g,'<a class="fn-ref" href="javascript:void(0)" data-fn="fn-$1" id="fnref-$1">$1</a>');
+  }
+
+  function extractFootnotes(text){
+    const footnotes={};
+    const clean=text.split('\n').filter(line=>{
+      const m=line.match(/^\[\^(\w+)\]:\s*(.+)/);
+      if(m){footnotes[m[1]]=m[2].trim();return false;}
+      return true;
+    }).join('\n');
+    return {clean,footnotes};
   }
 
   function applyCard(id,section){
@@ -1319,12 +1426,19 @@ async function loadEssay(slug){
 
     const character=extractField(section,'Character');
     const label=extractField(section,'Label');
-    const body=extractField(section,'Body');
-    const bodyP1=extractField(section,'Body Part 1');
-    const bodyP2=extractField(section,'Body Part 2');
+    const rawBody=extractField(section,'Body');
+    const rawBodyP1=extractField(section,'Body Part 1');
+    const rawBodyP2=extractField(section,'Body Part 2');
     const quote=extractField(section,'Quote');
     const quoteAttr=extractField(section,'Quote Attribution');
     const link=extractField(section,'Link');
+
+    // Extract footnotes from body fields
+    const allText=[rawBody,rawBodyP1,rawBodyP2].filter(Boolean).join('\n');
+    const {footnotes}=extractFootnotes(allText);
+    const body=rawBody?extractFootnotes(rawBody).clean:null;
+    const bodyP1=rawBodyP1?extractFootnotes(rawBodyP1).clean:null;
+    const bodyP2=rawBodyP2?extractFootnotes(rawBodyP2).clean:null;
 
     if(character){
       const charEl=el.querySelector('.ac-char');
@@ -1341,16 +1455,13 @@ async function loadEssay(slug){
     const seps=el.querySelectorAll('.ac-sep');
 
     if(bodyP1&&bodyP2){
-      // Two-part body (e.g. Tzugi card)
       if(bodies[0]) bodies[0].innerHTML=mdInline(bodyP1);
       if(bodies[1]) bodies[1].innerHTML=mdInline(bodyP2);
     } else if(body){
       const paragraphs=body.split(/\n\n+/);
-      // Fill existing .ac-body divs
       for(let i=0;i<bodies.length&&i<paragraphs.length;i++){
         bodies[i].innerHTML=mdInline(paragraphs[i]);
       }
-      // Create additional .ac-body divs if more paragraphs than existing
       if(paragraphs.length>bodies.length){
         const anchor=el.querySelector('.ac-quote')||el.querySelector('.ac-sep');
         for(let i=bodies.length;i<paragraphs.length;i++){
@@ -1369,11 +1480,26 @@ async function loadEssay(slug){
     }
 
     if(link){
-      // Find or create the link body element
       const linkBody=bodies[bodies.length-1];
       if(linkBody&&linkBody.querySelector('a')){
         linkBody.innerHTML=mdInline(link);
       }
+    }
+
+    // Append footnotes if any
+    const fnKeys=Object.keys(footnotes);
+    if(fnKeys.length){
+      let existing=el.querySelector('.essay-footnotes');
+      if(existing) existing.remove();
+      const fnDiv=document.createElement('div');
+      fnDiv.className='essay-footnotes';
+      let html='<ol>';
+      fnKeys.forEach(id=>{
+        html+='<li id="fn-'+id+'">'+mdInline(footnotes[id])+' <a class="fn-back" data-fn="fnref-'+id+'" title="Back to text">\u21a9</a></li>';
+      });
+      html+='</ol>';
+      fnDiv.innerHTML=html;
+      el.appendChild(fnDiv);
     }
   }
 
@@ -1632,6 +1758,28 @@ async function loadEssay(slug){
     },{passive:true});
   });
 })();
+</script>
+
+<script>
+// ── Footnote smooth scroll (global, capture phase) ──
+document.addEventListener('click',function(e){
+  const a=e.target.closest('.fn-ref, .fn-back');
+  if(!a)return;
+  e.preventDefault();
+  e.stopPropagation();
+  const targetId=a.getAttribute('data-fn');
+  if(!targetId)return;
+  const target=document.getElementById(targetId);
+  if(!target)return;
+  // If inside a scrollable card, scroll the card container
+  const card=target.closest('.anno-card');
+  if(card){
+    const top=target.offsetTop-card.offsetTop-card.clientHeight/3;
+    card.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+  } else {
+    target.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+},true);
 </script>
 
 <script>

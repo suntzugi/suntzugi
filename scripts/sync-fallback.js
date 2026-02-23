@@ -55,7 +55,29 @@ function mdToHtml(s) {
   return s
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>');
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\[\^(\w+)\]/g, '<a class="fn-ref" href="javascript:void(0)" data-fn="fn-$1" id="fnref-$1">$1</a>');
+}
+
+function extractFootnotes(text) {
+  const footnotes = {};
+  const clean = text.split('\n').filter(line => {
+    const m = line.match(/^\[\^(\w+)\]:\s*(.+)/);
+    if (m) { footnotes[m[1]] = m[2].trim(); return false; }
+    return true;
+  }).join('\n');
+  return { clean, footnotes };
+}
+
+function buildFootnotesHtml(footnotes, cardId) {
+  const keys = Object.keys(footnotes);
+  if (!keys.length) return '';
+  let html = '      <div class="ac-footnotes essay-footnotes"><ol>\n';
+  keys.forEach(id => {
+    html += '        <li id="fn-' + id + '">' + mdToHtml(footnotes[id]) + ' <a class="fn-back" data-fn="fnref-' + id + '" title="Back to text">\u21a9</a></li>\n';
+  });
+  html += '      </ol></div>\n';
+  return html;
 }
 
 // ── Scan essay folders ──
@@ -135,12 +157,19 @@ for (const [sectionName, cardId] of Object.entries(cardMap)) {
 
   const character = extractField(section, 'Character');
   const label = extractField(section, 'Label');
-  const body = extractField(section, 'Body');
-  const bodyP1 = extractField(section, 'Body Part 1');
-  const bodyP2 = extractField(section, 'Body Part 2');
+  const rawBody = extractField(section, 'Body');
+  const rawBodyP1 = extractField(section, 'Body Part 1');
+  const rawBodyP2 = extractField(section, 'Body Part 2');
   const quote = extractField(section, 'Quote');
   const quoteAttr = extractField(section, 'Quote Attribution');
   const link = extractField(section, 'Link');
+
+  // Extract footnotes from all body fields
+  const allBodyText = [rawBody, rawBodyP1, rawBodyP2].filter(Boolean).join('\n');
+  const { footnotes: cardFootnotes } = extractFootnotes(allBodyText);
+  const body = rawBody ? extractFootnotes(rawBody).clean : null;
+  const bodyP1 = rawBodyP1 ? extractFootnotes(rawBodyP1).clean : null;
+  const bodyP2 = rawBodyP2 ? extractFootnotes(rawBodyP2).clean : null;
 
   // Find the card block using div-depth counting
   const openTag = '<div class="anno-card" id="' + cardId + '">';
@@ -189,6 +218,8 @@ for (const [sectionName, cardId] of Object.entries(cardMap)) {
     card += '        ' + mdToHtml(link) + '\n';
     card += '      </div>\n';
   }
+
+  card += buildFootnotesHtml(cardFootnotes, cardId);
 
   card += '    </div>';
 

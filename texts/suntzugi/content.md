@@ -27,9 +27,15 @@ Suntzugi
 
 **Body:**
 
-The sun is the star that gave life to everything on earth. Different traditions throughout our human history have worshipped the sun for bringing light to the dark and life to the dead. All calendars and religious holidays are mapped to the stars and the cycles caused by the sun, even the moon cycles exist because of the light reflected by the sun on the moon. Many people have begun to call me sun on twitter as an abbreviation for Suntzoogway and Suntzugi, this wasn't planned, but I take it in stride as I see it symbolically as others choosing to call me a bringer of light and warmth; I endeavour to do so. 
+I was christened "Sun" by many of my online neighbours who, finding "Suntzoogway" [sesquipedalian](https://dictionary.cambridge.org/es/diccionario/ingles/sesquipedalian), began to call me by the celestial [Anglish](https://anglish.org/wiki/Anglish) [hypocorism](https://en.wikipedia.org/wiki/Hypocorism).[^1]
 
-Interestingly in Chinese, sūn 孫 means grandchild, descendant. The english language mirrors this beautifully with the homonym son. As the son of the sun, I hope to do this beautiful word — which I have been bestowed as a name by my twitter friends — justice, and keep my inner child's curiosity and wonder alive.
+Whether it was subconsciously chosen or foreshadowing penned by a higher storyteller, I did not consciously choose my old pseudonym because it included "sun", but because I liked the portmanteau of Sun Tzu and Oogway... but as the latter said: [there are no accidents](https://www.youtube.com/watch?v=hYAQtEs2Img&t=37s).
+
+In Chinese, sūn 孫 means grandchild and descendant. The English language mirrors this beautifully with the homonym son. So sun contains both the child and the star; a compressed way of saying starchild. We're all little starchildren, little suns, as is our sun (stars all the way up); I pray we don't lose the warmth and wonder we're from.
+
+As the son of the sun, this word carries a lot of weight. But when I hear it, I am light.
+
+[^1]: If this is the first sentence you read from me, don't be dismayed by the jargon! I, too, appreciate clear and concise writing. However, I'm also whimsical, and I couldn't resist writing a sentence playing with the irony of doubling down on the verbosity I intend to move away from when seeking grace and beauty. In fact, Suntzugi was coined as an attempt to simplify the handle and make it easier to read and remember... it just so happened to be richer in meaning too, which is a new aesthetic and philosophical pursuit of mine.
 
 **Quote:**
 
