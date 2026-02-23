@@ -142,18 +142,20 @@ const sections = parseSections(contentMd);
 let changes = 0;
 
 // ── Sync card fallbacks in HTML ──
-const cardMap = {
-  'Card 1: Sun (孫)': 'card-sun',
-  'Card 2: Tzu (子)': 'card-tzu',
-  'Card 3: Gi (龜)': 'card-gi',
-  'Card 4: SunTzu (孫子)': 'card-suntzu',
-  'Card 5: Tzugi (継ぎ · 子龜)': 'card-tzugi',
-  'Card 6: Suntzugi (Full)': 'card-full',
+const cardFiles = {
+  'sun': 'card-sun',
+  'tzu': 'card-tzu',
+  'gi': 'card-gi',
+  'suntzu': 'card-suntzu',
+  'tzugi': 'card-tzugi',
+  'suntzugi': 'card-full',
 };
+const cardsDir = path.join(root, 'texts/cards');
 
-for (const [sectionName, cardId] of Object.entries(cardMap)) {
-  const section = sections[sectionName];
-  if (!section) { console.log('  skip: section "' + sectionName + '" not found'); continue; }
+for (const [slug, cardId] of Object.entries(cardFiles)) {
+  const cardPath = path.join(cardsDir, slug + '.md');
+  if (!fs.existsSync(cardPath)) { console.log('  skip: ' + cardPath + ' not found'); continue; }
+  const section = fs.readFileSync(cardPath, 'utf8');
 
   const character = extractField(section, 'Character');
   const label = extractField(section, 'Label');
