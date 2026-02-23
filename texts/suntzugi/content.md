@@ -27,11 +27,11 @@ Suntzugi
 
 **Body:**
 
-I was christened "Sun" by many of my online neighbours who, finding "Suntzoogway" [sesquipedalian](https://dictionary.cambridge.org/es/diccionario/ingles/sesquipedalian), began to call me by the celestial [Anglish](https://anglish.org/wiki/Anglish) [hypocorism](https://en.wikipedia.org/wiki/Hypocorism).[^1]
+I was christened Sun by my online neighbours who, finding "Suntzoogway" [sesquipedalian](https://dictionary.cambridge.org/es/diccionario/ingles/sesquipedalian), began to call me by the celestial [Anglish](https://anglish.org/wiki/Anglish) [hypocorism](https://en.wikipedia.org/wiki/Hypocorism).[^1]
 
 Whether subconsciously chosen or foreshadowing penned by a higher storyteller, I chose to portmanteau Sun Tzu and Oogway without noticing the sun crowning it... but as the latter said: [there are no accidents](https://www.youtube.com/watch?v=hYAQtEs2Img&t=37s).
 
-In Chinese, sūn 孫 means grandchild and descendant. The English language mirrors this beautifully with the homonym son. So sun contains both the child and the star; a compressed way of saying starchild. We're all little starchildren, little suns, as is our sun (stars all the way up); I pray we don't lose the warmth and wonder we're from.
+In Chinese, sūn 孫 means grandchild and descendant. The English language mirrors this beautifully with the homonym son. So sun contains both the child and the star; a compressed way of saying starchild. We're all little starchildren, little suns, as is our sun (stars all the way up); I pray we don't lose the warmth and wonder we're from so that we may ascend
 
 As the son of the sun, this word carries a lot of weight. But when I hear it, I am light.
 
