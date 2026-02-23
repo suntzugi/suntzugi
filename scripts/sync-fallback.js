@@ -163,6 +163,8 @@ for (const [sectionName, cardId] of Object.entries(cardMap)) {
   const quote = extractField(section, 'Quote');
   const quoteAttr = extractField(section, 'Quote Attribution');
   const link = extractField(section, 'Link');
+  const published = extractField(section, 'Published');
+  const lastEdited = extractField(section, 'Last Edited');
 
   // Extract footnotes from all body fields
   const allBodyText = [rawBody, rawBodyP1, rawBodyP2].filter(Boolean).join('\n');
@@ -220,6 +222,12 @@ for (const [sectionName, cardId] of Object.entries(cardMap)) {
   }
 
   card += buildFootnotesHtml(cardFootnotes, cardId);
+
+  if (published) {
+    let dateHtml = 'published ' + published.toLowerCase();
+    if (lastEdited) dateHtml += ' · last edited ' + lastEdited.toLowerCase();
+    card += '      <div class="ac-date">' + dateHtml + '</div>\n';
+  }
 
   card += '    </div>';
 

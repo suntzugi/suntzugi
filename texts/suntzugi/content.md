@@ -46,6 +46,9 @@ As the son of the sun, this word weighs. But when I hear it, I am light.
 
 **Quote Attribution:** [Matthew 18:3](https://www.biblegateway.com/passage/?search=Matthew%2018%3A3&version=NIV)
 
+**Published:** 20/02/2026
+**Last Edited:** 22/02/2026 · 23:11 PST
+
 ---
 
 ## Card 2: Tzu (子)
@@ -54,6 +57,9 @@ As the son of the sun, this word weighs. But when I hear it, I am light.
 
 **Label:** zǐ · chinese — honorific title of masters and teachers
 
+**Published:** 20/02/2026
+**Last Edited:** 23/02/2026 · 02:22 PST
+
 ---
 
 ## Card 3: Gi (龜)
@@ -61,6 +67,9 @@ As the son of the sun, this word weighs. But when I hear it, I am light.
 **Character:** 龜
 
 **Label:** guī · chinese — turtle
+
+**Published:** 20/02/2026
+**Last Edited:** 22/02/2026 · 23:11 PST
 
 ---
 
@@ -76,6 +85,9 @@ As the son of the sun, this word weighs. But when I hear it, I am light.
 
 **Quote Attribution:** Sun Tzu, The Art of War (Samuel B. Griffith translation, 1963)
 
+**Published:** 20/02/2026
+**Last Edited:** 23/02/2026 · 01:11 PST
+
 ---
 
 ## Card 5: Tzugi (継ぎ · 子龜)
@@ -83,6 +95,9 @@ As the son of the sun, this word weighs. But when I hear it, I am light.
 **Character:** 継ぎ · 子龜
 
 **Label:** tsugi (japanese) · zǐ guī (chinese) — to repair · master turtle
+
+**Published:** 20/02/2026
+**Last Edited:** 22/02/2026 · 23:11 PST
 
 ---
 
@@ -93,6 +108,8 @@ As the son of the sun, this word weighs. But when I hear it, I am light.
 **Label:** the philosophy and the man
 
 **Link:** [@suntzugi](https://x.com/suntzugi)
+
+**Published:** 20/02/2026
 
 ---
 
