@@ -36,7 +36,6 @@ In Chinese, sūn 孫 means grandchild and descendant. The English language mirro
 As the son of the sun, this word weighs. But when I hear it, I am light.
 
 [^1]: If this is the first sentence you read from me, don't be dismayed by the jargon! I, too, appreciate clear and concise writing. However, I'm also whimsical. I couldn't resist writing a sentence playing with the irony of doubling down on the verbosity I intend to move away from when seeking grace and beauty. In fact, Suntzugi was coined as an attempt to simplify the handle and make it easier to read and remember... it just so happened to be richer in meaning, which is a new aesthetic and philosophical pursuit of mine.
-
 [^2] A higher storyteller is a steller. Steller is a neologism that came to me in the feverdream of this morning's writing; the etymological fruit of stellar storyteller, where stelle (Germanic for star) carries the sense of both the heavens, the higher powers, and excellence.
 
 **Quote:**
@@ -53,10 +52,6 @@ As the son of the sun, this word weighs. But when I hear it, I am light.
 
 **Label:** zǐ · chinese — master, child
 
-**Body:**
-
-In Chinese Tzu is a title meaning Master. To learn is to master, and the eternal master remains forever a student.
-
 ---
 
 ## Card 3: Gi (龜)
@@ -65,14 +60,6 @@ In Chinese Tzu is a title meaning Master. To learn is to master, and the eternal
 
 **Label:** guī · chinese — turtle
 
-**Body:**
-
-In my early 21st century reading of the parable of the turtle and rabbit, the turtle doesn't just win because it's consistent, but because consistency and patience is the solid foundation upon which exponential progress that outpaces short term sprints is built.
-
-In myth, the turtle carries the world on its back and I've always felt like the entire mundiverse was my home to carry and protect. 
-
-So don't move fast and break things like the rabbit of Silicon Valley; move with grace and fix things.
-
 ---
 
 ## Card 4: SunTzu (孫子)
@@ -80,10 +67,6 @@ So don't move fast and break things like the rabbit of Silicon Valley; move with
 **Character:** 孫子
 
 **Label:** sūn zǐ · chinese — the art of war
-
-**Body:**
-
-The ancient Chinese strategist who taught that the greatest victory comes without violence. 
 
 **Quote:**
 
@@ -99,14 +82,6 @@ The ancient Chinese strategist who taught that the greatest victory comes withou
 
 **Label:** tsugi (japanese) · zǐ guī (chinese) — to repair · master turtle
 
-**Body Part 1:**
-
-In Japanese Tsugi 継ぎ means to mend, to continue, to join what was broken. It is an etymological root of kintsugi 金継ぎ, the art of repairing broken pottery with gold; making the fracture part of the beauty, not something to hide. Suntzugi shares this etymology but connects it not with gold (kin), but with the sun which is the golden energy that nourishes all earthly life.
-
-**Body Part 2:**
-
-Interestingly, Tzu Gui in Chinese means Master Turtle — 子龜. An echo of Master Oogway, the tortoise who saw potential where no one else looked. Sun grew up as Po: the passionate outsider. Heterodox and unconventional but earnest, curious and exuding so much love that he could become the Dragon Warrior. But time turns Po into Oogway — the one who must now lead, who must help others ascend the same mountain. Before this name there was [Suntzoogway](https://x.com/suntzoogway) — Suntzugi is the abbreviation of the former, a more meaningful and beautiful neologism for this next chapter.
-
 ---
 
 ## Card 6: Suntzugi (Full)
@@ -114,10 +89,6 @@ Interestingly, Tzu Gui in Chinese means Master Turtle — 子龜. An echo of Mas
 **Character:** Suntzugi
 
 **Label:** the philosophy and the man
-
-**Body:**
-
-Mastering the art of repairing with light; the belief that the world can be mended with love, just as the sun brought life to earth from its quiet position in the heavens. A neologism built from Chinese, Japanese, English, Germanic, and Spanish. Combining the meanings found in all the different syllabic components of the word which come together to spell out a philosophy, aesthetic, and Sun's full name. 
 
 **Link:** [@suntzugi](https://x.com/suntzugi)
 

@@ -135,6 +135,12 @@
        1px  1px 0 rgba(10,14,30,.8),
        0 0 8px rgba(10,14,30,.6);
   }
+  .ac-whisper{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;
+    color:rgba(242,160,181,.35);
+    display:block;margin-top:.5rem;
+  }
   .ac-quote{
     font-family:'Cormorant Garamond',serif;
     font-size:.88rem;font-weight:300;font-style:italic;
@@ -973,9 +979,6 @@
         <span class="ac-char">子</span>
         <span class="ac-label">zǐ · chinese — master, child</span>
       </div>
-      <div class="ac-body">
-        In Chinese Tzu is a title meaning Master. To learn is to master, and the eternal master remains forever a student.
-      </div>
     </div>
 
     <!-- Single: gi -->
@@ -984,15 +987,6 @@
         <span class="ac-char">龜</span>
         <span class="ac-label">guī · chinese — turtle</span>
       </div>
-      <div class="ac-body">
-        In my early 21st century reading of the parable of the turtle and rabbit, the turtle doesn't just win because it's consistent, but because consistency and patience is the solid foundation upon which exponential progress that outpaces short term sprints is built.
-      </div>
-      <div class="ac-body" style="margin-top:.4rem">
-        In myth, the turtle carries the world on its back and I've always felt like the entire mundiverse was my home to carry and protect. 
-      </div>
-      <div class="ac-body" style="margin-top:.4rem">
-        So don't move fast and break things like the rabbit of Silicon Valley; move with grace and fix things.
-      </div>
     </div>
 
     <!-- Compound: SunTzu -->
@@ -1000,9 +994,6 @@
       <div class="ac-top">
         <span class="ac-char">孫子</span>
         <span class="ac-label">sūn zǐ · chinese — the art of war</span>
-      </div>
-      <div class="ac-body">
-        The ancient Chinese strategist who taught that the greatest victory comes without violence.
       </div>
       <div class="ac-quote">
         "To win one hundred victories in one hundred battles is not the acme of skill. To subdue the enemy without fighting is the acme of skill."
@@ -1016,13 +1007,6 @@
         <span class="ac-char">継ぎ · 子龜</span>
         <span class="ac-label">tsugi (japanese) · zǐ guī (chinese) — to repair · master turtle</span>
       </div>
-      <div class="ac-body">
-        In Japanese Tsugi 継ぎ means to mend, to continue, to join what was broken. It is an etymological root of kintsugi 金継ぎ, the art of repairing broken pottery with gold; making the fracture part of the beauty, not something to hide. Suntzugi shares this etymology but connects it not with gold (kin), but with the sun which is the golden energy that nourishes all earthly life.
-      </div>
-      <div class="ac-sep"></div>
-      <div class="ac-body">
-        Interestingly, Tzu Gui in Chinese means Master Turtle — 子龜. An echo of Master Oogway, the tortoise who saw potential where no one else looked. Sun grew up as Po: the passionate outsider. Heterodox and unconventional but earnest, curious and exuding so much love that he could become the Dragon Warrior. But time turns Po into Oogway — the one who must now lead, who must help others ascend the same mountain. Before this name there was <a href="https://x.com/suntzoogway" target="_blank">Suntzoogway</a> — Suntzugi is the abbreviation of the former, a more meaningful and beautiful neologism for this next chapter.
-      </div>
     </div>
 
     <!-- Full word: Suntzugi -->
@@ -1030,9 +1014,6 @@
       <div class="ac-top">
         <span class="ac-char">Suntzugi</span>
         <span class="ac-label">the philosophy and the man</span>
-      </div>
-      <div class="ac-body">
-        Mastering the art of repairing with light; the belief that the world can be mended with love, just as the sun brought life to earth from its quiet position in the heavens. A neologism built from Chinese, Japanese, English, Germanic, and Spanish. Combining the meanings found in all the different syllabic components of the word which come together to spell out a philosophy, aesthetic, and Sun's full name.
       </div>
       <div class="ac-body" style="margin-top:.5rem">
         <a href="https://x.com/suntzugi" target="_blank">@suntzugi</a>
@@ -1075,7 +1056,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 08:16 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 08:57 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -1136,6 +1117,19 @@
       c.scrollTop = 0;
       c.classList.add('show');
       activeCard = name;
+      // Whisper: if card has no real body text (links alone don't count), show a rotating placeholder
+      const hasRealBody=Array.from(c.querySelectorAll('.ac-body')).some(b=>{
+        for(const n of b.childNodes) if(n.nodeType===3&&n.textContent.trim()) return true;
+        return false;
+      });
+      if(!hasRealBody && typeof txt_lists!=='undefined' && txt_lists.paciencia){
+        let wrap=c.querySelector('.ac-whisper-wrap');
+        if(!wrap){wrap=document.createElement('div');wrap.className='ac-whisper-wrap';const top=c.querySelector('.ac-top');top.after(wrap);}
+        wrap.innerHTML='<span class="ac-whisper">currently being written with '+pickFrom(txt_lists.amor)+', '+pickFrom(txt_lists.paciencia)+'</span>';
+      } else {
+        const oldWrap=c.querySelector('.ac-whisper-wrap');
+        if(oldWrap) oldWrap.remove();
+      }
       // Glow the scrollbar if card content overflows
       requestAnimationFrame(()=>{
         if(c.scrollHeight>c.clientHeight){
@@ -1372,6 +1366,51 @@ async function loadEssay(slug){
   }
   return null;
 }
+</script>
+
+<script>
+// These txt_lists are part of the site's soul.
+// Source of truth: texts/txt_lists/*.txt (one entry per line)
+// Fallback values below are synced automatically by sync-fallback.js
+var txt_lists = {
+  amor: [
+    'love',
+    'care',
+    'ai',
+    'amor',
+    'cariño',
+    'positive sum qualia',
+    'heart',
+    'corazón',
+    'tenderness',
+    'devotion',
+  ],
+  paciencia: [
+    'please be patient',
+    'you can\'t hurry love',
+    'never rush art',
+    'rome wasn\'t built in a day',
+    'patience is a virtue',
+  ],
+};
+function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+// Load txt_lists from manifest (overrides fallbacks on GitHub Pages; silently skips on file://)
+(function(){
+  function parseTxt(t){ return t.split('\n').map(function(l){return l.trim()}).filter(Boolean); }
+  fetch('texts/txt_lists/manifest.json').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(files){
+    files.forEach(function(f){
+      var key=f.replace(/\.txt$/,'');
+      fetch('texts/txt_lists/'+f).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){
+        var lines=parseTxt(t);if(lines.length) txt_lists[key]=lines;
+      }).catch(function(){});
+    });
+  }).catch(function(){});
+})();
+// Randomize the drafts section label
+(function(){
+  var db=document.getElementById('draftsBlock');
+  if(db){var lbl=db.querySelector('.reading-section-label');if(lbl) lbl.textContent='currently being written with '+pickFrom(txt_lists.amor);}
+})();
 </script>
 
 <script>

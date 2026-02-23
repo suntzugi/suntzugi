@@ -332,6 +332,53 @@ if (fs.existsSync(bgmDir)) {
   }
 }
 
+// ── Sync txt_lists from texts/txt_lists/ ──
+const txtListsDir = path.join(root, 'texts/txt_lists');
+if (fs.existsSync(txtListsDir)) {
+  const txtFiles = fs.readdirSync(txtListsDir).filter(f => f.endsWith('.txt')).sort();
+
+  // Write manifest.json for browser auto-discovery
+  const manifestPath = path.join(txtListsDir, 'manifest.json');
+  const manifestJson = JSON.stringify(txtFiles, null, 2) + '\n';
+  const oldManifest = fs.existsSync(manifestPath) ? fs.readFileSync(manifestPath, 'utf8') : '';
+  if (manifestJson !== oldManifest) {
+    fs.writeFileSync(manifestPath, manifestJson, 'utf8');
+    console.log('  updated: manifest.json (' + txtFiles.length + ' files)');
+  } else {
+    console.log('  unchanged: manifest.json');
+  }
+
+  // Build the txt_lists object for HTML fallback
+  const listsObj = {};
+  for (const file of txtFiles) {
+    const key = file.replace(/\.txt$/, '');
+    const lines = fs.readFileSync(path.join(txtListsDir, file), 'utf8')
+      .split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length) listsObj[key] = lines;
+  }
+
+  // Serialize and sync into index.html
+  let objStr = '{\n';
+  for (const [key, lines] of Object.entries(listsObj)) {
+    const entries = lines.map(l => "    '" + l.replace(/'/g, "\\'") + "'").join(',\n');
+    objStr += '  ' + key + ': [\n' + entries + ',\n  ],\n';
+  }
+  objStr += '}';
+  const re = /(var txt_lists = )\{[\s\S]*?\};/;
+  const replacement = '$1' + objStr + ';';
+  if (re.test(indexHtml)) {
+    const updated = indexHtml.replace(re, replacement);
+    if (updated !== indexHtml) {
+      indexHtml = updated;
+      const total = Object.values(listsObj).reduce((s, a) => s + a.length, 0);
+      console.log('  updated: txt_lists (' + Object.keys(listsObj).length + ' lists, ' + total + ' entries)');
+      changes++;
+    } else {
+      console.log('  unchanged: txt_lists');
+    }
+  }
+}
+
 // ── Stamp last-updated date + time (Paris) ──
 const now = new Date();
 const paris = new Intl.DateTimeFormat('en-GB', {
