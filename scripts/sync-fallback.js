@@ -112,7 +112,7 @@ function scanEssayFolder(dir, status) {
 }
 
 const essays = [
-  ...scanEssayFolder('texts/essays', null),
+  ...scanEssayFolder('texts/published', null),
   ...scanEssayFolder('texts/ready-to-publish', 'ready'),
   ...scanEssayFolder('texts/drafts', 'draft'),
 ];
