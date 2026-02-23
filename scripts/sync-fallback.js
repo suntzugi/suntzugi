@@ -240,7 +240,7 @@ const ready = essays.filter(e => e.status === 'ready');
 if (drafts.length) {
   const draftLis = drafts.map(d => {
     let li = '        <li data-draft><a href="#" data-essay="' + d.slug + '">' + d.title + '</a>';
-    if (d.countdown) li += ' <span class="countdown" data-target="' + d.countdown + '"></span>';
+    li += ' <span class="draft-flor"></span>';
     li += '</li>';
     return li;
   }).join('\n');
