@@ -154,8 +154,8 @@
   }
   body.no-whisper-flor .whisper-flor{display:none}
   @keyframes florPulse{
-    0%,100%{opacity:.55;transform:scale(1)}
-    50%{opacity:1;transform:scale(1.1)}
+    0%,100%{opacity:.55;transform:rotate(var(--flor-spin,0deg)) scale(1)}
+    50%{opacity:1;transform:rotate(var(--flor-spin,0deg)) scale(1.1)}
   }
   .ac-quote{
     font-family:'Cormorant Garamond',serif;
@@ -346,9 +346,10 @@
     background:none;color:rgba(242,160,181,.5);
     font-family:'SF Mono',monospace;font-size:.7rem;
     cursor:pointer;display:flex;align-items:center;justify-content:center;
-    transition:border-color .3s,color .3s;
+    transition:border-color .3s,color .3s,background .3s;
   }
-  .neodore-close:hover,.neodore-close.tap-glow{border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8);box-shadow:0 0 10px rgba(242,160,181,.3)}
+  .neodore-close:hover,.neodore-close.tap-glow{background:rgba(242,160,181,.8);border-color:rgba(242,160,181,.8);color:#fff}
+  body.close-push-in .neodore-close:hover,body.close-push-in .neodore-close.tap-glow{background:rgba(20,25,50,.8);border-color:rgba(242,160,181,.6);color:rgba(242,160,181,1)}
   .neodore-title{
     font-family:'Cormorant Garamond',serif;
     font-weight:300;font-style:italic;
@@ -567,10 +568,13 @@
     background:none;color:rgba(242,160,181,.5);
     font-family:'SF Mono',monospace;font-size:.7rem;
     cursor:pointer;display:flex;align-items:center;justify-content:center;
-    transition:border-color .3s,color .3s;flex-shrink:0;
+    transition:border-color .3s,color .3s,background .3s;flex-shrink:0;
   }
   .edit-panel .ep-close:hover,.edit-panel .ep-close.tap-glow{
-    border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8);box-shadow:0 0 10px rgba(242,160,181,.3);
+    background:rgba(242,160,181,.8);border-color:rgba(242,160,181,.8);color:#fff;
+  }
+  body.close-push-in .edit-panel .ep-close:hover,body.close-push-in .edit-panel .ep-close.tap-glow{
+    background:rgba(20,25,50,.8);border-color:rgba(242,160,181,.6);color:rgba(242,160,181,1);
   }
   .edit-panel .ep-group{margin-bottom:1.2rem}
   .edit-panel .ep-group-title{
@@ -832,9 +836,10 @@
     background:none;color:rgba(242,160,181,.5);
     font-family:'SF Mono',monospace;font-size:.7rem;
     cursor:pointer;display:flex;align-items:center;justify-content:center;
-    transition:border-color .3s,color .3s;
+    transition:border-color .3s,color .3s,background .3s;
   }
-  .draft-close:hover,.draft-close.tap-glow{border-color:rgba(242,160,181,.4);color:rgba(242,160,181,.8);box-shadow:0 0 10px rgba(242,160,181,.3)}
+  .draft-close:hover,.draft-close.tap-glow{background:rgba(242,160,181,.8);border-color:rgba(242,160,181,.8);color:#fff}
+  body.close-push-in .draft-close:hover,body.close-push-in .draft-close.tap-glow{background:rgba(20,25,50,.8);border-color:rgba(242,160,181,.6);color:rgba(242,160,181,1)}
   .draft-title{
     font-family:'Cormorant Garamond',serif;
     font-weight:300;font-style:italic;
@@ -844,15 +849,10 @@
   }
   .draft-line{
     font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
-    font-size:.7rem;letter-spacing:.06em;
-    color:rgba(242,160,181,.55);
-    margin:0 0 .4rem;line-height:1.6;
-  }
-  .draft-timer{
-    margin-top:1.5rem;
-    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
-    font-size:.85rem;letter-spacing:.08em;
-    color:rgba(242,160,181,.7);
+    font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;
+    color:rgba(242,160,181,.9);
+    margin:0;line-height:1.6;
+    animation:whisperPulse 3.5s ease-in-out infinite;
   }
 
   /* ── Site footer ── */
@@ -973,7 +973,11 @@
     <div class="ep-toggle-row"><button class="ep-toggle" id="toggleWhisperFlor"></button><span class="ep-slider-name">spinning flowers</span></div>
   </div>
   <div class="ep-group">
-    <div class="ep-group-title">8. Cursor</div>
+    <div class="ep-group-title">8. Close Button</div>
+    <div class="ep-toggle-row"><button class="ep-toggle" id="toggleClosePush"></button><span class="ep-slider-name">push in style</span></div>
+  </div>
+  <div class="ep-group">
+    <div class="ep-group-title">9. Cursor</div>
     <div class="ep-slider-row"><span class="ep-num"></span><div class="ep-slider-wrap"><div class="ep-styles" id="epCursorStyles"></div></div></div>
   </div>
 </div>
@@ -1018,7 +1022,7 @@
     <div class="anno-card" id="card-tzu">
       <div class="ac-top">
         <span class="ac-char">子</span>
-        <span class="ac-label">zǐ · chinese — master, child</span>
+        <span class="ac-label">zǐ · chinese — honorific title of masters and teachers</span>
       </div>
     </div>
 
@@ -1097,7 +1101,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 10:32 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 11:00 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -1126,8 +1130,7 @@
   <div class="draft-popup">
     <div class="draft-close" id="draftClose">0</div>
     <h2 class="draft-title" id="draftPopupTitle"></h2>
-    <p class="draft-line" id="draftPopupLine">Current draft being written.</p>
-    <div class="draft-timer"><span class="countdown" id="draftPopupCountdown"></span></div>
+    <p class="draft-line" id="draftPopupLine"></p>
   </div>
 </div>
 
@@ -1166,7 +1169,7 @@
       if(!hasRealBody && typeof txt_lists!=='undefined' && txt_lists.paciencia){
         let wrap=c.querySelector('.ac-whisper-wrap');
         if(!wrap){wrap=document.createElement('div');wrap.className='ac-whisper-wrap';const top=c.querySelector('.ac-top');top.after(wrap);}
-        wrap.innerHTML='<span class="ac-whisper">currently being written with '+pickFrom(txt_lists.amor)+'; '+pickFrom(txt_lists.paciencia)+' '+makeWhisperFlor()+'</span>';
+        wrap.innerHTML='<span class="ac-whisper">currently being written with '+pickFrom(txt_lists.amor)+'<br>'+pickFrom(txt_lists.paciencia)+' '+makeWhisperFlor()+'</span>';
       } else {
         const oldWrap=c.querySelector('.ac-whisper-wrap');
         if(oldWrap) oldWrap.remove();
@@ -1498,6 +1501,44 @@ function makeWhisperFlor(){
   var els=document.querySelectorAll('.draft-flor');
   for(var i=0;i<els.length;i++) els[i].innerHTML=makeWhisperFlor();
 })();
+// Spin flowers when cursor passes near them
+(function(){
+  var lastX=0,lastY=0,vx=0,vy=0;
+  var PROX=40,DECAY=.97;
+  var spins=new Map();
+  function tick(){
+    spins.forEach(function(s,el){
+      s.angle+=s.vel;
+      s.vel*=DECAY;
+      el.style.setProperty('--flor-spin',s.angle+'deg');
+      if(Math.abs(s.vel)<.1){
+        el.style.setProperty('--flor-spin','0deg');
+        spins.delete(el);
+      }
+    });
+    if(spins.size) requestAnimationFrame(tick);
+  }
+  document.addEventListener('mousemove',function(e){
+    vx=e.clientX-lastX;vy=e.clientY-lastY;
+    lastX=e.clientX;lastY=e.clientY;
+    var speed=Math.sqrt(vx*vx+vy*vy);
+    if(speed<2)return;
+    var flores=document.querySelectorAll('.whisper-flor');
+    for(var i=0;i<flores.length;i++){
+      var f=flores[i];
+      var r=f.getBoundingClientRect();
+      var fx=r.left+r.width/2,fy=r.top+r.height/2;
+      var dx=e.clientX-fx,dy=e.clientY-fy;
+      var dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist>PROX)continue;
+      var dir=vx>0?1:-1;
+      var kick=dir*(1+speed*.15);
+      var s=spins.get(f);
+      if(s){s.vel+=kick;}
+      else{spins.set(f,{angle:0,vel:kick});requestAnimationFrame(tick);}
+    }
+  });
+})();
 // Randomize the "positive sum qualia" tooltip on each hover
 (function(){
   var tw=document.getElementById('tooltipWrap');
@@ -1712,6 +1753,9 @@ function makeWhisperFlor(){
         draftBlock.style.display='none';
       }
     }
+    // Populate draft flowers after dynamic render
+    var draftFlors=document.querySelectorAll('.draft-flor');
+    for(var i=0;i<draftFlors.length;i++) draftFlors[i].innerHTML=makeWhisperFlor();
     startCountdowns();
   }
 
@@ -2029,11 +2073,9 @@ document.addEventListener('click',function(e){
     const li=link.closest('li');
     if(li&&li.hasAttribute('data-draft')){
       draftPopupTitle.textContent=link.textContent;
-      // Copy countdown target from the li's countdown span
-      const cdSpan=li.querySelector('.countdown[data-target]');
-      if(cdSpan){
-        draftPopupCountdown.setAttribute('data-target',cdSpan.dataset.target);
-        window.startCountdowns();
+      var line=document.getElementById('draftPopupLine');
+      if(line&&typeof txt_lists!=='undefined'){
+        line.innerHTML='currently being written with '+pickFrom(txt_lists.amor)+'<br>'+pickFrom(txt_lists.paciencia)+' '+makeWhisperFlor();
       }
       draftOverlay.classList.add('open');
       return;
@@ -3269,6 +3311,16 @@ requestAnimationFrame(tick);
     florOn=!florOn;
     florBtn.classList.toggle('active',florOn);
     document.body.classList.toggle('no-whisper-flor',!florOn);
+  });
+
+  const closePushBtn=document.getElementById('toggleClosePush');
+  let closePushOn=true;
+  closePushBtn.classList.add('active');
+  document.body.classList.add('close-push-in');
+  closePushBtn.addEventListener('click',()=>{
+    closePushOn=!closePushOn;
+    closePushBtn.classList.toggle('active',closePushOn);
+    document.body.classList.toggle('close-push-in',closePushOn);
   });
 
   // Cursor style picker — mutually exclusive: arrow | chraist dark | chraist white

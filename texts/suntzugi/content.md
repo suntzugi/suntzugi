@@ -50,7 +50,7 @@ As the son of the sun, this word weighs. But when I hear it, I am light.
 
 **Character:** 子
 
-**Label:** zǐ · chinese — master, child
+**Label:** zǐ · chinese — honorific title of masters and teachers
 
 ---
 
