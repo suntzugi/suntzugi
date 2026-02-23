@@ -3,7 +3,7 @@
  * auto-publish.js
  *
  * Checks content.md for {status:ready} essays whose countdown has passed.
- * For each: moves the .md from ready-to-publish/ to essays/, and strips
+ * For each: moves the .md from ready-to-publish/ to published/, and strips
  * {status:ready} + {countdown:...} tags from the content.md line.
  *
  * Usage:
@@ -16,7 +16,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const contentPath = path.join(root, 'texts/suntzugi/content.md');
 const readyDir = path.join(root, 'texts/ready-to-publish');
-const essaysDir = path.join(root, 'texts/essays');
+const essaysDir = path.join(root, 'texts/published');
 
 const now = new Date();
 let contentMd = fs.readFileSync(contentPath, 'utf8');
@@ -49,7 +49,7 @@ for (let i = 0; i < lines.length; i++) {
 
   if (!fs.existsSync(essaysDir)) fs.mkdirSync(essaysDir, { recursive: true });
   fs.renameSync(src, dest);
-  console.log('  moved: ' + slug + '.md → texts/essays/');
+  console.log('  moved: ' + slug + '.md → texts/published/');
 
   // Strip {status:ready} and {countdown:...} from the line
   lines[i] = lines[i]

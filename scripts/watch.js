@@ -8,7 +8,7 @@
  * Watches:
  *   texts/drafts/
  *   texts/ready-to-publish/
- *   texts/essays/
+ *   texts/published/
  *   texts/suntzugi/content.md
  *
  * On any change, runs the sync-fallback script automatically.

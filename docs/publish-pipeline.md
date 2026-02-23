@@ -6,7 +6,7 @@
 |-------|-----------|----------|----------|
 | **Draft** | `{status:draft}` | `texts/drafts/` | Shows under "currently being written" with countdown. Click shows popup. |
 | **Ready to publish** | `{status:ready}` | `texts/ready-to-publish/` | Shows under "soon to be released" with countdown. Click opens essay in reading mode. Auto-transitions to published when countdown hits 0. |
-| **Published** | *(no status tag)* | `texts/essays/` | Shows under "published" with date+time. Click opens essay in reading mode. |
+| **Published** | *(no status tag)* | `texts/published/` | Shows under "published" with date+time. Click opens essay in reading mode. |
 
 ## File Structure
 
@@ -16,7 +16,7 @@ texts/
     my-essay.md
   ready-to-publish/    # Finished, waiting for scheduled time
     my-essay.md
-  essays/              # Published
+  published/           # Published
     my-essay.md
 ```
 
@@ -88,7 +88,7 @@ When the essay is ready:
 
 ### 3. After auto-publish triggers (automated)
 The countdown reaches 0 and the essay visually moves to "published" on screen. The rest is handled automatically by a GitHub Actions workflow (`.github/workflows/scheduled-release.yml`) that runs every 15 minutes:
-- Runs `scripts/auto-publish.js` — moves .md from `texts/ready-to-publish/` to `texts/essays/`, strips `{status:ready}` and `{countdown:...}` from content.md
+- Runs `scripts/auto-publish.js` — moves .md from `texts/ready-to-publish/` to `texts/published/`, strips `{status:ready}` and `{countdown:...}` from content.md
 - Runs `scripts/sync-fallback.js` — updates HTML fallbacks
 - Commits and pushes if anything changed
 

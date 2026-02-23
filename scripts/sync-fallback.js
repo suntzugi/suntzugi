@@ -8,7 +8,7 @@
  *
  *   texts/drafts/          → status: draft
  *   texts/ready-to-publish/ → status: ready
- *   texts/essays/           → published (no status)
+ *   texts/published/           → published (no status)
  *
  * Each .md file should have this header:
  *
