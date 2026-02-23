@@ -1128,7 +1128,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 19:33 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 19:37 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -1158,6 +1158,15 @@
     <div class="draft-close" id="draftClose">0</div>
     <h2 class="draft-title" id="draftPopupTitle"></h2>
     <p class="draft-line" id="draftPopupLine"></p>
+  </div>
+</div>
+
+<div class="draft-overlay" id="readyOverlay">
+  <div class="draft-popup">
+    <div class="draft-close" id="readyClose">0</div>
+    <h2 class="draft-title" id="readyPopupTitle"></h2>
+    <p class="draft-line"><span class="countdown" id="readyPopupCountdown"></span></p>
+    <p class="draft-line" id="readyPopupPaciencia"></p>
   </div>
 </div>
 
@@ -1956,6 +1965,20 @@ function makeWhisperFlor(){
     if(e.key==='Escape'&&overlay.classList.contains('open')){e.preventDefault();overlay.classList.remove('open')}
   });
 })();
+
+// ── Ready popup ──
+(function(){
+  const overlay=document.getElementById('readyOverlay');
+  const closeBtn=document.getElementById('readyClose');
+  if(!overlay)return;
+  closeBtn.addEventListener('click',()=>overlay.classList.remove('open'));
+  overlay.addEventListener('click',e=>{
+    if(e.target===overlay) overlay.classList.remove('open');
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&overlay.classList.contains('open')){e.preventDefault();overlay.classList.remove('open')}
+  });
+})();
 </script>
 
 <script>
@@ -2094,6 +2117,10 @@ document.addEventListener('click',function(e){
   const draftPopupTitle=document.getElementById('draftPopupTitle');
   const draftPopupLine=document.getElementById('draftPopupLine');
   const draftPopupCountdown=document.getElementById('draftPopupCountdown');
+  const readyOverlay=document.getElementById('readyOverlay');
+  const readyPopupTitle=document.getElementById('readyPopupTitle');
+  const readyPopupCountdown=document.getElementById('readyPopupCountdown');
+  const readyPopupPaciencia=document.getElementById('readyPopupPaciencia');
   const footerEl=document.getElementById('siteFooter');
 
   document.addEventListener('click',async e=>{
@@ -2110,6 +2137,21 @@ document.addEventListener('click',function(e){
         line.innerHTML='currently being written with '+pickFrom(txt_lists.amor)+'<br>'+pickFrom(txt_lists.paciencia)+' '+makeWhisperFlor();
       }
       draftOverlay.classList.add('open');
+      return;
+    }
+
+    // If parent <li> has data-ready, show ready popup with countdown + paciencia
+    if(li&&li.hasAttribute('data-ready')){
+      readyPopupTitle.textContent=link.textContent;
+      const target=li.getAttribute('data-pub-time');
+      if(target&&readyPopupCountdown){
+        readyPopupCountdown.setAttribute('data-target',target);
+        startCountdowns();
+      }
+      if(readyPopupPaciencia&&typeof txt_lists!=='undefined'&&txt_lists.paciencia){
+        readyPopupPaciencia.textContent=pickFrom(txt_lists.paciencia);
+      }
+      readyOverlay.classList.add('open');
       return;
     }
 
