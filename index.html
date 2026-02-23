@@ -811,12 +811,6 @@
     color:rgba(242,160,181,.35);
     letter-spacing:.06em;
   }
-  .ready-amor{
-    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
-    font-size:.55rem;
-    color:rgba(242,160,181,.35);
-    letter-spacing:.06em;
-  }
   .essay-date{
     font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
     font-size:.55rem;
@@ -1104,7 +1098,7 @@
     <div class="reading-block" id="readyBlock">
       <div class="reading-section-label">soon to be released</div>
       <ul class="reading-link-list" id="readyList">
-        <li data-ready data-pub-time="2026-02-23T11:24:00-08:00"><a href="#" data-essay="test-auto-publish">Test Auto-Publish</a> <span class="countdown" data-target="2026-02-23T11:24:00-08:00"></span> <span class="ready-amor"></span></li>
+        <li data-ready data-pub-time="2026-02-23T11:24:00-08:00"><a href="#" data-essay="test-auto-publish">Test Auto-Publish</a> <span class="countdown" data-target="2026-02-23T11:24:00-08:00"></span></li>
       </ul>
     </div>
     <div class="reading-block" id="draftsBlock">
@@ -1128,7 +1122,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 20:18 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 23/02/2026 · 20:24 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -1533,6 +1527,11 @@ function makeWhisperFlor(){
   var db=document.getElementById('draftsBlock');
   if(db){var lbl=db.querySelector('.reading-section-label');if(lbl){lbl.innerHTML='currently being written with '+pickFrom(txt_lists.amor)+' '+makeWhisperFlor();lbl.style.color='rgba(242,160,181,.9)';lbl.style.animation='whisperPulse 3.5s ease-in-out infinite';}}
 })();
+// Randomize the ready section label
+(function(){
+  var rb=document.getElementById('readyBlock');
+  if(rb){var lbl=rb.querySelector('.reading-section-label');if(lbl){lbl.innerHTML='soon to be released with '+pickFrom(txt_lists.amor)+' '+makeWhisperFlor();lbl.style.color='rgba(242,160,181,.9)';lbl.style.animation='whisperPulse 3.5s ease-in-out infinite';}}
+})();
 // Populate draft list items with pulsing flowers instead of countdown timers
 (function(){
   var els=document.querySelectorAll('.draft-flor');
@@ -1761,7 +1760,6 @@ function makeWhisperFlor(){
       if(isReady&&l.countdown) html+=' <span class="essay-date" style="display:none">'+formatPubTime(l.countdown)+'</span>';
       else if(!isDraft&&l.date) html+=' <span class="essay-date">'+l.date+'</span>';
       if(!isDraft&&l.countdown) html+=' <span class="countdown" data-target="'+l.countdown+'"></span>';
-      if(isReady) html+=' <span class="ready-amor"></span>';
       if(isDraft) html+=' <span class="draft-flor"></span>';
       html+='</li>';
       return html;
@@ -1794,10 +1792,6 @@ function makeWhisperFlor(){
     // Populate draft flowers after dynamic render
     var draftFlors=document.querySelectorAll('.draft-flor');
     for(var i=0;i<draftFlors.length;i++) draftFlors[i].innerHTML=makeWhisperFlor();
-    // Populate ready-essay amor words
-    if(typeof txt_lists!=='undefined'&&txt_lists.amor){
-      document.querySelectorAll('.ready-amor').forEach(function(el){el.textContent='\u00b7 '+pickFrom(txt_lists.amor);});
-    }
     startCountdowns();
   }
 
@@ -1862,7 +1856,6 @@ function makeWhisperFlor(){
             dateSpan.textContent=formatPubTime(el.dataset.target);
             dateSpan.style.display='';
             el.remove();
-            var amorSpan=li.querySelector('.ready-amor');if(amorSpan)amorSpan.remove();
             const pubList=document.getElementById('publishedList');
             const pubBlock=document.getElementById('publishedBlock');
             if(pubList){pubList.appendChild(li);pubBlock.style.display='';}

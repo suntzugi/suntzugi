@@ -279,7 +279,6 @@ if (ready.length) {
   const readyLis = ready.map(r => {
     let li = '        <li data-ready data-pub-time="' + r.countdown + '"><a href="#" data-essay="' + r.slug + '">' + r.title + '</a>';
     if (r.countdown) li += ' <span class="countdown" data-target="' + r.countdown + '"></span>';
-    li += ' <span class="ready-amor"></span>';
     li += '</li>';
     return li;
   }).join('\n');
