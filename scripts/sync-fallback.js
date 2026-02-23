@@ -45,7 +45,7 @@ function parseSections(md) {
 }
 
 function extractField(text, field) {
-  const re = new RegExp('\\*\\*' + field + ':\\*\\*\\s*(.+?)(?=\\n\\n\\*\\*|\\n---|$)', 's');
+  const re = new RegExp('\\*\\*' + field + ':\\*\\*\\s*(.+?)(?=\\n\\*\\*|\\n---|$)', 's');
   const m = text.match(re);
   return m ? m[1].trim() : null;
 }
