@@ -107,6 +107,7 @@ As the son of the sun, this word weighs. But when I hear it, I am light.
 
 ## Essays
 
+- [Test Auto-Publish](#test-auto-publish) {date:February 23, 2026} {status:ready}
 - [My Time Has Come](#my-time-has-come) {date:February 20, 2026} {status:draft} {countdown:2026-02-23T05:55:00-08:00}
 
 ---

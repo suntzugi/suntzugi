@@ -86,11 +86,15 @@ When the essay is ready:
 - Change `{status:draft}` to `{status:ready}` in content.md
 - Set the `{countdown:...}` to your desired publish time
 
-### 3. After auto-publish triggers
-The countdown reaches 0 and the essay visually moves to "published" on screen. Then:
-- Move the .md file from `texts/ready-to-publish/` to `texts/essays/`
-- Remove `{status:ready}` and `{countdown:...}` from content.md
-- Commit and push
+### 3. After auto-publish triggers (automated)
+The countdown reaches 0 and the essay visually moves to "published" on screen. The rest is handled automatically by a GitHub Actions workflow (`.github/workflows/scheduled-release.yml`) that runs every 15 minutes:
+- Runs `scripts/auto-publish.js` — moves .md from `texts/ready-to-publish/` to `texts/essays/`, strips `{status:ready}` and `{countdown:...}` from content.md
+- Runs `scripts/sync-fallback.js` — updates HTML fallbacks
+- Commits and pushes if anything changed
+
+You can also trigger it manually: `gh workflow run "Scheduled Release"`
+
+**Manual fallback:** You can still do Step 3 by hand if needed — move the file, edit content.md, run sync, commit, push.
 
 ### Hardcoded Fallback (index.html)
 For entries that must work without content.md loading (file:// protocol), update the hardcoded HTML in `index.html`:
