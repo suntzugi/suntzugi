@@ -553,7 +553,7 @@
     font-size:.45rem;letter-spacing:.08em;
     color:rgba(242,160,181,.3);
     background:none;border:1px solid rgba(242,160,181,.1);
-    border-radius:3px;padding:.2rem .5rem;cursor:pointer;
+    border-radius:3px;padding:.3rem .6rem;cursor:pointer;
     transition:color .3s,border-color .3s,background .3s;
   }
   .edit-panel .ep-preset-btn:hover{
@@ -569,7 +569,7 @@
     font-size:.42rem;letter-spacing:.06em;
     color:rgba(212,216,232,.35);
     background:none;border:1px solid rgba(212,216,232,.1);
-    border-radius:3px;padding:.18rem .45rem;cursor:pointer;
+    border-radius:3px;padding:.3rem .55rem;cursor:pointer;
     transition:color .3s,border-color .3s,background .3s;
   }
   .edit-panel .ep-style-btn:hover{
@@ -621,7 +621,7 @@
     background:rgba(242,160,181,.12);border-radius:1px;outline:none;cursor:pointer;
   }
   .edit-panel input[type="range"]::-webkit-slider-thumb{
-    -webkit-appearance:none;width:10px;height:10px;border-radius:50%;
+    -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
     background:rgba(242,160,181,.7);border:none;
     box-shadow:0 0 6px rgba(242,160,181,.3);cursor:pointer;
     transition:background .2s,box-shadow .2s;
@@ -630,7 +630,7 @@
     background:rgba(242,160,181,.9);box-shadow:0 0 10px rgba(242,160,181,.5);
   }
   .edit-panel input[type="range"]::-moz-range-thumb{
-    width:10px;height:10px;border-radius:50%;
+    width:16px;height:16px;border-radius:50%;
     background:rgba(242,160,181,.7);border:none;
     box-shadow:0 0 6px rgba(242,160,181,.3);cursor:pointer;
   }
@@ -643,7 +643,7 @@
     font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
     font-size:.48rem;letter-spacing:.08em;text-transform:lowercase;
     color:rgba(242,160,181,.3);background:none;border:none;
-    padding:.2rem .4rem;cursor:pointer;
+    padding:.35rem .55rem;cursor:pointer;
     border-bottom:1.5px solid transparent;
     transition:color .3s,border-color .3s;
   }
@@ -659,7 +659,7 @@
     font-size:.38rem;letter-spacing:.06em;
     color:rgba(212,216,232,.35);
     background:none;border:1px solid rgba(212,216,232,.1);
-    border-radius:3px;padding:.15rem .4rem;cursor:pointer;
+    border-radius:3px;padding:.3rem .5rem;cursor:pointer;
     transition:color .3s,border-color .3s,background .3s;
     display:flex;align-items:center;gap:.3rem;
   }
@@ -781,19 +781,19 @@
     display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;
   }
   .edit-panel .ep-toggle{
-    position:relative;width:28px;height:14px;
-    background:rgba(242,160,181,.12);border-radius:7px;
+    position:relative;width:36px;height:18px;
+    background:rgba(242,160,181,.12);border-radius:9px;
     border:none;cursor:pointer;flex-shrink:0;
     transition:background .3s ease;
   }
   .edit-panel .ep-toggle::after{
     content:'';position:absolute;top:2px;left:2px;
-    width:10px;height:10px;border-radius:50%;
+    width:14px;height:14px;border-radius:50%;
     background:rgba(242,160,181,.5);
     transition:transform .3s ease,background .3s ease;
   }
   .edit-panel .ep-toggle.active{background:rgba(242,160,181,.3)}
-  .edit-panel .ep-toggle.active::after{transform:translateX(14px);background:rgba(242,160,181,.8)}
+  .edit-panel .ep-toggle.active::after{transform:translateX(18px);background:rgba(242,160,181,.8)}
   .edit-panel .ep-color-row{
     display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem;
   }
@@ -806,7 +806,7 @@
   }
   .edit-panel .ep-color-input:focus{border-color:rgba(242,160,181,.5)}
   .edit-panel .ep-color-swatch{
-    width:14px;height:14px;border-radius:50%;flex-shrink:0;
+    width:18px;height:18px;border-radius:50%;flex-shrink:0;
     border:1px solid rgba(255,255,255,.1);
   }
   html.font-bigger{font-size:110%}
@@ -1015,6 +1015,7 @@
     <button class="ep-tab active" data-tab="tree">tree</button>
     <button class="ep-tab" data-tab="display">display</button>
     <button class="ep-tab" data-tab="colors">colors</button>
+    <button class="ep-tab" data-tab="tests">tests</button>
   </div>
   <div class="ep-tab-body active" data-tab="tree">
     <div class="ep-presets" id="epPresets"></div>
@@ -1083,6 +1084,15 @@
       <div class="ep-color-row"><span class="ep-slider-name">secondary</span><input type="text" class="ep-color-input" id="color-secondary" value="#a0a8c8" maxlength="7" data-color="secondary"><span class="ep-color-swatch" id="swatch-secondary" style="background:#a0a8c8"><input type="color" class="ep-color-picker" id="picker-secondary" value="#a0a8c8" data-color="secondary"></span></div>
       <div class="ep-color-row"><span class="ep-slider-name">petals</span><input type="text" class="ep-color-input" id="color-petals" value="#f5afc3" maxlength="7" data-color="petals"><span class="ep-color-swatch" id="swatch-petals" style="background:#f5afc3"><input type="color" class="ep-color-picker" id="picker-petals" value="#f5afc3" data-color="petals"></span></div>
       <div class="ep-color-row"><span class="ep-slider-name">tree</span><input type="text" class="ep-color-input" id="color-tree" value="#0a0608" maxlength="7" data-color="tree"><span class="ep-color-swatch" id="swatch-tree" style="background:#0a0608"><input type="color" class="ep-color-picker" id="picker-tree" value="#0a0608" data-color="tree"></span></div>
+    </div>
+  </div>
+  <div class="ep-tab-body" data-tab="tests">
+    <div class="ep-group">
+      <div class="ep-group-title">Publish Pipeline</div>
+      <div class="ep-toggle-row">
+        <button class="ep-toggle" id="toggleTestEssays"></button>
+        <span class="ep-slider-name">test essays</span>
+      </div>
     </div>
   </div>
 </div>
@@ -1212,7 +1222,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 24/02/2026 · 22:17 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 24/02/2026 · 22:34 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -3742,18 +3752,10 @@ requestAnimationFrame(tick);
     {slug:'test-beta',title:'Test Beta',delay:60000}
   ];
 
-  // Tiny toggle button inside edit panel (only visible when panel is open)
-  var btn=document.createElement('div');
-  btn.textContent='test';
-  btn.style.cssText='margin-top:1.5rem;font-size:.5rem;opacity:.25;cursor:pointer;font-family:"SF Mono","Fira Code",monospace;color:#f2a0b5;letter-spacing:.12em;text-transform:uppercase;transition:opacity .3s;';
-  btn.addEventListener('mouseenter',function(){btn.style.opacity=active?'.7':'.4';});
-  btn.addEventListener('mouseleave',function(){btn.style.opacity=active?'.5':'.25';});
-  var editPanel=document.querySelector('.edit-panel');
-  if(editPanel) editPanel.appendChild(btn);
-
-  btn.addEventListener('click',function(){
+  var btn=document.getElementById('toggleTestEssays');
+  if(btn) btn.addEventListener('click',function(){
     active=!active;
-    btn.style.opacity=active?'.5':'.15';
+    btn.classList.toggle('active',active);
     if(active) activate(); else deactivate();
   });
 
