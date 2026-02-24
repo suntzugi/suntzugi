@@ -752,6 +752,21 @@
   }
   .edit-panel .ep-toggle.active{background:rgba(242,160,181,.3)}
   .edit-panel .ep-toggle.active::after{transform:translateX(14px);background:rgba(242,160,181,.8)}
+  .edit-panel .ep-color-row{
+    display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem;
+  }
+  .edit-panel .ep-color-input{
+    font-family:'SF Mono','Fira Code',monospace;font-size:.48rem;
+    width:5.2em;padding:.15em .3em;
+    background:rgba(10,14,30,.5);color:rgba(212,216,232,.7);
+    border:1px solid rgba(242,160,181,.15);border-radius:3px;
+    outline:none;letter-spacing:.04em;
+  }
+  .edit-panel .ep-color-input:focus{border-color:rgba(242,160,181,.5)}
+  .edit-panel .ep-color-swatch{
+    width:14px;height:14px;border-radius:50%;flex-shrink:0;
+    border:1px solid rgba(255,255,255,.1);
+  }
   html.font-bigger{font-size:110%}
   html.font-huge{font-size:125%}
   html.font-giant{font-size:150%}
@@ -1005,6 +1020,15 @@
     <div class="ep-group-title">10. Font Size</div>
     <div class="ep-slider-row"><span class="ep-num"></span><div class="ep-slider-wrap"><div class="ep-styles" id="epFontScale"></div></div></div>
   </div>
+  <div class="ep-group">
+    <div class="ep-group-title">11. Colors</div>
+    <div class="ep-color-row"><span class="ep-slider-name">background</span><input type="text" class="ep-color-input" id="color-bg" value="#1e2a4a" maxlength="7" data-color="bg"><span class="ep-color-swatch" id="swatch-bg" style="background:#1e2a4a"></span></div>
+    <div class="ep-color-row"><span class="ep-slider-name">text</span><input type="text" class="ep-color-input" id="color-text" value="#d4d8e8" maxlength="7" data-color="text"><span class="ep-color-swatch" id="swatch-text" style="background:#d4d8e8"></span></div>
+    <div class="ep-color-row"><span class="ep-slider-name">highlighted</span><input type="text" class="ep-color-input" id="color-highlight" value="#f2a0b5" maxlength="7" data-color="highlight"><span class="ep-color-swatch" id="swatch-highlight" style="background:#f2a0b5"></span></div>
+    <div class="ep-color-row"><span class="ep-slider-name">secondary</span><input type="text" class="ep-color-input" id="color-secondary" value="#a0a8c8" maxlength="7" data-color="secondary"><span class="ep-color-swatch" id="swatch-secondary" style="background:#a0a8c8"></span></div>
+    <div class="ep-color-row"><span class="ep-slider-name">petals</span><input type="text" class="ep-color-input" id="color-petals" value="#f5afc3" maxlength="7" data-color="petals"><span class="ep-color-swatch" id="swatch-petals" style="background:#f5afc3"></span></div>
+    <div class="ep-color-row"><span class="ep-slider-name">tree</span><input type="text" class="ep-color-input" id="color-tree" value="#0a0608" maxlength="7" data-color="tree"><span class="ep-color-swatch" id="swatch-tree" style="background:#0a0608"></span></div>
+  </div>
 </div>
 
 <div class="content"><div class="ci">
@@ -1132,7 +1156,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 24/02/2026 · 21:18 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 24/02/2026 · 21:46 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -2565,7 +2589,7 @@ function renderFullTree(ctx){
       const p0=bzPt(t0,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
       const p1=bzPt(t1,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
       const w=b.thS+(b.thE-b.thS)*((t0+t1)/2);
-      ctx.strokeStyle='#0a0608';ctx.lineWidth=Math.max(w,.4);
+      ctx.strokeStyle=treeColor;ctx.lineWidth=Math.max(w,.4);
       ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p1.x,p1.y);ctx.stroke();
     }
   }
@@ -2575,6 +2599,7 @@ function renderFullTree(ctx){
 // ═══════════════════════════════════════════════
 // 3. PETAL SPRITES
 // ═══════════════════════════════════════════════
+let treeColor='#0a0608';
 const PC=[[245,175,195],[255,140,180],[250,225,235],[230,120,160]];
 
 function makeFlower(r,g,b,sz){
@@ -3008,7 +3033,7 @@ function renderPartialShadow(){
         const p0=bzPt(t0,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
         const p1=bzPt(t1,b.x0,b.y0,b.cx0,b.cy0,b.cx1,b.cy1,b.x1,b.y1);
         const w=b.thS+(b.thE-b.thS)*((t0+t1)/2);
-        treeX.strokeStyle='#0a0608';treeX.lineWidth=Math.max(w,.4);
+        treeX.strokeStyle=treeColor;treeX.lineWidth=Math.max(w,.4);
         treeX.beginPath();treeX.moveTo(p0.x,p0.y);treeX.lineTo(p1.x,p1.y);treeX.stroke();
       }
     }
@@ -3427,6 +3452,106 @@ requestAnimationFrame(tick);
     });
   }
   buildCursorStyles();
+})();
+
+// ── Color overrides ──
+(function(){
+  const hexRe=/^#[0-9a-fA-F]{6}$/;
+  const overrideStyle=document.createElement('style');
+  overrideStyle.id='colorOverrides';
+  document.head.appendChild(overrideStyle);
+
+  const colorDefaults={
+    bg:'#1e2a4a',text:'#d4d8e8',highlight:'#f2a0b5',
+    secondary:'#a0a8c8',petals:'#f5afc3',tree:'#0a0608'
+  };
+  const colors=Object.assign({},colorDefaults);
+
+  function hexToRgb(hex){
+    const n=parseInt(hex.slice(1),16);
+    return[(n>>16)&255,(n>>8)&255,n&255];
+  }
+  function hslToRgb(h,s,l){
+    s/=100;l/=100;
+    const a=s*Math.min(l,1-l);
+    const f=n=>{const k=(n+h/30)%12;return l-a*Math.max(Math.min(k-3,9-k,1),-1)};
+    return[Math.round(f(0)*255),Math.round(f(8)*255),Math.round(f(4)*255)];
+  }
+  function rgbToHsl(r,g,b){
+    r/=255;g/=255;b/=255;
+    const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
+    let h=0,s=0,l=(mx+mn)/2;
+    if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);
+      if(mx===r)h=((g-b)/d+(g<b?6:0))*60;
+      else if(mx===g)h=((b-r)/d+2)*60;
+      else h=((r-g)/d+4)*60;
+    }
+    return[h,s*100,l*100];
+  }
+
+  function rebuildOverrides(){
+    let css='';
+    if(colors.highlight!==colorDefaults.highlight){
+      const v=colors.highlight;
+      const[r,g,b]=hexToRgb(v);
+      css+=`.syl:hover,.syl.lit{color:${v}}`;
+      css+=`.ac-char{color:${v}}`;
+      css+=`.ac-whisper{color:rgba(${r},${g},${b},.9)}`;
+    }
+    if(colors.secondary!==colorDefaults.secondary){
+      const v=colors.secondary;
+      const[r,g,b]=hexToRgb(v);
+      const[h,s,l]=rgbToHsl(r,g,b);
+      const darker=hslToRgb(h,s,Math.max(l-15,0));
+      css+=`.ac-body{color:${v}}`;
+      css+=`.ac-label{color:rgb(${darker[0]},${darker[1]},${darker[2]})}`;
+    }
+    overrideStyle.textContent=css;
+  }
+
+  function rebuildPetalSprites(){
+    const[r,g,b]=hexToRgb(colors.petals);
+    const[h,s,l]=rgbToHsl(r,g,b);
+    PC[0]=[r,g,b];
+    PC[1]=hslToRgb(h,Math.min(s+10,100),l);
+    PC[2]=hslToRgb(h,s,Math.min(l+30,100));
+    PC[3]=hslToRgb(h,s,Math.max(l-15,0));
+    for(let ci=0;ci<4;ci++){
+      const[cr,cg,cb]=PC[ci];
+      for(let si=0;si<SZ.length;si++){
+        fSpr[ci][si]=makeFlower(cr,cg,cb,SZ[si]);
+        pSpr[ci][si]=makePetal(cr,cg,cb,SZ[si]);
+      }
+    }
+    initPetals();
+  }
+
+  function applyColor(key,val){
+    colors[key]=val;
+    switch(key){
+      case'bg':document.body.style.background=val;break;
+      case'text':document.body.style.color=val;break;
+      case'highlight':case'secondary':rebuildOverrides();break;
+      case'petals':rebuildPetalSprites();break;
+      case'tree':
+        treeColor=val;
+        if(typeof phase!=='undefined'&&phase==='interactive'){
+          renderFullTree(treeX);buildShadowLayers();if(shadowLayers)renderShadow();
+        }
+        break;
+    }
+  }
+
+  const inputs=document.querySelectorAll('.ep-color-input');
+  inputs.forEach(inp=>{
+    const key=inp.dataset.color;
+    inp.addEventListener('input',()=>{
+      const v=inp.value.trim();
+      if(!hexRe.test(v))return;
+      document.getElementById('swatch-'+key).style.background=v;
+      applyColor(key,v);
+    });
+  });
 })();
 
 // ── Font scale toggle ──
