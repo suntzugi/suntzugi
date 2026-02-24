@@ -126,7 +126,7 @@
     font-family:'Cormorant Garamond',serif;
     font-size:.92rem;font-weight:300;font-style:italic;
     color:#a0a8c8;
-    line-height:1.7;
+    line-height:1.4;
     max-width:31.25rem;
     text-shadow:
       -1px -1px 0 rgba(10,14,30,.8),
@@ -794,7 +794,7 @@
   .reading-body{
     font-family:'Cormorant Garamond',serif;
     font-weight:300;
-    font-size:clamp(.95rem,1.6vw,1.1rem);
+    font-size:1.58rem;
     color:#7a84a8;
     line-height:2;
     max-width:500px;
@@ -3563,8 +3563,7 @@ requestAnimationFrame(tick);
     {name:'giant',label:'giant',cls:'font-giant'},
   ];
   const allCls=scales.filter(s=>s.cls).map(s=>s.cls);
-  const mobileDefault=('ontouchstart' in window||navigator.maxTouchPoints>0)?'normal':'bigger';
-  let active=localStorage.getItem('fontScale')||mobileDefault;
+  let active=localStorage.getItem('fontScale')||'giant';
   const found=scales.find(s=>s.name===active);
   if(found&&found.cls) document.documentElement.classList.add(found.cls);
   const container=document.getElementById('epFontScale');
