@@ -651,6 +651,29 @@
   .edit-panel .ep-tab.active{color:rgba(242,160,181,.7);border-bottom-color:rgba(242,160,181,.5)}
   .edit-panel .ep-tab-body{display:none}
   .edit-panel .ep-tab-body.active{display:block}
+  .edit-panel .ep-field-presets{
+    display:flex;gap:.3rem;margin-bottom:.5rem;margin-left:0;flex-wrap:wrap;
+  }
+  .edit-panel .ep-field-preset{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.38rem;letter-spacing:.06em;
+    color:rgba(212,216,232,.35);
+    background:none;border:1px solid rgba(212,216,232,.1);
+    border-radius:3px;padding:.15rem .4rem;cursor:pointer;
+    transition:color .3s,border-color .3s,background .3s;
+    display:flex;align-items:center;gap:.3rem;
+  }
+  .edit-panel .ep-field-preset:hover{
+    color:rgba(212,216,232,.55);border-color:rgba(212,216,232,.2);
+  }
+  .edit-panel .ep-field-preset.active{
+    color:rgba(242,160,181,.7);border-color:rgba(242,160,181,.25);
+    background:rgba(242,160,181,.06);
+  }
+  .edit-panel .ep-field-preset-dot{
+    width:8px;height:8px;border-radius:50%;flex-shrink:0;
+    border:1px solid rgba(255,255,255,.1);
+  }
   .edit-panel .ep-color-picker{
     position:absolute;inset:0;width:100%;height:100%;
     opacity:0;cursor:pointer;border:none;padding:0;
@@ -1054,6 +1077,7 @@
     <div class="ep-group">
       <div class="ep-group-title">Colors</div>
       <div class="ep-color-row"><span class="ep-slider-name">background</span><input type="text" class="ep-color-input" id="color-bg" value="#1e2a4a" maxlength="7" data-color="bg"><span class="ep-color-swatch" id="swatch-bg" style="background:#1e2a4a"><input type="color" class="ep-color-picker" id="picker-bg" value="#1e2a4a" data-color="bg"></span></div>
+      <div class="ep-field-presets" id="bgPresets"></div>
       <div class="ep-color-row"><span class="ep-slider-name">text</span><input type="text" class="ep-color-input" id="color-text" value="#d4d8e8" maxlength="7" data-color="text"><span class="ep-color-swatch" id="swatch-text" style="background:#d4d8e8"><input type="color" class="ep-color-picker" id="picker-text" value="#d4d8e8" data-color="text"></span></div>
       <div class="ep-color-row"><span class="ep-slider-name">highlighted</span><input type="text" class="ep-color-input" id="color-highlight" value="#f2a0b5" maxlength="7" data-color="highlight"><span class="ep-color-swatch" id="swatch-highlight" style="background:#f2a0b5"><input type="color" class="ep-color-picker" id="picker-highlight" value="#f2a0b5" data-color="highlight"></span></div>
       <div class="ep-color-row"><span class="ep-slider-name">secondary</span><input type="text" class="ep-color-input" id="color-secondary" value="#a0a8c8" maxlength="7" data-color="secondary"><span class="ep-color-swatch" id="swatch-secondary" style="background:#a0a8c8"><input type="color" class="ep-color-picker" id="picker-secondary" value="#a0a8c8" data-color="secondary"></span></div>
@@ -1188,7 +1212,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 24/02/2026 · 22:12 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 24/02/2026 · 22:17 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -3622,9 +3646,36 @@ requestAnimationFrame(tick);
       applyColor(key,theme[key]);
     });
     buildColorPresets();
+    if(bgPresetsEl) buildBgFieldPresets();
   }
 
   buildColorPresets();
+
+  // Per-field bg presets
+  const bgFieldPresets={
+    'original':'#1e2a4a',
+    'nostalgic tv blue':'#1e2a9a',
+  };
+  const bgPresetsEl=document.getElementById('bgPresets');
+  function buildBgFieldPresets(){
+    bgPresetsEl.innerHTML='';
+    Object.keys(bgFieldPresets).forEach(name=>{
+      const hex=bgFieldPresets[name];
+      const btn=document.createElement('button');
+      btn.className='ep-field-preset'+(colors.bg===hex?' active':'');
+      btn.innerHTML='<span class="ep-field-preset-dot" style="background:'+hex+'"></span>'+name;
+      btn.addEventListener('click',()=>{
+        colors.bg=hex;
+        document.getElementById('color-bg').value=hex;
+        document.getElementById('swatch-bg').style.background=hex;
+        document.getElementById('picker-bg').value=hex;
+        applyColor('bg',hex);
+        buildBgFieldPresets();
+      });
+      bgPresetsEl.appendChild(btn);
+    });
+  }
+  buildBgFieldPresets();
 
   // Hex text input listeners
   const inputs=document.querySelectorAll('.ep-color-input');
