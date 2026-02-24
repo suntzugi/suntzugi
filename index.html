@@ -7,8 +7,9 @@
 <link rel="icon" type="image/png" href="assets/chraist/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
 <style>
+  html{height:100%;overflow:hidden}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{background:#1e2a4a;color:#d4d8e8;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;cursor:default;
+  body{background:#1e2a4a;color:#d4d8e8;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:300;height:100%;overflow-x:hidden;overflow-y:auto;cursor:default;overscroll-behavior:none;
     scrollbar-width:thin;scrollbar-color:rgba(242,160,181,.3) transparent}
   body::-webkit-scrollbar{width:4px}
   body::-webkit-scrollbar-track{background:transparent}
@@ -23,7 +24,7 @@
 
   /* ── Layout ── */
   .content{
-    position:relative;z-index:10;min-height:100vh;
+    position:relative;z-index:10;min-height:100%;
     display:flex;flex-direction:column;justify-content:center;
     padding:6vh 10vw;
     user-select:text;-webkit-user-select:text;
