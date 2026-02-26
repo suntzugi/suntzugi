@@ -77,6 +77,7 @@
     transition:opacity .4s ease, transform .4s cubic-bezier(.22,1,.36,1);
     pointer-events:none;
     overflow-y:auto;
+    overscroll-behavior:contain;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:thin;
     scrollbar-color:rgba(242,160,181,.3) transparent;
@@ -2108,6 +2109,30 @@ document.addEventListener('click',function(e){
     target.scrollIntoView({behavior:'smooth',block:'center'});
   }
 },true);
+
+// ── Prevent card scroll from chaining to page scroll ──
+document.querySelectorAll('.anno-card').forEach(card=>{
+  card.addEventListener('wheel',function(e){
+    const atTop=card.scrollTop<=0;
+    const atBottom=card.scrollTop+card.clientHeight>=card.scrollHeight-1;
+    if((e.deltaY<0&&atTop)||(e.deltaY>0&&atBottom)){
+      e.preventDefault();
+    }
+  },{passive:false});
+  card.addEventListener('touchstart',function(e){
+    card._touchY=e.touches[0].clientY;
+  },{passive:true});
+  card.addEventListener('touchmove',function(e){
+    if(!card.classList.contains('show'))return;
+    const dy=card._touchY-e.touches[0].clientY;
+    card._touchY=e.touches[0].clientY;
+    const atTop=card.scrollTop<=0;
+    const atBottom=card.scrollTop+card.clientHeight>=card.scrollHeight-1;
+    if((dy<0&&atTop)||(dy>0&&atBottom)){
+      e.preventDefault();
+    }
+  },{passive:false});
+});
 </script>
 
 <script>
