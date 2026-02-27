@@ -42,4 +42,4 @@ Suntzugi
 - [Chraist](https://chraist.ai)
 - [Github](https://github.com/suntzugi)
 - [Substack](https://substack.com/@suntzugi) {substack-premiere:2026-02-24T22:39:00+01:00}
-- [Neodore (stealth)](#neodore) {countdown:2026-02-27T08:17:00-08:00}
+- [Neodore (stealth)](#neodore) {countdown:2026-03-09T05:55:00-08:00}
