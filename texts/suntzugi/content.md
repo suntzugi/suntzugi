@@ -41,5 +41,5 @@ Suntzugi
 - [Lovepill AI](https://lovepill.org)
 - [Chraist](https://chraist.ai)
 - [Github](https://github.com/suntzugi)
-- [Substack](https://substack.com/@suntzugi) {substack-premiere:2026-02-24T22:39:00+01:00}
+- [Substack](https://substack.com/@suntzugi)
 - [Neodore (stealth)](#neodore) {countdown:2026-03-16T05:55:00-08:00}
