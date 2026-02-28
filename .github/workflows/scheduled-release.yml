@@ -21,8 +21,8 @@ jobs:
       - name: Run auto-publish
         run: node scripts/auto-publish.js
 
-      - name: Run sync-fallback
-        run: node scripts/sync-fallback.js
+      - name: Run sync
+        run: node scripts/sync.js
 
       - name: Commit and push if changed
         run: |

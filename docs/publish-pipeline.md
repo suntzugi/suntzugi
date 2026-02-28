@@ -1,55 +1,138 @@
 # Suntzugi Publish Pipeline
 
+## Architecture
+
+Single-folder + frontmatter system. All content lives in `content/` with YAML frontmatter for metadata. No file moving between folders, no middleman manifest. The `sync.js` build step reads frontmatter and bakes everything into `index.html`.
+
 ## Essay States
 
-| State | Status tag | Location | Behavior |
-|-------|-----------|----------|----------|
-| **Draft** | `{status:draft}` | `texts/drafts/` | Shows under "currently being written" with countdown. Click shows popup. |
-| **Ready to publish** | `{status:ready}` | `texts/ready-to-publish/` | Shows under "soon to be released" with countdown. Click opens essay in reading mode. Auto-transitions to published when countdown hits 0. |
-| **Published** | *(no status tag)* | `texts/published/` | Shows under "published" with date+time. Click opens essay in reading mode. |
+| State | Frontmatter | Behavior |
+|-------|------------|----------|
+| **Draft** | `status: draft` | Shows under "currently being written" with flower. Click shows popup. |
+| **Ready** | `status: ready` + `publish_at: <ISO>` | Shows under "soon to be released" with countdown. Click shows popup. Auto-transitions when countdown hits 0. |
+| **Published** | `status: published` + `published_at: <ISO>` | Shows under "published". Click opens essay in reading mode. |
 
-## File Structure
+## Folder Structure
 
 ```
-texts/
-  cards/               # One .md file per annotation card (sun.md, tzu.md, etc.)
+content/                    ← things with identity + lifecycle
+  cards/
     sun.md
-  drafts/              # Drafts being written
-    my-essay.md
-  ready-to-publish/    # Finished, waiting for scheduled time
-    my-essay.md
-  published/           # Published
-    my-essay.md
+    tzu.md
+    gi.md
+    suntzu.md
+    tzugi.md
+    suntzugi.md
+  essays/
+    my-time-has-come.md
+
+assets/                     ← raw material (no lifecycle)
+  text/
+    amor.txt
+    paciencia.txt
+  images/
+  audio/
+    bgm/
+  chraist/
+
+site.yaml                   ← site config (links, display order)
+scripts/
+  sync.js                   ← build step: content → HTML
+  auto-publish.js            ← updates frontmatter in-place
+  watch.js                   ← file watcher for live editing
 ```
 
-## Writing an Essay (.md format)
+## Frontmatter Schema
 
-```markdown
-# Essay Title
+### Cards
 
-Written: February 22, 2026
-Last edited: February 22, 2026
-Scheduled: February 22, 2026 at 08:17 PST
+```yaml
+---
+title: Sun
+type: card
+status: published
+---
+[card body — uses **Field:** format]
+```
 
-Your essay body goes here. Paragraphs are separated by blank lines.
+### Essays
+
+```yaml
+---
+title: My Time Has Come
+type: essay
+status: draft
+publish_at: 2026-03-16T05:55:00-08:00
+published_at:
+---
+[essay body text]
+```
+
+- `status`: `draft`, `ready`, or `published`
+- `publish_at`: ISO 8601 timestamp — required for `status: ready`
+- `published_at`: set automatically by `auto-publish.js` when publishing
+
+## site.yaml
+
+Structured data for links displayed on the site.
+
+```yaml
+links:
+  - label: Twitter
+    url: https://x.com/suntzugi
+  - label: Neodore (stealth)
+    url: "#neodore"
+    countdown: 2026-03-16T05:55:00-08:00
+```
+
+## Writing an Essay
+
+Create `content/essays/my-essay.md` with frontmatter:
+
+```yaml
+---
+title: My Essay
+type: essay
+status: draft
+---
+Your essay body here. Paragraphs separated by blank lines.
 
 **Bold text** and *italic text* work. So do [links](https://example.com).
 ```
 
-- `Written:` and `Last edited:` appear in the essay footer
-- `Scheduled:` is stripped from display (informational only in the .md file)
+## Publishing Workflow
 
-## Adding an Entry to content.md
+### 1. Write the draft
+Create `content/essays/my-essay.md` with `status: draft`.
 
-All entries go in the `## Essays` section of `texts/suntzugi/content.md`.
-
-### Format
-
+### 2. Schedule for publishing
+When ready, update frontmatter:
+```yaml
+status: ready
+publish_at: 2026-03-16T05:55:00-08:00
 ```
-- [Title](#slug) {date:Month Day, Year} {status:STATE} {countdown:ISO-TIMESTAMP}
-```
 
-### Timestamp Format (ISO 8601)
+### 3. Auto-publish (automated)
+GitHub Actions workflow (`.github/workflows/scheduled-release.yml`) runs every 15 minutes:
+- Runs `scripts/auto-publish.js` — updates frontmatter: `status: published`, adds `published_at`
+- Runs `scripts/sync.js` — rebuilds HTML
+- Commits and pushes if anything changed
+
+Manual trigger: `gh workflow run "Scheduled Release"`
+
+## Build Step (sync.js)
+
+`node scripts/sync.js` reads all sources and bakes into `index.html`:
+- Card content from `content/cards/*.md`
+- Essay lists (draft/ready/published) from `content/essays/*.md` frontmatter
+- Links from `site.yaml`
+- Audio tracks from `assets/audio/bgm/` filenames
+- Text lists from `assets/text/*.txt`
+- Last-updated timestamp
+
+The pre-commit hook runs sync automatically before every commit.
+
+## Timestamp Format (ISO 8601)
 
 ```
 YYYY-MM-DDTHH:MM:SS+/-HH:MM
@@ -60,51 +143,8 @@ Common timezone offsets:
 - **Spain (CET):** `+01:00` (winter) / `+02:00` (summer/CEST)
 - **UTC:** `+00:00`
 
-### Examples
-
-Draft:
-```
-- [My Essay](#my-essay) {date:February 22, 2026} {status:draft} {countdown:2026-02-22T08:17:00-08:00}
-```
-
-Ready to publish (auto-publishes at countdown time):
-```
-- [My Essay](#my-essay) {date:February 22, 2026} {status:ready} {countdown:2026-02-22T08:17:00-08:00}
-```
-
-Published (remove status tag, countdown optional):
-```
-- [My Essay](#my-essay) {date:February 22, 2026}
-```
-
-## Publishing Workflow
-
-### 1. Write the draft
-Create `texts/drafts/my-essay.md` and add a `{status:draft}` entry in content.md.
-
-### 2. Schedule for publishing
-When the essay is ready:
-- Move the .md file from `texts/drafts/` to `texts/ready-to-publish/`
-- Change `{status:draft}` to `{status:ready}` in content.md
-- Set the `{countdown:...}` to your desired publish time
-
-### 3. After auto-publish triggers (automated)
-The countdown reaches 0 and the essay visually moves to "published" on screen. The rest is handled automatically by a GitHub Actions workflow (`.github/workflows/scheduled-release.yml`) that runs every 15 minutes:
-- Runs `scripts/auto-publish.js` — moves .md from `texts/ready-to-publish/` to `texts/published/`, strips `{status:ready}` and `{countdown:...}` from content.md
-- Runs `scripts/sync-fallback.js` — updates HTML fallbacks
-- Commits and pushes if anything changed
-
-You can also trigger it manually: `gh workflow run "Scheduled Release"`
-
-**Manual fallback:** You can still do Step 3 by hand if needed — move the file, edit content.md, run sync, commit, push.
-
-### Hardcoded Fallback (index.html)
-For entries that must work without content.md loading (file:// protocol), update the hardcoded HTML in `index.html`:
-- `readyBlock` / `readyList` for ready entries
-- `draftsBlock` / `draftsList` for draft entries
-- `essayFallback` object for inline essay content
-
 ## Quick Reference: Slug Rules
-The slug is derived from the `#anchor` in the link. It must match the .md filename:
-- `[My Essay](#my-essay)` -> file must be `my-essay.md`
+
+The slug is the .md filename (without extension):
+- `my-time-has-come.md` → slug: `my-time-has-come`
 - Use lowercase, hyphens for spaces, no special characters
