@@ -1227,7 +1227,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 28/02/2026 · 00:57 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 28/02/2026 · 01:42 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -1452,28 +1452,45 @@ const essayCache={};
 const essayFallback={};
 
 function parseMd(md){
-  const lines=md.split('\n');
-  let title='',bodyLines=[];
-  let written='',edited='';
-  let pastTitle=false,pastMeta=false;
-  for(const line of lines){
-    if(!pastTitle&&line.startsWith('# ')){
-      title=line.slice(2).trim();
-      pastTitle=true;
-      continue;
+  let title='',written='',edited='';
+  let raw='';
+  // YAML frontmatter
+  const fmMatch=md.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if(fmMatch){
+    const fmLines=fmMatch[1].split('\n');
+    for(const line of fmLines){
+      const m=line.match(/^(\w[\w_]*)\s*:\s*(.*)$/);
+      if(!m)continue;
+      const k=m[1],v=m[2].trim();
+      if(k==='title')title=v;
+      else if(k==='created')written=v;
+      else if(k==='last_edited')edited=v;
     }
-    if(pastTitle&&!pastMeta){
-      const wm=line.match(/^Written:\s*(.+)/i);
-      const em=line.match(/^Last edited:\s*(.+)/i);
-      if(wm){written=wm[1].trim();continue;}
-      if(em){edited=em[1].trim();continue;}
-      if(/^(Scheduled|Countdown):\s*/i.test(line)){continue;}
-      if(line.trim()==='')continue;
-      pastMeta=true;
+    raw=fmMatch[2].trim();
+  } else {
+    // Legacy fallback: # Title / Written: / Last edited:
+    const lines=md.split('\n');
+    let bodyLines=[];
+    let pastTitle=false,pastMeta=false;
+    for(const line of lines){
+      if(!pastTitle&&line.startsWith('# ')){
+        title=line.slice(2).trim();
+        pastTitle=true;
+        continue;
+      }
+      if(pastTitle&&!pastMeta){
+        const wm=line.match(/^Written:\s*(.+)/i);
+        const em=line.match(/^Last edited:\s*(.+)/i);
+        if(wm){written=wm[1].trim();continue;}
+        if(em){edited=em[1].trim();continue;}
+        if(/^(Scheduled|Countdown):\s*/i.test(line)){continue;}
+        if(line.trim()==='')continue;
+        pastMeta=true;
+      }
+      if(pastTitle) bodyLines.push(line);
     }
-    if(pastTitle) bodyLines.push(line);
+    raw=bodyLines.join('\n').trim();
   }
-  const raw=bodyLines.join('\n').trim();
   // Extract footnote definitions [^N]: text
   const footnotes={};
   const contentLines=raw.split('\n').filter(line=>{
@@ -1527,18 +1544,15 @@ function formatPubTime(iso){
 
 async function loadEssay(slug){
   if(essayCache[slug]) return essayCache[slug];
-  const paths=['texts/published/'+slug+'.md','texts/ready-to-publish/'+slug+'.md'];
-  for(const path of paths){
-    try{
-      const res=await fetch(path);
-      if(res.ok){
-        const md=await res.text();
-        const parsed=parseMd(md);
-        essayCache[slug]=parsed;
-        return parsed;
-      }
-    }catch(e){/* fetch fails on file:// — fall through */}
-  }
+  try{
+    const res=await fetch('content/essays/'+slug+'.md');
+    if(res.ok){
+      const md=await res.text();
+      const parsed=parseMd(md);
+      essayCache[slug]=parsed;
+      return parsed;
+    }
+  }catch(e){/* fetch fails on file:// — fall through */}
   // Fallback to inline data
   if(essayFallback[slug]){
     essayCache[slug]=essayFallback[slug];
@@ -1550,8 +1564,8 @@ async function loadEssay(slug){
 
 <script>
 // These txt_lists are part of the site's soul.
-// Source of truth: texts/txt_lists/*.txt (one entry per line)
-// Fallback values below are synced automatically by sync-fallback.js
+// Source of truth: assets/text/*.txt (one entry per line)
+// Fallback values below are synced automatically by sync.js
 var txt_lists = {
   amor: [
     'love',
@@ -1615,17 +1629,16 @@ function makeWhisperFlor(){
     +'<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(sz*.12).toFixed(1)+'" fill="rgba(255,240,245,.7)"/>'
     +'</svg>';
 }
-// Load txt_lists from manifest (overrides fallbacks on GitHub Pages; silently skips on file://)
+// Load txt_lists from assets/text/ (overrides fallbacks on GitHub Pages; silently skips on file://)
 (function(){
   function parseTxt(t){ return t.split('\n').map(function(l){return l.trim()}).filter(Boolean); }
-  fetch('texts/txt_lists/manifest.json').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(files){
-    files.forEach(function(f){
-      var key=f.replace(/\.txt$/,'');
-      fetch('texts/txt_lists/'+f).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){
-        var lines=parseTxt(t);if(lines.length) txt_lists[key]=lines;
-      }).catch(function(){});
-    });
-  }).catch(function(){});
+  var txtFiles=['amor.txt','paciencia.txt'];
+  txtFiles.forEach(function(f){
+    var key=f.replace(/\.txt$/,'');
+    fetch('assets/text/'+f).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){
+      var lines=parseTxt(t);if(lines.length) txt_lists[key]=lines;
+    }).catch(function(){});
+  });
 })();
 // Randomize the drafts section label
 (function(){
@@ -1688,259 +1701,8 @@ function makeWhisperFlor(){
 </script>
 
 <script>
-// ── Suntzugi content loader — extracts text from texts/suntzugi/content.md ──
+// ── Countdown timer system ──
 (function(){
-  const cardMap={
-    'Card 1: Sun':'card-sun',
-    'Card 2: Tzu':'card-tzu',
-    'Card 3: Gi':'card-gi',
-    'Card 4: SunTzu':'card-suntzu',
-    'Card 5: Tzugi':'card-tzugi',
-    'Card 6: Suntzugi':'card-full'
-  };
-
-  function parseContentMd(md){
-    const sections={};
-    const blocks=md.split(/^## /m).slice(1);
-    for(const block of blocks){
-      const lines=block.split('\n');
-      const heading=lines[0].trim();
-      const body=lines.slice(1).join('\n');
-      sections[heading]=body;
-    }
-    return sections;
-  }
-
-  function extractField(text,field){
-    const re=new RegExp('\\*\\*'+field+':\\*\\*\\s*(.+?)(?=\\n\\n\\*\\*|\\n---|\\_$)','s');
-    const m=text.match(re);
-    return m?m[1].trim():null;
-  }
-
-  function mdInline(s){
-    if(!s)return '';
-    return s.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>')
-            .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-            .replace(/\*(.+?)\*/g,'<em>$1</em>')
-            .replace(/\[\^(\w+)\]/g,'<a class="fn-ref" href="javascript:void(0)" data-fn="fn-$1" id="fnref-$1">$1</a>');
-  }
-
-  function extractFootnotes(text){
-    const footnotes={};
-    const clean=text.split('\n').filter(line=>{
-      const m=line.match(/^\[\^(\w+)\]:\s*(.+)/);
-      if(m){footnotes[m[1]]=m[2].trim();return false;}
-      return true;
-    }).join('\n');
-    return {clean,footnotes};
-  }
-
-  function applyCard(id,section){
-    const el=document.getElementById(id);
-    if(!el)return;
-
-    const character=extractField(section,'Character');
-    const label=extractField(section,'Label');
-    const rawBody=extractField(section,'Body');
-    const rawBodyP1=extractField(section,'Body Part 1');
-    const rawBodyP2=extractField(section,'Body Part 2');
-    const quote=extractField(section,'Quote');
-    const quoteAttr=extractField(section,'Quote Attribution');
-    const link=extractField(section,'Link');
-
-    // Extract footnotes from body fields
-    const allText=[rawBody,rawBodyP1,rawBodyP2].filter(Boolean).join('\n');
-    const {footnotes}=extractFootnotes(allText);
-    const body=rawBody?extractFootnotes(rawBody).clean:null;
-    const bodyP1=rawBodyP1?extractFootnotes(rawBodyP1).clean:null;
-    const bodyP2=rawBodyP2?extractFootnotes(rawBodyP2).clean:null;
-
-    if(character){
-      const charEl=el.querySelector('.ac-char');
-      if(charEl) charEl.textContent=character;
-    }
-    if(label){
-      const labelEl=el.querySelector('.ac-label');
-      if(labelEl) labelEl.textContent=label;
-    }
-
-    // Collect all .ac-body and .ac-quote elements
-    const bodies=el.querySelectorAll('.ac-body');
-    const quotes=el.querySelectorAll('.ac-quote');
-    const seps=el.querySelectorAll('.ac-sep');
-
-    if(bodyP1&&bodyP2){
-      if(bodies[0]) bodies[0].innerHTML=mdInline(bodyP1);
-      if(bodies[1]) bodies[1].innerHTML=mdInline(bodyP2);
-    } else if(body){
-      const paragraphs=body.split(/\n\n+/);
-      for(let i=0;i<bodies.length&&i<paragraphs.length;i++){
-        bodies[i].innerHTML=mdInline(paragraphs[i]);
-      }
-      if(paragraphs.length>bodies.length){
-        const anchor=el.querySelector('.ac-quote')||el.querySelector('.ac-sep');
-        for(let i=bodies.length;i<paragraphs.length;i++){
-          const div=document.createElement('div');
-          div.className='ac-body';
-          div.style.marginTop='.4rem';
-          div.innerHTML=mdInline(paragraphs[i]);
-          if(anchor) el.insertBefore(div,anchor);
-          else el.appendChild(div);
-        }
-      }
-    }
-
-    if(quote&&quotes[0]){
-      quotes[0].innerHTML=mdInline(quote)+(quoteAttr?'\n<span class="attr">— '+mdInline(quoteAttr)+'</span>':'');
-    }
-
-    if(link){
-      const linkBody=bodies[bodies.length-1];
-      if(linkBody&&linkBody.querySelector('a')){
-        linkBody.innerHTML=mdInline(link);
-      }
-    }
-
-    // Append footnotes if any
-    const fnKeys=Object.keys(footnotes);
-    if(fnKeys.length){
-      let existing=el.querySelector('.essay-footnotes');
-      if(existing) existing.remove();
-      const fnDiv=document.createElement('div');
-      fnDiv.className='essay-footnotes';
-      let html='<ol>';
-      fnKeys.forEach(id=>{
-        html+='<li id="fn-'+id+'">'+mdInline(footnotes[id])+' <a class="fn-back" data-fn="fnref-'+id+'" title="Back to text">\u21a9</a></li>';
-      });
-      html+='</ol>';
-      fnDiv.innerHTML=html;
-      el.appendChild(fnDiv);
-    }
-  }
-
-  function parseMarkdownLinks(text){
-    const links=[];
-    const re=/\[([^\]]+)\]\(([^)]+)\)/g;
-    let m;
-    while((m=re.exec(text))!==null) links.push({label:m[1],url:m[2]});
-    return links;
-  }
-
-  function applyEssays(section){
-    const entries=[];
-    const lines=section.split('\n').filter(l=>l.trim().startsWith('- ['));
-    for(const line of lines){
-      const linkMatch=line.match(/\[([^\]]+)\]\(([^)]+)\)/);
-      if(!linkMatch)continue;
-      const entry={label:linkMatch[1],url:linkMatch[2]};
-      const dm=line.match(/\{date:([^}]+)\}/);
-      if(dm) entry.date=dm[1].trim();
-      const sm=line.match(/\{status:([^}]+)\}/);
-      if(sm) entry.status=sm[1].trim();
-      const cm=line.match(/\{countdown:([^}]+)\}/);
-      if(cm) entry.countdown=cm[1].trim();
-      entries.push(entry);
-    }
-    if(!entries.length)return;
-    const published=entries.filter(l=>!l.status);
-    const ready=entries.filter(l=>l.status==='ready');
-    const drafts=entries.filter(l=>l.status==='draft');
-    const pubBlock=document.getElementById('publishedBlock');
-    const pubList=document.getElementById('publishedList');
-    const readyBlock=document.getElementById('readyBlock');
-    const readyList=document.getElementById('readyList');
-    const draftBlock=document.getElementById('draftsBlock');
-    const draftList=document.getElementById('draftsList');
-
-    function renderEntry(l){
-      const hashMatch=l.url.match(/^#(.+)$/);
-      const slug=hashMatch?hashMatch[1]:l.label.toLowerCase().replace(/\s+/g,'-');
-      const isDraft=l.status==='draft';
-      const isReady=l.status==='ready';
-      let attrs='';
-      if(isDraft) attrs+=' data-draft';
-      if(isReady) attrs+=' data-ready';
-      if(isReady&&l.countdown) attrs+=' data-pub-time="'+l.countdown+'"';
-      let html='<li'+attrs+'><a href="#" data-essay="'+slug+'">'+l.label+'</a>';
-      if(isReady&&l.countdown) html+=' <span class="essay-date" style="display:none">'+formatPubTime(l.countdown)+'</span>';
-      else if(!isDraft&&l.date) html+=' <span class="essay-date">'+l.date+'</span>';
-      if(!isDraft&&l.countdown) html+=' <span class="countdown" data-target="'+l.countdown+'"></span>';
-      if(isDraft) html+=' <span class="draft-flor"></span>';
-      html+='</li>';
-      return html;
-    }
-
-    if(pubBlock&&pubList){
-      if(published.length){
-        pubList.innerHTML=published.map(renderEntry).join('');
-        pubBlock.style.display='';
-      } else {
-        pubBlock.style.display='none';
-      }
-    }
-    if(readyBlock&&readyList){
-      if(ready.length){
-        readyList.innerHTML=ready.map(renderEntry).join('');
-        readyBlock.style.display='';
-      } else {
-        readyBlock.style.display='none';
-      }
-    }
-    if(draftBlock&&draftList){
-      if(drafts.length){
-        draftList.innerHTML=drafts.map(renderEntry).join('');
-        draftBlock.style.display='';
-      } else {
-        draftBlock.style.display='none';
-      }
-    }
-    // Populate draft flowers after dynamic render
-    var draftFlors=document.querySelectorAll('.draft-flor');
-    for(var i=0;i<draftFlors.length;i++) draftFlors[i].innerHTML=makeWhisperFlor();
-    startCountdowns();
-  }
-
-  function parseLinksWithMeta(section){
-    const results=[];
-    const lines=section.split('\n').filter(l=>l.trim().startsWith('- ['));
-    for(const line of lines){
-      const linkMatch=line.match(/\[([^\]]+)\]\(([^)]+)\)/);
-      if(!linkMatch)continue;
-      const entry={label:linkMatch[1],url:linkMatch[2]};
-      const cdMatch=line.match(/\{countdown:([^}]+)\}/);
-      if(cdMatch) entry.countdown=cdMatch[1].trim();
-      const spMatch=line.match(/\{substack-premiere:([^}]+)\}/);
-      if(spMatch) entry.premiere=spMatch[1].trim();
-      results.push(entry);
-    }
-    return results;
-  }
-
-  function applyLinks(section){
-    const links=parseLinksWithMeta(section);
-    if(!links.length)return;
-    const blocks=document.querySelectorAll('.reading-block');
-    for(const block of blocks){
-      const label=block.querySelector('.reading-section-label');
-      if(label&&label.textContent.trim().toLowerCase()==='links'){
-        const ul=block.querySelector('ul');
-        if(!ul)break;
-        ul.innerHTML=links.map(l=>{
-          const isMailto=l.url.startsWith('mailto:');
-          const isHash=l.url==='#'||l.url.startsWith('#');
-          const target=(!isMailto&&!isHash)?' target="_blank"':'';
-          let html='<li><a href="'+l.url+'"'+target+'>'+l.label+'</a>';
-          if(l.premiere) html+=' <span class="essay-premiere">premiere <span class="countdown" data-target="'+l.premiere+'"></span></span>';
-          if(l.countdown) html+=' <span class="countdown" data-target="'+l.countdown+'"></span>';
-          html+='</li>';
-          return html;
-        }).join('');
-        startCountdowns();
-        break;
-      }
-    }
-  }
-
   let countdownInterval=null;
   window.startCountdowns=startCountdowns;
   function startCountdowns(){
@@ -1981,48 +1743,6 @@ function makeWhisperFlor(){
     tick();
     countdownInterval=setInterval(tick,1000);
   }
-
-  function applyAudioTracks(section){
-    // Parse markdown table rows: | # | Title | Artist |
-    const rows=section.split('\n').filter(r=>/^\|/.test(r)&&!/^[\|\s-]+$/.test(r));
-    // Skip header row
-    const dataRows=rows.slice(1);
-    const newTracks=[];
-    for(const row of dataRows){
-      const cells=row.split('|').map(c=>c.trim()).filter(Boolean);
-      if(cells.length>=3){
-        const title=cells[1];
-        const artist=cells[2];
-        newTracks.push(title+'_'+artist+'.mp3');
-      }
-    }
-    if(newTracks.length&&typeof window.__updateTracks==='function'){
-      window.__updateTracks(newTracks);
-    }
-  }
-
-  async function loadContent(){
-    try{
-      const res=await fetch('texts/suntzugi/content.md');
-      if(!res.ok)return;
-      const md=await res.text();
-      const sections=parseContentMd(md);
-
-      for(const[heading,cardId] of Object.entries(cardMap)){
-        // Match section headings that start with the card name
-        const key=Object.keys(sections).find(k=>k.startsWith(heading));
-        if(key) applyCard(cardId,sections[key]);
-      }
-
-      // Apply essays, links, and audio tracks
-      if(sections['Essays']) applyEssays(sections['Essays']);
-      if(sections['Links']) applyLinks(sections['Links']);
-      if(sections['Audio Tracks']) applyAudioTracks(sections['Audio Tracks']);
-    }catch(e){/* fetch fails on file:// — HTML fallback stays */}
-  }
-
-  loadContent().then(()=>startCountdowns());
-  // Also start countdowns for HTML fallback (file:// where fetch fails)
   startCountdowns();
 })();
 </script>
@@ -3256,7 +2976,7 @@ requestAnimationFrame(tick);
   function loadTrack(i){
     currentTrack = i;
     const t = trackList[i];
-    audio.src = 'audio/bgm/' + encodeURIComponent(t.file);
+    audio.src = 'assets/audio/bgm/' + encodeURIComponent(t.file);
     npTitle.textContent = '"' + t.title + '"';
     npArtist.textContent = t.artist;
   }
@@ -3298,14 +3018,6 @@ requestAnimationFrame(tick);
   var defaultIdx=trackList.findIndex(t=>t.title==='Oogway Ascends');
   loadTrack(defaultIdx>=0?defaultIdx:0);
   buildPicker();
-
-  // Allow content loader to update tracks from content.md
-  window.__updateTracks = function(newTracks){
-    tracks = newTracks;
-    trackList = tracks.map(parseTrack);
-    buildPicker();
-    if(!playing){var di=trackList.findIndex(t=>t.title==='Oogway Ascends');loadTrack(di>=0?di:0);}
-  };
 
   btn.addEventListener('click', () => {
     if(!playing){
