@@ -2,9 +2,9 @@
 /**
  * auto-publish.js
  *
- * Checks content.md for {status:ready} essays whose countdown has passed.
- * For each: moves the .md from ready-to-publish/ to published/, and strips
- * {status:ready} + {countdown:...} tags from the content.md line.
+ * Scans content/essays/ for files with status: ready and publish_at in the past.
+ * Updates frontmatter in-place: status → published, adds published_at timestamp.
+ * No file moving, no content.md.
  *
  * Usage:
  *   node scripts/auto-publish.js
@@ -14,53 +14,70 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const contentPath = path.join(root, 'texts/suntzugi/content.md');
-const readyDir = path.join(root, 'texts/ready-to-publish');
-const essaysDir = path.join(root, 'texts/published');
-
+const essaysDir = path.join(root, 'content/essays');
 const now = new Date();
-let contentMd = fs.readFileSync(contentPath, 'utf8');
-
-// Match essay lines with {status:ready} and {countdown:...}
-const readyRe = /^- \[.+?\]\(#(.+?)\).*\{status:ready\}.*\{countdown:([^}]+)\}/;
-const lines = contentMd.split('\n');
 let published = 0;
 
-for (let i = 0; i < lines.length; i++) {
-  const m = lines[i].match(readyRe);
-  if (!m) continue;
+if (!fs.existsSync(essaysDir)) {
+  console.log('No essays directory found.');
+  process.exit(0);
+}
 
-  const slug = m[1];
-  const countdown = new Date(m[2]);
+const files = fs.readdirSync(essaysDir).filter(f => f.endsWith('.md'));
 
-  if (countdown > now) {
-    console.log('  not yet: ' + slug + ' (releases ' + m[2] + ')');
+for (const file of files) {
+  const filePath = path.join(essaysDir, file);
+  const content = fs.readFileSync(filePath, 'utf8');
+
+  // Parse frontmatter
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) continue;
+
+  const fmLines = match[1].split('\n');
+  const body = match[2];
+  const meta = {};
+
+  for (const line of fmLines) {
+    const m = line.match(/^(\w[\w_]*)\s*:\s*(.*)$/);
+    if (m) meta[m[1]] = m[2].trim();
+  }
+
+  if (meta.status !== 'ready') continue;
+  if (!meta.publish_at) {
+    console.log('  skip: ' + file + ' (status: ready but no publish_at)');
     continue;
   }
 
-  // Move the file
-  const src = path.join(readyDir, slug + '.md');
-  const dest = path.join(essaysDir, slug + '.md');
-
-  if (!fs.existsSync(src)) {
-    console.log('  skip: ' + slug + '.md not found in ready-to-publish/');
+  const publishAt = new Date(meta.publish_at);
+  if (publishAt > now) {
+    console.log('  not yet: ' + file + ' (releases ' + meta.publish_at + ')');
     continue;
   }
 
-  if (!fs.existsSync(essaysDir)) fs.mkdirSync(essaysDir, { recursive: true });
-  fs.renameSync(src, dest);
-  console.log('  moved: ' + slug + '.md → texts/published/');
+  // Update frontmatter in-place
+  const nowIso = now.toISOString();
+  const newFmLines = fmLines.map(line => {
+    if (line.match(/^status:\s*/)) return 'status: published';
+    return line;
+  });
+  // Add published_at if not already present
+  if (!meta.published_at) {
+    // Insert published_at after publish_at line
+    const idx = newFmLines.findIndex(l => l.match(/^publish_at:\s*/));
+    if (idx !== -1) {
+      newFmLines.splice(idx + 1, 0, 'published_at: ' + nowIso);
+    } else {
+      newFmLines.push('published_at: ' + nowIso);
+    }
+  }
 
-  // Strip {status:ready} and {countdown:...} from the line
-  lines[i] = lines[i]
-    .replace(/\s*\{status:ready\}/, '')
-    .replace(/\s*\{countdown:[^}]+\}/, '');
-
+  const newContent = '---\n' + newFmLines.join('\n') + '\n---\n' + body;
+  fs.writeFileSync(filePath, newContent, 'utf8');
+  console.log('  published: ' + file);
   published++;
 }
 
 if (published) {
-  fs.writeFileSync(contentPath, lines.join('\n'), 'utf8');
   console.log('\nPublished ' + published + ' essay(s).');
 } else {
   console.log('Nothing to publish.');

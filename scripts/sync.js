@@ -1,49 +1,68 @@
 #!/usr/bin/env node
 /**
- * sync-fallback.js
+ * sync.js
  *
- * Scans essay folders and content.md, then patches the hardcoded HTML
- * fallback in index.html to match. The folders are the source of truth
- * for essays — just drop a .md file in the right folder:
+ * Single-folder + frontmatter sync script. Replaces sync-fallback.js.
  *
- *   texts/drafts/          → status: draft
- *   texts/ready-to-publish/ → status: ready
- *   texts/published/           → published (no status)
- *
- * Each .md file should have this header:
- *
- *   # Title
- *   Written: Month Day, Year
- *   Last edited: Month Day, Year
- *   Countdown: 2026-02-22T08:17:00-08:00   (optional, ISO 8601)
+ * Scans content/ for .md files with YAML frontmatter, reads site.yaml for
+ * links, scans assets/ for audio tracks and text lists, then bakes
+ * everything into index.html.
  *
  * Usage:
- *   node scripts/sync-fallback.js
+ *   node scripts/sync.js
  */
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const root = path.resolve(__dirname, '..');
-const contentPath = path.join(root, 'texts/suntzugi/content.md');
 const indexPath = path.join(root, 'index.html');
 
-let contentMd = fs.readFileSync(contentPath, 'utf8');
 let indexHtml = fs.readFileSync(indexPath, 'utf8');
 
-// ── Parse content.md sections ──
-function parseSections(md) {
-  const sections = {};
-  const blocks = md.split(/^## /m).slice(1);
-  for (const block of blocks) {
-    const lines = block.split('\n');
-    const heading = lines[0].trim();
-    const body = lines.slice(1).join('\n');
-    sections[heading] = body;
+// ── YAML frontmatter parser (minimal, no deps) ──
+function parseFrontmatter(content) {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) return { meta: {}, body: content };
+  const meta = {};
+  const lines = match[1].split('\n');
+  for (const line of lines) {
+    const m = line.match(/^(\w[\w_]*)\s*:\s*(.*)$/);
+    if (m) {
+      let val = m[2].trim();
+      // Strip quotes
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'")))
+        val = val.slice(1, -1);
+      meta[m[1]] = val;
+    }
   }
-  return sections;
+  return { meta, body: match[2] };
 }
 
+// ── Parse site.yaml (minimal, handles the specific structure) ──
+function parseSiteYaml(yamlStr) {
+  const links = [];
+  const lines = yamlStr.split('\n');
+  let current = null;
+  for (const line of lines) {
+    if (line.match(/^\s*- label:\s*(.+)/)) {
+      if (current) links.push(current);
+      current = { label: line.match(/^\s*- label:\s*(.+)/)[1].trim() };
+    } else if (current && line.match(/^\s+url:\s*(.+)/)) {
+      let url = line.match(/^\s+url:\s*(.+)/)[1].trim();
+      if ((url.startsWith('"') && url.endsWith('"')) || (url.startsWith("'") && url.endsWith("'")))
+        url = url.slice(1, -1);
+      current.url = url;
+    } else if (current && line.match(/^\s+countdown:\s*(.+)/)) {
+      current.countdown = line.match(/^\s+countdown:\s*(.+)/)[1].trim();
+    }
+  }
+  if (current) links.push(current);
+  return { links };
+}
+
+// ── Helper functions (same as old sync-fallback.js) ──
 function extractField(text, field) {
   const re = new RegExp('\\*\\*' + field + ':\\*\\*\\s*(.+?)(?=\\n\\*\\*|\\n---|$)', 's');
   const m = text.match(re);
@@ -69,7 +88,7 @@ function extractFootnotes(text) {
   return { clean, footnotes };
 }
 
-function buildFootnotesHtml(footnotes, cardId) {
+function buildFootnotesHtml(footnotes) {
   const keys = Object.keys(footnotes);
   if (!keys.length) return '';
   let html = '      <div class="ac-footnotes essay-footnotes"><ol>\n';
@@ -80,68 +99,7 @@ function buildFootnotesHtml(footnotes, cardId) {
   return html;
 }
 
-// ── Scan essay folders ──
-function scanEssayFolder(dir, status) {
-  const fullDir = path.join(root, dir);
-  if (!fs.existsSync(fullDir)) return [];
-  const files = fs.readdirSync(fullDir).filter(f => f.endsWith('.md'));
-  return files.map(f => {
-    const slug = path.basename(f, '.md');
-    const md = fs.readFileSync(path.join(fullDir, f), 'utf8');
-    const lines = md.split('\n');
-
-    let title = slug;
-    let written = '';
-    let countdown = '';
-
-    for (const line of lines) {
-      const tm = line.match(/^#\s+(.+)/);
-      if (tm) { title = tm[1].trim(); continue; }
-      const wm = line.match(/^Written:\s*(.+)/i);
-      if (wm) { written = wm[1].trim(); continue; }
-      const cm = line.match(/^Countdown:\s*(.+)/i);
-      if (cm) { countdown = cm[1].trim(); continue; }
-      // Stop parsing header once we hit body text
-      if (line.match(/^Last edited:/i) || line.trim() === '') continue;
-      if (line.match(/^Scheduled:/i)) continue;
-      break;
-    }
-
-    return { slug, title, date: written, status, countdown };
-  });
-}
-
-const essays = [
-  ...scanEssayFolder('texts/published', null),
-  ...scanEssayFolder('texts/ready-to-publish', 'ready'),
-  ...scanEssayFolder('texts/drafts', 'draft'),
-];
-
-console.log('Found ' + essays.length + ' essay(s):');
-essays.forEach(e => console.log('  ' + (e.status || 'published') + ': ' + e.title + ' (' + e.slug + ')'));
-
-// ── Update content.md Essays section ──
-let essayLines = essays.map(e => {
-  let line = '- [' + e.title + '](#' + e.slug + ')';
-  if (e.date) line += ' {date:' + e.date + '}';
-  if (e.status) line += ' {status:' + e.status + '}';
-  if (e.countdown) line += ' {countdown:' + e.countdown + '}';
-  return line;
-}).join('\n');
-
-// Replace the Essays section in content.md
-contentMd = contentMd.replace(
-  /(## Essays\n)\n[\s\S]*?(\n---)/,
-  '$1\n' + essayLines + '\n$2'
-);
-fs.writeFileSync(contentPath, contentMd, 'utf8');
-console.log('\nUpdated content.md Essays section.');
-
-// Re-parse after update
-const sections = parseSections(contentMd);
-let changes = 0;
-
-// ── Sync card fallbacks in HTML ──
+// ── Scan content/cards/ ──
 const cardFiles = {
   'sun': 'card-sun',
   'tzu': 'card-tzu',
@@ -150,12 +108,14 @@ const cardFiles = {
   'tzugi': 'card-tzugi',
   'suntzugi': 'card-full',
 };
-const cardsDir = path.join(root, 'texts/cards');
+const cardsDir = path.join(root, 'content/cards');
+let changes = 0;
 
 for (const [slug, cardId] of Object.entries(cardFiles)) {
   const cardPath = path.join(cardsDir, slug + '.md');
   if (!fs.existsSync(cardPath)) { console.log('  skip: ' + cardPath + ' not found'); continue; }
-  const section = fs.readFileSync(cardPath, 'utf8');
+  const raw = fs.readFileSync(cardPath, 'utf8');
+  const { body: section } = parseFrontmatter(raw);
 
   const character = extractField(section, 'Character');
   const label = extractField(section, 'Label');
@@ -223,7 +183,7 @@ for (const [slug, cardId] of Object.entries(cardFiles)) {
     card += '      </div>\n';
   }
 
-  card += buildFootnotesHtml(cardFootnotes, cardId);
+  card += buildFootnotesHtml(cardFootnotes);
 
   if (published) {
     let dateHtml = 'published ' + published.toLowerCase();
@@ -242,9 +202,32 @@ for (const [slug, cardId] of Object.entries(cardFiles)) {
   }
 }
 
-// ── Sync essay list fallbacks in HTML ──
+// ── Scan content/essays/ ──
+const essaysDir = path.join(root, 'content/essays');
+const essays = [];
+
+if (fs.existsSync(essaysDir)) {
+  const files = fs.readdirSync(essaysDir).filter(f => f.endsWith('.md'));
+  for (const f of files) {
+    const slug = path.basename(f, '.md');
+    const raw = fs.readFileSync(path.join(essaysDir, f), 'utf8');
+    const { meta } = parseFrontmatter(raw);
+
+    const title = meta.title || slug;
+    const status = meta.status || 'published';
+    const publishAt = meta.publish_at || '';
+    const publishedAt = meta.published_at || '';
+
+    essays.push({ slug, title, status, publishAt, publishedAt });
+  }
+}
+
+console.log('Found ' + essays.length + ' essay(s):');
+essays.forEach(e => console.log('  ' + e.status + ': ' + e.title + ' (' + e.slug + ')'));
+
 const drafts = essays.filter(e => e.status === 'draft');
 const ready = essays.filter(e => e.status === 'ready');
+const published = essays.filter(e => e.status === 'published');
 
 // Sync draftsList
 if (drafts.length) {
@@ -258,7 +241,6 @@ if (drafts.length) {
     /(<ul class="reading-link-list" id="draftsList">)[\s\S]*?(<\/ul>)/,
     '$1\n' + draftLis + '\n      $2'
   );
-  // Make sure draftsBlock is visible
   indexHtml = indexHtml.replace(
     /(<div class="reading-block" id="draftsBlock")(\s+style="display:none")?(>)/,
     '$1$3'
@@ -279,8 +261,8 @@ if (drafts.length) {
 // Sync readyList
 if (ready.length) {
   const readyLis = ready.map(r => {
-    let li = '        <li data-ready data-pub-time="' + r.countdown + '"><a href="#" data-essay="' + r.slug + '">' + r.title + '</a>';
-    if (r.countdown) li += ' <span class="countdown" data-target="' + r.countdown + '"></span>';
+    let li = '        <li data-ready data-pub-time="' + r.publishAt + '"><a href="#" data-essay="' + r.slug + '">' + r.title + '</a>';
+    if (r.publishAt) li += ' <span class="countdown" data-target="' + r.publishAt + '"></span>';
     li += '</li>';
     return li;
   }).join('\n');
@@ -305,69 +287,90 @@ if (ready.length) {
   );
 }
 
-// ── Sync audio tracks from audio/bgm/ folder ──
-const bgmDir = path.join(root, 'audio/bgm');
+// Sync publishedList
+if (published.length) {
+  const pubLis = published.map(p => {
+    let li = '        <li><a href="#" data-essay="' + p.slug + '">' + p.title + '</a>';
+    if (p.publishedAt) li += ' <span class="essay-date">' + p.publishedAt + '</span>';
+    li += '</li>';
+    return li;
+  }).join('\n');
+  indexHtml = indexHtml.replace(
+    /(<div class="reading-block" id="publishedBlock")(?:\s+style="display:none")?(>)/,
+    '$1$2'
+  );
+  indexHtml = indexHtml.replace(
+    /(<ul class="reading-link-list" id="publishedList">)[\s\S]*?(<\/ul>)/,
+    '$1\n' + pubLis + '\n      $2'
+  );
+  console.log('  updated: publishedList (' + published.length + ' entries)');
+  changes++;
+} else {
+  indexHtml = indexHtml.replace(
+    /(<div class="reading-block" id="publishedBlock")(?:\s+style="display:none")?(>)/,
+    '$1 style="display:none"$2'
+  );
+  indexHtml = indexHtml.replace(
+    /(<ul class="reading-link-list" id="publishedList">)[\s\S]*?(<\/ul>)/,
+    '$1$2'
+  );
+}
+
+// ── Sync links from site.yaml ──
+const siteYamlPath = path.join(root, 'site.yaml');
+if (fs.existsSync(siteYamlPath)) {
+  const yamlStr = fs.readFileSync(siteYamlPath, 'utf8');
+  const site = parseSiteYaml(yamlStr);
+
+  if (site.links.length) {
+    const linkLis = site.links.map(l => {
+      const isMailto = l.url.startsWith('mailto:');
+      const isHash = l.url === '#' || l.url.startsWith('#');
+      const target = (!isMailto && !isHash) ? ' target="_blank"' : '';
+      const neodoreAttr = l.url === '#neodore' ? ' data-neodore' : '';
+      let html = '        <li><a href="' + l.url + '"' + target + neodoreAttr + '>' + l.label + '</a>';
+      if (l.countdown) html += ' <span class="countdown" data-target="' + l.countdown + '"></span>';
+      html += '</li>';
+      return html;
+    }).join('\n');
+
+    // Find the links block — it's a reading-block without an id, with label "links"
+    const linksBlockRe = /(<div class="reading-block">\s*<div class="reading-section-label">links<\/div>\s*<ul class="reading-link-list">)[\s\S]*?(<\/ul>)/;
+    if (linksBlockRe.test(indexHtml)) {
+      indexHtml = indexHtml.replace(linksBlockRe, '$1\n' + linkLis + '\n      $2');
+      console.log('  updated: links (' + site.links.length + ' entries)');
+      changes++;
+    }
+  }
+}
+
+// ── Sync audio tracks from assets/audio/bgm/ ──
+const bgmDir = path.join(root, 'assets/audio/bgm');
 if (fs.existsSync(bgmDir)) {
   const mp3s = fs.readdirSync(bgmDir).filter(f => f.endsWith('.mp3')).sort();
   if (mp3s.length) {
-    // Parse filenames (Title_Artist.mp3)
-    const tracks = mp3s.map(f => {
-      const name = f.replace(/\.mp3$/, '');
-      const sep = name.indexOf('_');
-      if (sep === -1) return { title: name, artist: 'Unknown', file: f };
-      return { title: name.substring(0, sep), artist: name.substring(sep + 1), file: f };
-    });
-
-    // Update content.md Audio Tracks table
-    let table = '| # | Title | Artist |\n|---|-------|--------|\n';
-    tracks.forEach((t, i) => {
-      table += '| ' + (i + 1) + ' | ' + t.title + ' | ' + t.artist + ' |\n';
-    });
-    contentMd = fs.readFileSync(contentPath, 'utf8'); // Re-read after essay update
-    contentMd = contentMd.replace(
-      /(## Audio Tracks\n)\n[\s\S]*?(\n---)/,
-      '$1\n' + table + '$2'
-    );
-    fs.writeFileSync(contentPath, contentMd, 'utf8');
-    console.log('  updated: Audio Tracks (' + tracks.length + ' tracks from audio/bgm/)');
-
-    // Update hardcoded tracks array in index.html
     const trackStrings = mp3s.map(f => "    '" + f.replace(/'/g, "\\'") + "'").join(',\n');
     indexHtml = indexHtml.replace(
       /let tracks = \[\n[\s\S]*?\];/,
       'let tracks = [\n' + trackStrings + ',\n  ];'
     );
-    console.log('  updated: hardcoded tracks array in HTML');
+    console.log('  updated: hardcoded tracks array (' + mp3s.length + ' tracks)');
     changes++;
   }
 }
 
-// ── Sync txt_lists from texts/txt_lists/ ──
-const txtListsDir = path.join(root, 'texts/txt_lists');
-if (fs.existsSync(txtListsDir)) {
-  const txtFiles = fs.readdirSync(txtListsDir).filter(f => f.endsWith('.txt')).sort();
-
-  // Write manifest.json for browser auto-discovery
-  const manifestPath = path.join(txtListsDir, 'manifest.json');
-  const manifestJson = JSON.stringify(txtFiles, null, 2) + '\n';
-  const oldManifest = fs.existsSync(manifestPath) ? fs.readFileSync(manifestPath, 'utf8') : '';
-  if (manifestJson !== oldManifest) {
-    fs.writeFileSync(manifestPath, manifestJson, 'utf8');
-    console.log('  updated: manifest.json (' + txtFiles.length + ' files)');
-  } else {
-    console.log('  unchanged: manifest.json');
-  }
-
-  // Build the txt_lists object for HTML fallback
+// ── Sync txt_lists from assets/text/ ──
+const txtDir = path.join(root, 'assets/text');
+if (fs.existsSync(txtDir)) {
+  const txtFiles = fs.readdirSync(txtDir).filter(f => f.endsWith('.txt')).sort();
   const listsObj = {};
   for (const file of txtFiles) {
     const key = file.replace(/\.txt$/, '');
-    const lines = fs.readFileSync(path.join(txtListsDir, file), 'utf8')
+    const lines = fs.readFileSync(path.join(txtDir, file), 'utf8')
       .split('\n').map(l => l.trim()).filter(Boolean);
     if (lines.length) listsObj[key] = lines;
   }
 
-  // Serialize and sync into index.html
   let objStr = '{\n';
   for (const [key, lines] of Object.entries(listsObj)) {
     const entries = lines.map(l => "    '" + l.replace(/'/g, "\\'") + "'").join(',\n');

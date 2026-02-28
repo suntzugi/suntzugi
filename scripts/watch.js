@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 /**
- * watch.js — Auto-syncs HTML fallback whenever essay files or content.md change.
+ * watch.js — Auto-syncs HTML whenever content files or site config change.
  *
  * Usage:
  *   node scripts/watch.js
  *
  * Watches:
- *   texts/drafts/
- *   texts/ready-to-publish/
- *   texts/published/
- *   texts/cards/
- *   texts/suntzugi/content.md
+ *   content/cards/
+ *   content/essays/
+ *   assets/text/
+ *   assets/audio/bgm/
+ *   site.yaml
  *
- * On any change, runs the sync-fallback script automatically.
+ * On any change, runs the sync script automatically.
  */
 
 const { execSync } = require('child_process');
@@ -20,15 +20,14 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const syncScript = path.join(__dirname, 'sync-fallback.js');
+const syncScript = path.join(__dirname, 'sync.js');
 
 const watchPaths = [
-  path.join(root, 'texts/drafts'),
-  path.join(root, 'texts/ready-to-publish'),
-  path.join(root, 'texts/published'),
-  path.join(root, 'texts/cards'),
-  path.join(root, 'texts/suntzugi/content.md'),
-  path.join(root, 'audio/bgm'),
+  path.join(root, 'content/cards'),
+  path.join(root, 'content/essays'),
+  path.join(root, 'assets/text'),
+  path.join(root, 'assets/audio/bgm'),
+  path.join(root, 'site.yaml'),
 ];
 
 let debounce = null;
@@ -51,7 +50,7 @@ function onChange(eventType, filename) {
 // Ensure directories exist
 for (const p of watchPaths) {
   if (!fs.existsSync(p)) {
-    if (!p.endsWith('.md')) fs.mkdirSync(p, { recursive: true });
+    if (!p.endsWith('.yaml')) fs.mkdirSync(p, { recursive: true });
   }
 }
 
@@ -61,5 +60,5 @@ for (const p of watchPaths) {
   fs.watch(p, { recursive: false }, onChange);
 }
 
-console.log('Watching for essay changes... (Ctrl+C to stop)');
+console.log('Watching for content changes... (Ctrl+C to stop)');
 runSync(); // Initial sync
