@@ -11,6 +11,10 @@
  *   node scripts/stats.js --compare HEAD~5   # compare against a ref
  *   node scripts/stats.js --compare 2226a0f  # compare against a specific commit
  *   node scripts/stats.js --json             # output as JSON
+ *   node scripts/stats.js --log              # append snapshot to devlog/stats.jsonl
+ *
+ * The --log flag is called automatically by the pre-commit hook,
+ * building a time series of stats over every commit.
  */
 
 const fs = require('fs');
@@ -21,6 +25,7 @@ const root = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const compareRef = args.includes('--compare') ? args[args.indexOf('--compare') + 1] : null;
 const jsonMode = args.includes('--json');
+const logMode = args.includes('--log');
 
 function run(cmd) {
   try {
@@ -156,6 +161,20 @@ function formatDelta(before, after, unit, invert) {
 
 // ── Main ──
 const current = getStats(null);
+
+if (logMode) {
+  const logPath = path.join(root, 'devlog/stats.jsonl');
+  const commitHash = run('git rev-parse --short HEAD');
+  const commitMsg = run('git log -1 --format="%s"');
+  const entry = {
+    timestamp: new Date().toISOString(),
+    commit: commitHash,
+    message: commitMsg,
+    ...current,
+  };
+  fs.appendFileSync(logPath, JSON.stringify(entry) + '\n', 'utf8');
+  process.exit(0);
+}
 
 if (compareRef) {
   const before = getStats(compareRef);
