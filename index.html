@@ -1209,7 +1209,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 04/03/2026 · 14:29 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 04/03/2026 · 14:34 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -2976,8 +2976,7 @@ requestAnimationFrame(tick);
   function switchTrack(i){
     if(i === currentTrack && playing) return;
     loadTrack(i);
-    audio.play();
-    startPlaying();
+    audio.play().catch(()=>{});
     buildPicker();
   }
 
@@ -2987,7 +2986,8 @@ requestAnimationFrame(tick);
     navigator.mediaSession.metadata=new MediaMetadata({
       title:t.title,
       artist:t.artist,
-      album:'suntzugi.com'
+      album:'suntzugi.com',
+      artwork:[{src:'assets/chraist/favicon.png',sizes:'992x1072',type:'image/png'}]
     });
   }
 
@@ -3003,6 +3003,10 @@ requestAnimationFrame(tick);
     npLabel.classList.remove('show');
     closePicker();
   }
+
+  // Sync UI with audio state (handles lock screen / OS-level play/pause)
+  audio.addEventListener('play', () => { if(!playing) startPlaying(); });
+  audio.addEventListener('pause', () => { if(playing) stopPlaying(); });
 
   function togglePicker(){
     pickerOpen ? closePicker() : openPicker();
@@ -3023,13 +3027,8 @@ requestAnimationFrame(tick);
   buildPicker();
 
   btn.addEventListener('click', () => {
-    if(!playing){
-      audio.play();
-      startPlaying();
-    } else {
-      audio.pause();
-      stopPlaying();
-    }
+    if(!playing) audio.play().catch(()=>{});
+    else audio.pause();
   });
 
   npInfo.addEventListener('click', (e) => {
@@ -3047,10 +3046,10 @@ requestAnimationFrame(tick);
   // Lock screen / notification media controls
   if('mediaSession' in navigator){
     navigator.mediaSession.setActionHandler('play', () => {
-      audio.play(); startPlaying();
+      audio.play().catch(()=>{});
     });
     navigator.mediaSession.setActionHandler('pause', () => {
-      audio.pause(); stopPlaying();
+      audio.pause();
     });
     navigator.mediaSession.setActionHandler('previoustrack', () => {
       switchTrack((currentTrack-1+trackList.length)%trackList.length);
