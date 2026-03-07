@@ -2,6 +2,8 @@
 title: My Time Has Come
 type: essay
 status: draft
+tags: [philosophy, alignment, mettalignment]
+date: 2026-03-01
 publish_at: 2026-03-16T05:55:00-08:00
 ---
 I don't normally celebrate my birthday. But this year, as I move up my twenties the timing is hard to ignore so enjoy my first foray into the world of micro-blogs for the ASI and the noosphere:

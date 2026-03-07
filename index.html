@@ -879,6 +879,86 @@
     text-transform:uppercase;
   }
 
+  /* ── Tag pills ── */
+  .reading-tags{
+    display:flex;flex-wrap:wrap;gap:.4rem .6rem;
+    margin-top:3rem;
+  }
+  .reading-tag{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.6rem;letter-spacing:.06em;
+    color:rgba(242,160,181,.5);
+    border:1px solid rgba(242,160,181,.15);
+    border-radius:12px;
+    padding:.15rem .55rem;
+    cursor:pointer;
+    transition:color .3s ease, border-color .3s ease, background .3s ease;
+    user-select:none;
+  }
+  .reading-tag:hover{
+    color:rgba(242,160,181,.8);
+    border-color:rgba(242,160,181,.35);
+  }
+  .reading-tag.active{
+    color:rgba(242,160,181,1);
+    border-color:rgba(242,160,181,.5);
+    background:rgba(242,160,181,.08);
+  }
+  .content-type-badge{
+    font-family:'SF Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;
+    color:rgba(242,160,181,.35);
+    margin-left:.5rem;
+    vertical-align:middle;
+  }
+
+  /* ── Wiki-links ── */
+  .wiki-link{
+    color:rgba(242,160,181,.7);
+    text-decoration:none;
+    border-bottom:1px dotted rgba(242,160,181,.3);
+    transition:color .3s ease, border-bottom-color .3s ease;
+    cursor:pointer;
+  }
+  .wiki-link:hover{
+    color:rgba(242,160,181,1);
+    border-bottom-color:rgba(242,160,181,.6);
+  }
+
+  /* ── Wiki-link preview panel ── */
+  .wiki-preview{
+    position:fixed;z-index:150;
+    max-width:320px;width:90vw;
+    padding:1rem 1.2rem;
+    background:rgba(10,14,28,.92);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    border:1px solid rgba(242,160,181,.2);
+    border-radius:8px;
+    pointer-events:none;opacity:0;
+    transition:opacity .2s ease;
+    box-shadow:0 4px 24px rgba(0,0,0,.4);
+  }
+  .wiki-preview.show{
+    opacity:1;pointer-events:auto;
+  }
+  .wp-title{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;font-style:italic;
+    font-size:1.1rem;
+    color:rgba(242,160,181,.9);
+    margin-bottom:.4rem;
+  }
+  .wp-excerpt{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:300;
+    font-size:.85rem;
+    color:rgba(212,216,232,.6);
+    line-height:1.6;
+    -webkit-mask-image:linear-gradient(to bottom,#000 60%,transparent);
+    mask-image:linear-gradient(to bottom,#000 60%,transparent);
+    max-height:4.5rem;overflow:hidden;
+  }
+
   /* ── Draft popup ── */
   .draft-overlay{
     position:fixed;inset:0;z-index:200;
@@ -1209,7 +1289,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 06/03/2026 · 19:03 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 07/03/2026 · 21:32 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -1218,6 +1298,11 @@
     <h2 class="essay-view-title" id="essayTitle"></h2>
     <div class="essay-view-body" id="essayBody"></div>
   </div>
+</div>
+
+<div class="wiki-preview" id="wikiPreview">
+  <div class="wp-title"></div>
+  <div class="wp-excerpt"></div>
 </div>
 
 <div class="neodore-overlay" id="neodoreOverlay">
@@ -1438,7 +1523,7 @@
 </script>
 
 <script>
-// ── Essay loader — fetches essays/{slug}.md, falls back to inline ──
+// ── Essay loader — fetches content/writing/{slug}.md, falls back to inline ──
 const essayCache={};
 
 // Inline fallback (works on file:// protocol where fetch fails)
@@ -1454,7 +1539,12 @@ function parseMd(md){
     for(const line of fmLines){
       const m=line.match(/^(\w[\w_]*)\s*:\s*(.*)$/);
       if(!m)continue;
-      const k=m[1],v=m[2].trim();
+      let v=m[2].trim();
+      const k=m[1];
+      // Inline YAML arrays
+      if(v.startsWith('[')&&v.endsWith(']')){
+        v=v.slice(1,-1).split(',').map(s=>{s=s.trim();if((s.startsWith('"')&&s.endsWith('"'))||(s.startsWith("'")&&s.endsWith("'")))s=s.slice(1,-1);return s}).filter(Boolean);
+      }
       if(k==='title')title=v;
       else if(k==='created')written=v;
       else if(k==='last_edited')edited=v;
@@ -1501,6 +1591,11 @@ function parseMd(md){
     html=html.replace(/\[\^(\w+)\]/g,(m,id)=>{
       return '<a class="fn-ref" href="javascript:void(0)" data-fn="fn-'+id+'" id="fnref-'+id+'">'+id+'</a>';
     });
+    // Wiki-links: [[slug]] or [[slug|Display Text]]
+    html=html.replace(/\[\[([^\]|]+?)(?:\|([^\]]+?))?\]\]/g,(m,slug,display)=>{
+      const text=display||slug;
+      return '<a class="wiki-link" data-wiki="'+slug.trim()+'" href="javascript:void(0)">'+text.trim()+'</a>';
+    });
     return '<p>'+html+'</p>';
   }).join('\n');
   // Append footnotes section if any
@@ -1538,7 +1633,7 @@ function formatPubTime(iso){
 async function loadEssay(slug){
   if(essayCache[slug]) return essayCache[slug];
   try{
-    const res=await fetch('content/essays/'+slug+'.md');
+    const res=await fetch('content/writing/'+slug+'.md');
     if(res.ok){
       const md=await res.text();
       const parsed=parseMd(md);
@@ -1553,6 +1648,128 @@ async function loadEssay(slug){
   }
   return null;
 }
+</script>
+
+<script>
+// ── Dynamic reading section from content-index.json ──
+(function(){
+  window._contentIndex=null;
+  let _activeTag=null;
+
+  function renderReadingSection(items,activeTag){
+    const inner=document.querySelector('.reading-inner');
+    if(!inner)return;
+
+    const published=items.filter(i=>i.status==='published');
+    const ready=items.filter(i=>i.status==='ready');
+    const drafts=items.filter(i=>i.status==='draft');
+    const hasMultipleTypes=new Set(items.map(i=>i.type)).size>1;
+
+    // Filter by tag if active
+    function tagFilter(list){
+      if(!activeTag)return list;
+      return list.filter(i=>i.tags&&i.tags.includes(activeTag));
+    }
+
+    const fPub=tagFilter(published);
+    const fReady=tagFilter(ready);
+    const fDrafts=tagFilter(drafts);
+
+    let html='';
+
+    // Published block
+    if(fPub.length){
+      html+='<div class="reading-block" id="publishedBlock">';
+      html+='<div class="reading-section-label">published</div>';
+      html+='<ul class="reading-link-list" id="publishedList">';
+      fPub.forEach(p=>{
+        html+='<li><a href="#" data-essay="'+p.slug+'">'+p.title+'</a>';
+        if(hasMultipleTypes)html+=' <span class="content-type-badge">'+p.type+'</span>';
+        if(p.published_at)html+=' <span class="essay-date">'+formatPubTime(p.published_at)+'</span>';
+        html+='</li>';
+      });
+      html+='</ul></div>';
+    }
+
+    // Ready block
+    if(fReady.length){
+      html+='<div class="reading-block" id="readyBlock">';
+      html+='<div class="reading-section-label">soon to be released</div>';
+      html+='<ul class="reading-link-list" id="readyList">';
+      fReady.forEach(r=>{
+        html+='<li data-ready data-pub-time="'+r.publish_at+'"><a href="#" data-essay="'+r.slug+'">'+r.title+'</a>';
+        if(hasMultipleTypes)html+=' <span class="content-type-badge">'+r.type+'</span>';
+        if(r.publish_at)html+=' <span class="countdown" data-target="'+r.publish_at+'"></span>';
+        html+='</li>';
+      });
+      html+='</ul></div>';
+    }
+
+    // Drafts block
+    if(fDrafts.length){
+      html+='<div class="reading-block" id="draftsBlock">';
+      html+='<div class="reading-section-label">currently being written</div>';
+      html+='<ul class="reading-link-list" id="draftsList">';
+      fDrafts.forEach(d=>{
+        html+='<li data-draft><a href="#" data-essay="'+d.slug+'">'+d.title+'</a>';
+        if(hasMultipleTypes)html+=' <span class="content-type-badge">'+d.type+'</span>';
+        html+=' <span class="draft-flor"></span>';
+        html+='</li>';
+      });
+      html+='</ul></div>';
+    }
+
+    // Links block — preserve from baked HTML (site.yaml links)
+    const linksBlock=inner.querySelector('.reading-block:not([id])');
+    const linksHtml=linksBlock?linksBlock.outerHTML:'';
+
+    html+=linksHtml;
+
+    // Tag pills
+    const allTags=[];
+    items.forEach(i=>{if(i.tags)i.tags.forEach(t=>{if(!allTags.includes(t))allTags.push(t)})});
+    if(allTags.length){
+      html+='<div class="reading-tags">';
+      allTags.forEach(t=>{
+        const cls=t===activeTag?'reading-tag active':'reading-tag';
+        html+='<span class="'+cls+'" data-tag="'+t+'">'+t+'</span>';
+      });
+      html+='</div>';
+    }
+
+    inner.innerHTML=html;
+
+    // Re-apply whisper labels and flowers
+    const db=document.getElementById('draftsBlock');
+    if(db){const lbl=db.querySelector('.reading-section-label');if(lbl){lbl.innerHTML='currently being written with '+pickFrom(txt_lists.amor)+' '+makeWhisperFlor();lbl.style.color='rgba(242,160,181,.9)';lbl.style.animation='whisperPulse 3.5s ease-in-out infinite';}}
+    const rb=document.getElementById('readyBlock');
+    if(rb){const lbl=rb.querySelector('.reading-section-label');if(lbl){lbl.innerHTML='soon to be released with '+pickFrom(txt_lists.amor)+' '+makeWhisperFlor();lbl.style.color='rgba(242,160,181,.9)';lbl.style.animation='whisperPulse 3.5s ease-in-out infinite';}}
+    document.querySelectorAll('.draft-flor').forEach(el=>{el.innerHTML=makeWhisperFlor()});
+
+    // Restart countdowns
+    if(typeof startCountdowns==='function')startCountdowns();
+
+    // Tag click handler
+    inner.querySelectorAll('.reading-tag').forEach(tag=>{
+      tag.addEventListener('click',()=>{
+        const t=tag.dataset.tag;
+        _activeTag=(_activeTag===t)?null:t;
+        renderReadingSection(window._contentIndex.items,_activeTag);
+      });
+    });
+  }
+
+  // Fetch content-index.json and render
+  fetch('content-index.json').then(r=>{
+    if(!r.ok)throw new Error('fetch failed');
+    return r.json();
+  }).then(data=>{
+    window._contentIndex=data;
+    renderReadingSection(data.items,null);
+  }).catch(()=>{
+    // file:// or fetch failure — baked fallback stays visible
+  });
+})();
 </script>
 
 <script>
@@ -1869,6 +2086,128 @@ document.querySelectorAll('.anno-card').forEach(card=>{
       wraps.forEach(w=>w.classList.remove('tapped'));
     }
   },{passive:true});
+})();
+</script>
+
+<script>
+// ── Wiki-link preview ──
+(function(){
+  const preview=document.getElementById('wikiPreview');
+  if(!preview)return;
+  const pTitle=preview.querySelector('.wp-title');
+  const pExcerpt=preview.querySelector('.wp-excerpt');
+  let hoverTimer=null;
+  let activeSlug=null;
+
+  function showPreview(slug,anchorEl){
+    if(!window._contentIndex)return;
+    const item=window._contentIndex.items.find(i=>i.slug===slug);
+    if(!item)return;
+    activeSlug=slug;
+    pTitle.textContent=item.title;
+    pExcerpt.textContent=item.excerpt||'';
+
+    // Position near the anchor element
+    const rect=anchorEl.getBoundingClientRect();
+    let top=rect.bottom+8;
+    let left=rect.left;
+    // Keep within viewport
+    if(left+320>window.innerWidth)left=window.innerWidth-330;
+    if(left<10)left=10;
+    if(top+120>window.innerHeight)top=rect.top-120;
+    preview.style.top=top+'px';
+    preview.style.left=left+'px';
+    preview.classList.add('show');
+  }
+
+  function hidePreview(){
+    if(hoverTimer){clearTimeout(hoverTimer);hoverTimer=null;}
+    preview.classList.remove('show');
+    activeSlug=null;
+  }
+
+  // Desktop: mouseenter with 300ms delay
+  document.addEventListener('mouseenter',e=>{
+    const link=e.target.closest('.wiki-link');
+    if(!link)return;
+    const slug=link.dataset.wiki;
+    if(!slug)return;
+    hoverTimer=setTimeout(()=>showPreview(slug,link),300);
+  },true);
+
+  document.addEventListener('mouseleave',e=>{
+    const link=e.target.closest('.wiki-link');
+    if(!link)return;
+    if(hoverTimer){clearTimeout(hoverTimer);hoverTimer=null;}
+    // Delay hide to allow moving to preview
+    setTimeout(()=>{
+      if(!preview.matches(':hover'))hidePreview();
+    },100);
+  },true);
+
+  preview.addEventListener('mouseleave',hidePreview);
+
+  // Mobile: touchstart shows preview
+  document.addEventListener('touchstart',e=>{
+    const link=e.target.closest('.wiki-link');
+    if(link){
+      e.preventDefault();
+      const slug=link.dataset.wiki;
+      if(slug)showPreview(slug,link);
+      return;
+    }
+    // Tap outside preview → dismiss
+    if(!e.target.closest('.wiki-preview'))hidePreview();
+  },{passive:false});
+
+  // Click on wiki-link or preview → navigate based on status
+  function navigateWiki(slug){
+    hidePreview();
+    if(!window._contentIndex)return;
+    const item=window._contentIndex.items.find(i=>i.slug===slug);
+    if(!item)return;
+
+    if(item.status==='draft'){
+      const overlay=document.getElementById('draftOverlay');
+      const title=document.getElementById('draftPopupTitle');
+      const line=document.getElementById('draftPopupLine');
+      if(title)title.textContent=item.title;
+      if(line&&typeof txt_lists!=='undefined'){
+        line.innerHTML='currently being written with '+pickFrom(txt_lists.amor)+'<br>'+pickFrom(txt_lists.paciencia)+' '+makeWhisperFlor();
+      }
+      if(overlay)overlay.classList.add('open');
+    } else if(item.status==='ready'){
+      const overlay=document.getElementById('readyOverlay');
+      const title=document.getElementById('readyPopupTitle');
+      const countdown=document.getElementById('readyPopupCountdown');
+      const paciencia=document.getElementById('readyPopupPaciencia');
+      if(title)title.textContent=item.title;
+      if(countdown&&item.publish_at){
+        countdown.setAttribute('data-target',item.publish_at);
+        if(typeof startCountdowns==='function')startCountdowns();
+      }
+      if(paciencia&&typeof txt_lists!=='undefined')paciencia.textContent=pickFrom(txt_lists.paciencia);
+      if(overlay)overlay.classList.add('open');
+    } else {
+      // Published — open essay
+      const essayLink=document.querySelector('[data-essay="'+slug+'"]');
+      if(essayLink)essayLink.click();
+      else if(typeof loadEssay==='function')loadEssay(slug);
+    }
+  }
+
+  document.addEventListener('click',e=>{
+    const link=e.target.closest('.wiki-link');
+    if(link){
+      e.preventDefault();
+      navigateWiki(link.dataset.wiki);
+      return;
+    }
+    // Click on preview itself
+    if(e.target.closest('.wiki-preview')&&activeSlug){
+      navigateWiki(activeSlug);
+    }
+  });
 })();
 </script>
 
@@ -3347,6 +3686,14 @@ requestAnimationFrame(tick);
       css+=`.reading-section-label{color:rgba(${r},${g},${b},.7)!important}`;
       css+=`.reading-link-list a{color:rgba(${r},${g},${b},.7);text-decoration-color:rgba(${r},${g},${b},.2)}`;
       css+=`.reading-link-list a:hover{color:rgb(${r},${g},${b});text-decoration-color:rgba(${r},${g},${b},.5)}`;
+      css+=`.reading-tag{color:rgba(${r},${g},${b},.5);border-color:rgba(${r},${g},${b},.15)}`;
+      css+=`.reading-tag:hover{color:rgba(${r},${g},${b},.8);border-color:rgba(${r},${g},${b},.35)}`;
+      css+=`.reading-tag.active{color:rgb(${r},${g},${b});border-color:rgba(${r},${g},${b},.5);background:rgba(${r},${g},${b},.08)}`;
+      css+=`.content-type-badge{color:rgba(${r},${g},${b},.35)}`;
+      css+=`.wiki-link{color:rgba(${r},${g},${b},.7);border-bottom-color:rgba(${r},${g},${b},.3)}`;
+      css+=`.wiki-link:hover{color:rgb(${r},${g},${b});border-bottom-color:rgba(${r},${g},${b},.6)}`;
+      css+=`.wiki-preview{border-color:rgba(${r},${g},${b},.2)}`;
+      css+=`.wiki-preview .wp-title{color:rgba(${r},${g},${b},.9)}`;
     }
     if(colors.secondary!==colorDefaults.secondary){
       const v=colors.secondary;

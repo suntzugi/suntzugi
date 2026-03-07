@@ -7,7 +7,7 @@
  *
  * Watches:
  *   content/cards/
- *   content/essays/
+ *   content/writing/
  *   assets/text/
  *   assets/audio/bgm/
  *   site.yaml
@@ -24,7 +24,7 @@ const syncScript = path.join(__dirname, 'sync.js');
 
 const watchPaths = [
   path.join(root, 'content/cards'),
-  path.join(root, 'content/essays'),
+  path.join(root, 'content/writing'),
   path.join(root, 'assets/text'),
   path.join(root, 'assets/audio/bgm'),
   path.join(root, 'site.yaml'),
