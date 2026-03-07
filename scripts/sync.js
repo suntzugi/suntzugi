@@ -34,6 +34,15 @@ function parseFrontmatter(content) {
       // Strip quotes
       if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'")))
         val = val.slice(1, -1);
+      // Inline YAML arrays: [a, b, c]
+      if (val.startsWith('[') && val.endsWith(']')) {
+        val = val.slice(1, -1).split(',').map(s => {
+          s = s.trim();
+          if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'")))
+            s = s.slice(1, -1);
+          return s;
+        }).filter(Boolean);
+      }
       meta[m[1]] = val;
     }
   }
@@ -202,8 +211,37 @@ for (const [slug, cardId] of Object.entries(cardFiles)) {
   }
 }
 
-// ── Scan content/essays/ ──
-const essaysDir = path.join(root, 'content/essays');
+// ── Helper: extract plain-text excerpt from markdown body ──
+function extractExcerpt(body, maxLen) {
+  const plain = body
+    .replace(/\[\^(\w+)\]:\s*.+/g, '')           // strip footnote defs
+    .replace(/\[\^(\w+)\]/g, '')                  // strip footnote refs
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')      // [text](url) → text
+    .replace(/\*\*(.+?)\*\*/g, '$1')              // **bold** → bold
+    .replace(/\*(.+?)\*/g, '$1')                  // *italic* → italic
+    .replace(/#+\s*/g, '')                         // strip headings
+    .replace(/\n\n+/g, ' ')                        // collapse paragraphs
+    .replace(/\n/g, ' ')                           // collapse newlines
+    .replace(/\s+/g, ' ')                          // normalize whitespace
+    .trim();
+  if (plain.length <= maxLen) return plain;
+  return plain.slice(0, maxLen).replace(/\s\S*$/, '') + '…';
+}
+
+// ── Helper: extract wiki-links [[slug]] or [[slug|text]] from body ──
+function extractLinks(body) {
+  const re = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
+  const links = [];
+  let m;
+  while ((m = re.exec(body)) !== null) {
+    const slug = m[1].trim();
+    if (!links.includes(slug)) links.push(slug);
+  }
+  return links;
+}
+
+// ── Scan content/writing/ ──
+const essaysDir = path.join(root, 'content/writing');
 const essays = [];
 
 if (fs.existsSync(essaysDir)) {
@@ -211,19 +249,46 @@ if (fs.existsSync(essaysDir)) {
   for (const f of files) {
     const slug = path.basename(f, '.md');
     const raw = fs.readFileSync(path.join(essaysDir, f), 'utf8');
-    const { meta } = parseFrontmatter(raw);
+    const { meta, body } = parseFrontmatter(raw);
 
     const title = meta.title || slug;
     const status = meta.status || 'published';
     const publishAt = meta.publish_at || '';
     const publishedAt = meta.published_at || '';
+    const type = meta.type || 'essay';
+    const tags = Array.isArray(meta.tags) ? meta.tags : [];
+    const date = meta.date || '';
+    const collection = meta.collection || '';
+    const excerpt = extractExcerpt(body, 200);
+    const links = extractLinks(body);
 
-    essays.push({ slug, title, status, publishAt, publishedAt });
+    essays.push({ slug, title, status, publishAt, publishedAt, type, tags, date, collection, excerpt, links });
   }
 }
 
 console.log('Found ' + essays.length + ' essay(s):');
 essays.forEach(e => console.log('  ' + e.status + ': ' + e.title + ' (' + e.slug + ')'));
+
+// ── Generate content-index.json ──
+const contentIndex = {
+  generated: new Date().toISOString(),
+  items: essays.map(e => ({
+    slug: e.slug,
+    title: e.title,
+    type: e.type,
+    status: e.status,
+    date: e.date,
+    tags: e.tags,
+    collection: e.collection,
+    publish_at: e.publishAt,
+    published_at: e.publishedAt,
+    excerpt: e.excerpt,
+    links: e.links,
+  })),
+};
+const indexJsonPath = path.join(root, 'content-index.json');
+fs.writeFileSync(indexJsonPath, JSON.stringify(contentIndex, null, 2) + '\n', 'utf8');
+console.log('  wrote: content-index.json (' + contentIndex.items.length + ' items)');
 
 const drafts = essays.filter(e => e.status === 'draft');
 const ready = essays.filter(e => e.status === 'ready');

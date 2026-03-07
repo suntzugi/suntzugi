@@ -2,7 +2,7 @@
 /**
  * auto-publish.js
  *
- * Scans content/essays/ for files with status: ready and publish_at in the past.
+ * Scans content/writing/ for files with status: ready and publish_at in the past.
  * Updates frontmatter in-place: status → published, adds published_at timestamp.
  * No file moving, no content.md.
  *
@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const essaysDir = path.join(root, 'content/essays');
+const essaysDir = path.join(root, 'content/writing');
 const now = new Date();
 let published = 0;
 
