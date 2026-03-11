@@ -359,8 +359,8 @@ if (published.length) {
     const pdfPath = path.join(root, p.slug + '.pdf');
     let li;
     if (fs.existsSync(pdfPath)) {
-      li = '        <li><a href="' + p.slug + '.pdf" target="_blank">' + p.title + '</a>';
-      li += ' <span class="content-type-badge">.pdf</span>';
+      li = '        <li><a href="' + p.slug + '.pdf" target="_blank">' + p.title + '.pdf</a>';
+      li += ' <span class="content-type-badge">' + p.type + '</span>';
       if (p.date) li += ' <span class="essay-date">' + p.date + '</span>';
     } else {
       li = '        <li><a href="#" data-essay="' + p.slug + '">' + p.title + '</a>';
