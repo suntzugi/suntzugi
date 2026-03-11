@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-11T04:37:13.875Z",
+  "generated": "2026-03-11T04:38:41.750Z",
   "items": [
     {
       "slug": "my-time-has-come",
@@ -23,13 +23,13 @@
       "title": "Pitch Jam Neodore",
       "type": "pitch",
       "status": "published",
-      "date": "2026-03-11",
+      "date": "2026-03-10",
       "tags": [
         "neodore"
       ],
       "collection": "",
       "publish_at": "",
-      "published_at": "2026-03-11T00:00:00+01:00",
+      "published_at": "2026-03-10",
       "excerpt": "",
       "links": []
     }

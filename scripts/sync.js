@@ -361,6 +361,7 @@ if (published.length) {
     if (fs.existsSync(pdfPath)) {
       li = '        <li><a href="' + p.slug + '.pdf" target="_blank">' + p.title + '</a>';
       li += ' <span class="content-type-badge">.pdf</span>';
+      if (p.date) li += ' <span class="essay-date">' + p.date + '</span>';
     } else {
       li = '        <li><a href="#" data-essay="' + p.slug + '">' + p.title + '</a>';
       if (p.publishedAt) li += ' <span class="essay-date">' + p.publishedAt + '</span>';
