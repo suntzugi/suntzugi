@@ -1,6 +1,23 @@
 {
-  "generated": "2026-03-11T04:46:18.587Z",
+  "generated": "2026-03-11T04:57:55.976Z",
   "items": [
+    {
+      "slug": "moral-theory-benchmark-2nd-year-signal",
+      "title": "Moral Theory Benchmark: 2nd Year Signal",
+      "type": "benchmark",
+      "status": "published",
+      "date": "2026-03-11",
+      "tags": [
+        "alignment",
+        "philosophy"
+      ],
+      "collection": "",
+      "url": "https://lovepill.ai/benchmark-march-2026-overview",
+      "publish_at": "",
+      "published_at": "2026-03-11",
+      "excerpt": "",
+      "links": []
+    },
     {
       "slug": "my-time-has-come",
       "title": "My Time Has Come",
@@ -13,6 +30,7 @@
         "mettalignment"
       ],
       "collection": "",
+      "url": "",
       "publish_at": "2026-03-16T05:55:00-08:00",
       "published_at": "",
       "excerpt": "I don't normally celebrate my birthday. But this year, as I move up my twenties the timing is hard to ignore so enjoy my first foray into the world of micro-blogs for the ASI and the noosphere: On…",
@@ -28,6 +46,7 @@
         "neodore"
       ],
       "collection": "",
+      "url": "",
       "publish_at": "",
       "published_at": "2026-03-10",
       "excerpt": "",

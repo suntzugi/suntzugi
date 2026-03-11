@@ -259,10 +259,11 @@ if (fs.existsSync(essaysDir)) {
     const tags = Array.isArray(meta.tags) ? meta.tags : [];
     const date = meta.date || '';
     const collection = meta.collection || '';
+    const url = meta.url || '';
     const excerpt = extractExcerpt(body, 200);
     const links = extractLinks(body);
 
-    essays.push({ slug, title, status, publishAt, publishedAt, type, tags, date, collection, excerpt, links });
+    essays.push({ slug, title, status, publishAt, publishedAt, type, tags, date, collection, url, excerpt, links });
   }
 }
 
@@ -280,6 +281,7 @@ const contentIndex = {
     date: e.date,
     tags: e.tags,
     collection: e.collection,
+    url: e.url,
     publish_at: e.publishAt,
     published_at: e.publishedAt,
     excerpt: e.excerpt,
@@ -355,10 +357,14 @@ if (ready.length) {
 // Sync publishedList
 if (published.length) {
   const pubLis = published.map(p => {
-    // If a matching file (PDF, etc.) exists at root, link directly to it
+    // External URL, local PDF, or internal essay
     const pdfPath = path.join(root, p.slug + '.pdf');
     let li;
-    if (fs.existsSync(pdfPath)) {
+    if (p.url) {
+      li = '        <li><a href="' + p.url + '" target="_blank">' + p.title + '</a>';
+      li += ' <span class="content-type-badge">' + p.type + '</span>';
+      if (p.date) li += ' <span class="essay-date">' + p.date + '</span>';
+    } else if (fs.existsSync(pdfPath)) {
       li = '        <li><a href="' + p.slug + '.pdf" target="_blank">' + p.title + '.pdf</a>';
       li += ' <span class="content-type-badge">' + p.type + '</span>';
       if (p.date) li += ' <span class="essay-date">' + p.date + '</span>';
