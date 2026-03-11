@@ -360,10 +360,11 @@ if (published.length) {
     let li;
     if (fs.existsSync(pdfPath)) {
       li = '        <li><a href="' + p.slug + '.pdf" target="_blank">' + p.title + '</a>';
+      li += ' <span class="content-type-badge">.pdf</span>';
     } else {
       li = '        <li><a href="#" data-essay="' + p.slug + '">' + p.title + '</a>';
+      if (p.publishedAt) li += ' <span class="essay-date">' + p.publishedAt + '</span>';
     }
-    if (p.publishedAt) li += ' <span class="essay-date">' + p.publishedAt + '</span>';
     li += '</li>';
     return li;
   }).join('\n');

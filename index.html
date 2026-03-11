@@ -1263,7 +1263,7 @@
     <div class="reading-block" id="publishedBlock">
       <div class="reading-section-label">published</div>
       <ul class="reading-link-list" id="publishedList">
-        <li><a href="pitch-jam-sun.pdf" target="_blank">Pitch Jam Neodore</a> <span class="essay-date">2026-03-11T00:00:00+01:00</span></li>
+        <li><a href="pitch-jam-sun.pdf" target="_blank">Pitch Jam Neodore</a> <span class="content-type-badge">.pdf</span></li>
       </ul>
     </div>
     <div class="reading-block" id="readyBlock" style="display:none">
@@ -1291,7 +1291,7 @@
   </div>
 </section>
 <footer class="site-footer" id="siteFooter">
-  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 11/03/2026 · 05:22 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
+  <div class="site-footer-text"><span class="tooltip-wrap"><span class="tooltip-text" id="lastUpdated">last updated: 11/03/2026 · 05:37 Paris</span>This site</span> was first made and published with <span class="tooltip-wrap" id="tooltipWrap"><span class="tooltip-text">Love</span>positive sum qualia</span> on <span class="tooltip-wrap" id="tooltipDate"><span class="tooltip-text">Nac&iacute; el veinte de Febrero</span>20/02/26</span>.</div>
 </footer>
 <div class="scroll-hint-bottom"></div>
 
@@ -1628,7 +1628,7 @@ function parseMd(md){
 function formatPubTime(iso){
   const d=new Date(iso);
   var h=d.getHours(),m=d.getMinutes(),ampm=h>=12?'pm':'am';
-  h=h%12;if(h===0)h=12;
+  h=h%12;
   return d.getDate()+'/'+( d.getMonth()+1)+'/'+d.getFullYear()+' · '+h+':'+String(m).padStart(2,'0')+' '+ampm;
 }
 
@@ -1688,11 +1688,12 @@ async function loadEssay(slug){
         // Non-essay types with a matching file at root link directly
         if(p.type!=='essay'){
           html+='<li><a href="'+p.slug+'.pdf" target="_blank">'+p.title+'</a>';
+          html+=' <span class="content-type-badge">.pdf</span>';
         } else {
           html+='<li><a href="#" data-essay="'+p.slug+'">'+p.title+'</a>';
+          if(hasMultipleTypes)html+=' <span class="content-type-badge">'+p.type+'</span>';
+          if(p.published_at)html+=' <span class="essay-date">'+formatPubTime(p.published_at)+'</span>';
         }
-        if(hasMultipleTypes)html+=' <span class="content-type-badge">'+p.type+'</span>';
-        if(p.published_at)html+=' <span class="essay-date">'+formatPubTime(p.published_at)+'</span>';
         html+='</li>';
       });
       html+='</ul></div>';
