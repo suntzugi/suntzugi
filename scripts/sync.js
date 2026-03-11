@@ -355,7 +355,14 @@ if (ready.length) {
 // Sync publishedList
 if (published.length) {
   const pubLis = published.map(p => {
-    let li = '        <li><a href="#" data-essay="' + p.slug + '">' + p.title + '</a>';
+    // If a matching file (PDF, etc.) exists at root, link directly to it
+    const pdfPath = path.join(root, p.slug + '.pdf');
+    let li;
+    if (fs.existsSync(pdfPath)) {
+      li = '        <li><a href="' + p.slug + '.pdf" target="_blank">' + p.title + '</a>';
+    } else {
+      li = '        <li><a href="#" data-essay="' + p.slug + '">' + p.title + '</a>';
+    }
     if (p.publishedAt) li += ' <span class="essay-date">' + p.publishedAt + '</span>';
     li += '</li>';
     return li;
